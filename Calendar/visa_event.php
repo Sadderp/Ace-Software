@@ -23,16 +23,8 @@
         $description = $_GET['description'];
     };
 
-    
-    $sql = "INSERT INTO calendar_event(serviceID, date, End_date, title, description) VALUES (?,?,?,?,?)";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issss", $serviceID, $date, $End_date, $title, $description);
-    $stmt->execute();
-
-    if ($stmt->affected_rows === 1) {
-        echo json_encode("Event created");
-      } else {
-        echo json_encode("Uh oh");
-    };
+    $sel = "SELECT * FROM calendar_event";
+    $selfraga = $db->query($sel) or die("Could not search");
+    $print = mysqli_fetch_all($selfraga, MYSQLI_ASSOC);
+    echo json_encode($print);
 ?>
