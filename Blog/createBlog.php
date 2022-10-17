@@ -1,19 +1,17 @@
 <?php
 require_once('../db.php');
 
-$post = $_GET['title'];
-$sql = "INSERT INTO service(title) VALUES ('$post')";
-$result = $conn->query($sql);
 
-if($result){
-    $select = "SELECT * FROM service WHERE title = 1";
-    $blog = '{"$select":1}';
-    $JSON = json_decode($blog, true);
+$sql = "INSERT INTO service(title,type) VALUES (?,?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ss",$title,$type); 
 
-    foreach($JSON as $value => $string){
-        echo $value."<br>";
-    }
-}
+$title = $_GET['title'];
+$type = $_GET['type'];
+$stmt->execute();
 
+echo "New record created successfully";
+
+$stmt->close();
 ?>
 
