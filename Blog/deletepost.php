@@ -2,12 +2,11 @@
 require_once('../db.php');
 
 
-$sql = "DELETE FROM service WHERE title = ? AND type = ?)";
+$sql = "DELETE FROM service WHERE ID = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ss",$title,$type); 
+$stmt->bind_param("s",$id); 
 
-$title = $_GET['title'];
-$type = $_GET['type'];
+$id = $_GET['ID'];
 $stmt->execute();
 
 echo "New blog deleted successfully";
