@@ -12,22 +12,28 @@ require_once "./db.php";
 //==================================================
 // Looks what you have filled in
 //==================================================
-if(!empty($_GET['type']) && !empty($_GET['title'])) {
-    $type = $_GET['type'];
-    $title = "%".$_GET['title']."%";
+if(!empty($_GET['name']) && !empty($_GET['password'])) {
+    $name = $_GET['name'];
+    $password = $_GET['password'];
 
-    $stmt = $conn->prepare("SELECT * FROM service WHERE type=? AND title LIKE ?");
-    $stmt->bind_param("ss", $type, $title);
 
-    $stmt->execute();
-}
-else if(!empty($_GET['type'])) {
-    $type = $_GET['type'];
+    $sql = "SELECT id,username,password FROM user";
+    $result = $conn->query($sql);
 
-    $stmt = $conn->prepare("SELECT * FROM service WHERE type=?");
-    $stmt->bind_param("s", $type);
-
-    $stmt->execute();
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            if(password_verify($password, $row['password']) && $name == $row['username']) {
+                if($row['id'] == 1) {
+                    echo "admin";
+                } else {
+                    echo "normal";
+                }
+            }
+        }
+    } 
+    else {
+        echo "0 results";
+    }
 }
 
 
