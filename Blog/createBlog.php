@@ -10,7 +10,7 @@ $title = $_GET['title'];
 $type = $_GET['type'];
 $stmt->execute();
 
-echo "New record created successfully";
+echo "New blog created successfully";
 
 $stmt->close();
 ?>
