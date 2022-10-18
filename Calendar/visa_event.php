@@ -3,28 +3,26 @@
 
     $db = $conn;
 
-    if(!empty($_GET['serviceID'])){
-        $serviceID = $_GET['serviceID'];
-    };
-
-    if(!empty($_GET['date'])){
-        $date = $_GET['date'];
-    };
-
-    if(!empty($_GET['End_date'])){
-        $End_date = $_GET['End_date'];
-    };
-
     if(!empty($_GET['title'])){
         $title = $_GET['title'];
-    };
+    }
 
-    if(!empty($_GET['description'])){
-        $description = $_GET['description'];
-    };
+    $sel = "SELECT * FROM calendar_event WHERE title=?";
 
-    $sel = "SELECT * FROM calendar_event";
-    $selfraga = $db->query($sel) or die("Could not search");
-    $print = mysqli_fetch_all($selfraga, MYSQLI_ASSOC);
-    echo json_encode($print);
+    $stmt = $conn->prepare($sel);
+    $stmt->bind_param("s", $title);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($title = '*'){
+        $sel = "SELECT * FROM calendar_event";
+    }
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $search = array("ID "=>$row["ID"],"Title "=>$row["title"],"date "=>$row["date"], "End_date "=>$row["End_date"], "Title "=>$row["title"], "description "=>$row["description"]);
+            echo json_encode($search);
+            }
+    } else {
+        echo json_encode("0 results");
+    }
 ?>
