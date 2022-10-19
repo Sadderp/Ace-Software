@@ -1,6 +1,11 @@
 <?php
 require_once('../db.php');
 
+
+
+//==================================================
+// 
+//==================================================
 if (!empty($_GET['HTML_element']) && !empty($_GET['contents']) && !empty($_GET['conID'])){
     $sql = "UPDATE content SET HTML_element = ?, contents = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
@@ -16,6 +21,9 @@ if (!empty($_GET['HTML_element']) && !empty($_GET['contents']) && !empty($_GET['
 
 
 
+//==================================================
+// 
+//==================================================
 if (!empty($_GET['title']) && !empty($_GET['blogID'])){
     $sql = "UPDATE blog_post SET title = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
@@ -30,6 +38,9 @@ if (!empty($_GET['title']) && !empty($_GET['blogID'])){
 
 
 
+//==================================================
+// 
+//==================================================
 if (!empty($_GET['Title']) && !empty($_GET['servID'])){
     $sql = "UPDATE service SET title = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
@@ -44,6 +55,9 @@ if (!empty($_GET['Title']) && !empty($_GET['servID'])){
 
 
 
+//==================================================
+// 
+//==================================================
 if (!empty($_GET['img']) && !empty($_GET['imgID'])){
     $sql = "UPDATE img SET img_url = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
