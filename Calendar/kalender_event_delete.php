@@ -14,5 +14,5 @@
     $stmt->execute();
     $result = $stmt->get_result();
 
-    echo ("Borta");
+    echo json_encode("Borta");
 ?>
