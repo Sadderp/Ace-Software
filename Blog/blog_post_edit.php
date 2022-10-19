@@ -42,13 +42,14 @@ if (!empty($_GET['title']) && !empty($_GET['blogID'])){
 // 
 //==================================================
 if (!empty($_GET['Title']) && !empty($_GET['servID'])){
-    $sql = "UPDATE service SET title = ? WHERE ID = ?";
+    $sql = "UPDATE service SET title = ? WHERE ID = ? AND type = 'blog'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$title,$id); 
 
     $title = $_GET['Title'];
     $id = $_GET['servID'];
     $stmt->execute();
+    $result = $stmt->get_result();
 
     echo json_encode("Old blog edited successfully");
 }
