@@ -17,37 +17,29 @@ if(!empty($_GET['name']) && !empty($_GET['password'])) {
     $password = $_GET['password'];
 
 
-    $sql = "SELECT id,username,password FROM user";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT admin,ban,username,password FROM user WHERE BINARY username=?");
+    $stmt->bind_param("s", $name);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            if(password_verify($password, $row['password']) && $name == $row['username']) {
-                if($row['id'] == 1) {
-                    echo "admin";
+            if(password_verify($password, $row['password'])) {
+                if($row['admin'] == 1) {
+                    echo 'hej';// admin
+                } else if($row['ban'] == 0) {
+                    echo 'hej2';// normal user
                 } else {
-                    echo "normal";
+                    echo 'hej3';// is banned and is not an admin
                 }
+            } else {
+                echo 'hej4';// not a user
             }
         }
     } 
     else {
-        echo "0 results";
+        echo 'hej5';// not a user
     }
-}
-
-
-
-//==================================================
-// Shows the result
-//==================================================
-if(!empty($_GET['type'])) {
-  $result = $stmt->get_result();
-
-  while($row = $result->fetch_assoc()) {
-    $search = array("ID"=>$row["ID"],"Title"=>$row["title"],"Type"=>$row["type"]);
-    echo json_encode($search);
-  }
 }
 
 
