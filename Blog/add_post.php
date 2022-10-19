@@ -1,8 +1,11 @@
 <?php
 require_once('../db.php');
 
-    // blog_post tabell
 
+
+//==================================================
+// blog_post tabell
+//==================================================
     if (!empty($_GET['title']) && (!empty($_GET['serviceID'])) && (!empty($_GET['userID'])))  {
         $title = $_GET['title'];
         $serviceID = $_GET['serviceID'];
@@ -18,8 +21,11 @@ require_once('../db.php');
         echo json_encode($post);
     }
 
-    // content tabell
 
+
+//==================================================
+// content tabell
+//==================================================
     if (!empty($_GET['postID']) && (!empty($_GET['contents'])) && (!empty($_GET['HTMLelement'])) && (!empty($_GET['imgID'])))  {
         $postID = $_GET['postID'];
         $HTMLelement = $_GET['HTMLelement'];
@@ -36,8 +42,11 @@ require_once('../db.php');
         echo json_encode($post);
     }
 
-    // img tabell
 
+
+//==================================================
+// img tabell
+//==================================================
     if (!empty($_GET['contentID']) && (!empty($_GET['img_url']))) {
         $contentID = $_GET['contentID'];
         $img_url = $_GET['img_url'];
