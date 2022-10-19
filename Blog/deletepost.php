@@ -9,7 +9,7 @@ $stmt->bind_param("s",$id);
 $id = $_GET['ID'];
 $stmt->execute();
 
-echo "New blog deleted successfully";
+echo json_encode("New blog deleted successfully");
 
 $stmt->close();
 ?>

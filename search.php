@@ -1,6 +1,17 @@
 <?php
-require_once "../db.php";
 
+
+
+//==================================================
+// Calls the databas
+//==================================================
+require_once "./db.php";
+
+
+
+//==================================================
+// Looks what you have filled in
+//==================================================
 if(!empty($_GET['type']) && !empty($_GET['title'])) {
     $type = $_GET['type'];
     $title = "%".$_GET['title']."%";
@@ -19,15 +30,20 @@ else if(!empty($_GET['type'])) {
     $stmt->execute();
 }
 
-$result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-  // output data of each row
+
+//==================================================
+// Shows the result
+//==================================================
+if(!empty($_GET['type'])) {
+  $result = $stmt->get_result();
+
   while($row = $result->fetch_assoc()) {
-    $search = array("ID: "=>$row["ID"],"Title: "=>$row["title"],"Type: "=>$row["type"]);
+    $search = array("ID"=>$row["ID"],"Title"=>$row["title"],"Type"=>$row["type"]);
     echo json_encode($search);
   }
-} else {
-  echo "0 results";
 }
+
+
+
 ?>
