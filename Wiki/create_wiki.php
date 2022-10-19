@@ -24,7 +24,7 @@
     $wiki_name = $_GET['wiki_name'];
     $type_wiki = 'wiki';
 
-    // If statement to add the wiki to the database and show name after it gets added
+    //If statement to add the wiki to the database and show name after it gets added
     if(!empty($_GET['wiki_name'])) {
         $stmt->execute();
 
