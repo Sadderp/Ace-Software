@@ -1,14 +1,14 @@
 <?php
 require_once('../db.php');
 
-if (!empty($_GET('HTML_element')) && !empty($_GET('contents')) && !empty($_GET('ID'))){
-    $sql = "UPDATE content SET HTML_element = ? AND contents = ? WHERE ID = ?";
+if (!empty($_GET['HTML_element']) && !empty($_GET['contents']) && !empty($_GET['conID'])){
+    $sql = "UPDATE content SET HTML_element = ?, contents = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sss",$html,$content,$id); 
 
     $html = $_GET['HTML_element'];
     $content = $_GET['contents'];
-    $id = $_GET['ID'];
+    $id = $_GET['conID'];
     $stmt->execute();
 
     echo json_encode("Old blog edited successfully");
@@ -16,13 +16,13 @@ if (!empty($_GET('HTML_element')) && !empty($_GET('contents')) && !empty($_GET('
 
 
 
-if (!empty($_GET('title'))){
+if (!empty($_GET['title']) && !empty($_GET['blogID'])){
     $sql = "UPDATE blog_post SET title = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$title,$id); 
 
     $title = $_GET['title'];
-    $id = $_GET['ID'];
+    $id = $_GET['blogID'];
     $stmt->execute();
 
     echo json_encode("Old blog edited successfully");
@@ -30,13 +30,13 @@ if (!empty($_GET('title'))){
 
 
 
-if (!empty($_GET('Title'))){
+if (!empty($_GET['Title']) && !empty($_GET['servID'])){
     $sql = "UPDATE service SET title = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$title,$id); 
 
     $title = $_GET['Title'];
-    $id = $_GET['ID'];
+    $id = $_GET['servID'];
     $stmt->execute();
 
     echo json_encode("Old blog edited successfully");
@@ -44,13 +44,13 @@ if (!empty($_GET('Title'))){
 
 
 
-if (!empty($_GET('img'))){
+if (!empty($_GET['img']) && !empty($_GET['imgID'])){
     $sql = "UPDATE img SET img_url = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss",$title,$id); 
+    $stmt->bind_param("ss",$img,$id); 
 
     $img = $_GET['img'];
-    $id = $_GET['ID'];
+    $id = $_GET['imgID'];
     $stmt->execute();
 
     echo json_encode("Old blog edited successfully");
