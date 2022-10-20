@@ -20,7 +20,7 @@
         if ($selfraga->num_rows > 0) {
             while($row = $selfraga->fetch_assoc()) {
                 $search = array("ID "=>$row["ID"], "date "=>$row["date"], "end_date "=>$row["end_date"], "Title "=>$row["title"], "description "=>$row["description"]);
-                echo $search;
+                echo json_encode ($search);
                 }
         }
     }
