@@ -3,7 +3,7 @@ require_once('../db.php');
 
     if (!empty($_GET['blog'])){
         $blog = $_GET['blog'];
-        $sql = "SELECT * FROM service, blog_post, content, img WHERE ID = $blog";
+        $sql = "SELECT * FROM service, blog_post, content, img WHERE serviceID = $blog";
         $result = mysqli_query($conn, $sql);
         if (mysqli_num_rows($result) > 0) {
                 
