@@ -7,11 +7,10 @@ session_start();
 // 
 //==================================================
 if (!empty($_GET['contents']) && !empty($_GET['conID'])){
-    $sql = "UPDATE content SET HTML_element = ?, contents = ? WHERE ID = ?";
+    $sql = "UPDATE content SET contents = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss",$html,$content,$id); 
+    $stmt->bind_param("ss",$content,$id); 
 
-    $html = $_GET['HTML_element'];
     $content = $_GET['contents'];
     $id = $_GET['conID'];
     $stmt->execute();
