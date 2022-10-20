@@ -13,7 +13,6 @@
     $stmt->execute();
     $result = $stmt->get_result();
     
-    // || $_GET['end_date']
     if ($_GET['evdate'] == NULL ){
         $sel = "SELECT * FROM calendar_event";
         $selfraga = $db->query($sel);
