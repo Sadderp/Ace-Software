@@ -1,16 +1,25 @@
 <?php
 require_once('../db.php');
+$version = "0.0.1";
+$ok = "OK";
+$error = "Error";
 
 
-$sql = "INSERT INTO service(title,type) VALUES (?,'blog')";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s",$title); 
 
-$title = $_GET['title'];
-$stmt->execute();
+if (!empty($_GET['title'])){
+    $sql = "INSERT INTO service(title,type) VALUES (?,'blog')";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s",$title); 
 
-echo json_encode("New blog created successfully");
+    $title = $_GET['title'];
+    $stmt->execute();
 
-$stmt->close();
+    $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Blog created successfully'];
+    echo json_encode($json_array);
+}
+else{
+    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'The URL is empty!'];
+    echo json_encode($json_array);
+}
 ?>
 
