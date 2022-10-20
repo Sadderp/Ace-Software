@@ -1,51 +1,34 @@
 <?php
 require_once('../db.php');
-
+$version = "0.0.1";
 
 
 //==================================================
-// blog_post tabell
+// content table
 //==================================================
-    if (!empty($_GET['title']) && (!empty($_GET['serviceID'])) && (!empty($_GET['userID'])))  {
-        $title = $_GET['title'];
+    if ((!empty($_GET['contents'])) && (!empty($_GET['imgID'])) && (!empty($_GET['serviceID'])) && (!empty($_GET['userID'])))  {    //checks if the if is empty if so "dies". 
+                                                                                                                                    
+        $contents = $_GET['contents'];
+        $imgID = $_GET['imgID'];
         $serviceID = $_GET['serviceID'];
         $userID = $_GET['userID'];
 
-        $stmt = $conn->prepare("INSERT INTO blog_post (serviceID, userID, title) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $serviceID, $userID, $title);
-        $result = $stmt->get_result();
-        $stmt->execute();
-        echo $result;
+        $stmt = $conn->prepare("INSERT INTO content (contents, imgID, serviceID, userID) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("siii",$contents, $imgID, $serviceID, $userID);
+        $stmt->execute(); 
         
-        $post = array("serviceID"=>$serviceID, "userID"=>$userID, "title"=>$title);
-        echo json_encode($post);
+        $data = "contents:$contents imgID:$imgID serviceID:$serviceID userID:$userID";
+        $json_result = ["Version: "=>$version, "Status: "=>"OK", "Data: "=>$data];
+        echo json_encode($json_result);
+    }
+    else {
+        $data = "";
+        $json_result = ["Version: "=>$version, "Status: "=>"error", "Data: "=>$data];
+        echo json_encode($json_result);
     }
 
-
-
 //==================================================
-// content tabell
-//==================================================
-    if (!empty($_GET['postID']) && (!empty($_GET['contents'])) && (!empty($_GET['HTMLelement'])) && (!empty($_GET['imgID'])))  {
-        $postID = $_GET['postID'];
-        $HTMLelement = $_GET['HTMLelement'];
-        $contents = $_GET['contents'];
-        $imgID = $_GET['imgID'];
-
-        $stmt = $conn->prepare("INSERT INTO content (postID, HTML_element, contents, imgID) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("issi", $postID, $HTMLelement, $contents, $imgID);
-        $result = $stmt->get_result();
-        $stmt->execute();
-        echo $result;
-        
-        $post = array("postID"=>$postID, "HTMLelement"=>$HTMLelement, "contents"=>$contents, "imgID"=>$imgID);
-        echo json_encode($post);
-    }
-
-
-
-//==================================================
-// img tabell
+// img table
 //==================================================
     if (!empty($_GET['contentID']) && (!empty($_GET['img_url']))) {
         $contentID = $_GET['contentID'];
@@ -53,12 +36,16 @@ require_once('../db.php');
 
         $stmt = $conn->prepare("INSERT INTO img (contentID, img_url) VALUES (?, ?)");
         $stmt->bind_param("is", $contentID, $img_url);
-        $result = $stmt->get_result();
         $stmt->execute();
-        echo $result;
 
-        $post = array("contentID"=>$contentID, "img_url"=>$img_url);
-        echo json_encode($post);
+        $data = "contentID:$contentID img url:$img_url";
+        $json_result = ["Version: "=>$version, "Status: "=>"OK", "Data: "=>$data];
+        echo json_encode($json_result);
+    }
+    else {
+        $data = ""; // If the if fails, it will make $data empty which will prevent it from printing
+        $json_result = ["Version: "=>$version, "Status: "=>"Error", "Data: "=>$data];
+        echo json_encode($json_result); // prints the json encode and will display the version, status and data.  
     }
 
 ?>
