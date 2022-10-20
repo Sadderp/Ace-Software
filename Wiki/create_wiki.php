@@ -24,18 +24,23 @@
     $wiki_name = $_GET['wiki_name'];
     $type_wiki = 'wiki';
 
+    $json_ok = 'OK';
+    $json_err = 'Error';
+
     //If statement to add the wiki to the database and show name after it gets added
     if(!empty($_GET['wiki_name'])) {
         $stmt->execute();
 
         if ($stmt->affected_rows == 1) {
-            echo json_encode($wiki_name);        
+            echo "Titel: ", json_encode($wiki_name); 
+            echo "<br>";
+            echo "Typ: ", json_encode($json_ok);       
         } else {
-            echo "Error: " . $stmt . "<br>" . $conn->error;
+            echo "Typ: ", json_encode($json_err . $stmt . $conn->error);
         }
 
-        $user = "root";
-        $pass = "root";
+        $user = "spookiebruh";
+        $pass = "hurrdurr1";
 
         $stmt3->execute();
         $resultuid = $stmt3->get_result();
