@@ -34,7 +34,7 @@ if(!empty($_GET['display_name']) && !empty($_GET['name']) && !empty($_GET['passw
         else if($list[count($list)-1] == $x ) {
             if($password === $cpassword) {
                 $stmt = $conn->prepare("INSERT INTO user(displayname, username, password) VALUE(?, ?, ?)");
-                $stmt->bind_param("sss", $display_name, $name, $password);
+                $stmt->bind_param("sss", $display_name, $name, password_hash($password, PASSWORD_DEFAULT));
                 $stmt->execute();
                 $result = $stmt->get_result();
                 
