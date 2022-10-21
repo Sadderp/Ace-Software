@@ -4,7 +4,7 @@ $version = "0.0.1"; // Variable for version (hardcoded)
 
     if (!empty($_GET['blog'])){   
         $blog = $_GET['blog'];    // retrieves data from url and shows which blog you selected.
-
+        
         $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID INNER JOIN img ON content.imgID = img.ID WHERE content.serviceID = ?");
         $stmt->bind_param("i", $blog);
         $stmt->execute();
