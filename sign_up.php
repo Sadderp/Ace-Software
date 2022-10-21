@@ -8,9 +8,7 @@
 require_once "./db.php";
 $version = "0.0.1";
 
-$password = "root";
-$r = password_hash($password, PASSWORD_DEFAULT);
-echo $r;
+
 
 //==================================================
 // Looks what you have filled in
