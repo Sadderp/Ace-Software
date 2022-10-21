@@ -1,57 +1,63 @@
 <?php
-    // Creates connection
     require_once("../db.php");
-
-    // Gets user data
-   
+    $version = "0.0.1";
     
-
-    // Prepares statement
+    //==============================
+    //    Prepared statements
+    //==============================
     $stmt = $conn->prepare("INSERT INTO service (title, type) VALUES (?, ?)");
     $stmt->bind_param("ss", $wiki_name, $type_wiki); 
+
+    $stmt2 = $conn->prepare("SELECT ID FROM user WHERE username = ? AND password = ?");
+    $stmt2->bind_param("ss", $user, $pass);  
     
-    $stmt2 = $conn->prepare("INSERT INTO end_user (userID, serviceID) VALUES (?, ?)");
-    $stmt2->bind_param("ii", $userid, $wikiid); 
-    
-    $stmt3 = $conn->prepare("SELECT ID FROM user WHERE username = ? AND password = ?");
-    $stmt3->bind_param("ss", $user, $pass);  
+    $stmt3 = $conn->prepare("SELECT ID FROM service WHERE title = ?");
+    $stmt3->bind_param("s", $wiki_name);  
 
-    $stmt4 = $conn->prepare("SELECT ID FROM service WHERE title = ?");
-    $stmt4->bind_param("s", $wiki_name);  
+    $stmt4 = $conn->prepare("INSERT INTO end_user (userID, serviceID) VALUES (?, ?)");
 
 
-    // Creates wiki variables
+    //==============================
+    //    Creating variables
+    //==============================
     $wiki_name = $_GET['wiki_name'];
     $type_wiki = 'wiki';
 
-    //If statement to add the wiki to the database and show name after it gets added
+    //==============================
+    // Creates wiki in service table
+    //==============================
     if(!empty($_GET['wiki_name'])) {
         $stmt->execute();
 
         if ($stmt->affected_rows == 1) {
-            echo json_encode($wiki_name);        
+            $status = "OK";
+            $json_result = ["Version: "=>$version, "Status: "=>$status, "Data: "=>$wiki_name];
+            echo json_encode($json_result);        
         } else {
             echo "Error: " . $stmt . "<br>" . $conn->error;
         }
 
-        $user = "root";
-        $pass = "root";
+        $user = "spookiebruh";
+        $pass = "hurrdurr1";
 
-        $stmt3->execute();
-        $resultuid = $stmt3->get_result();
+        $stmt2->execute();
+        $resultuid = $stmt2->get_result();
         
         if($resultuid->num_rows == 1){
-            $userid = $resultuid->fetch_array();
+            $user_arr = $resultuid->fetch_assoc();
+            $user_id = $user_arr['ID'];
         }
 
-        $stmt4->execute();
-        $resultsid = $stmt4->get_result();
+        $stmt3->execute();
+        $resultsid = $stmt3->get_result();
 
         if($resultsid->num_rows == 1){
-            $wikiid = $resultsid->fetch_assoc();
+            $wiki_arr = $resultsid->fetch_assoc();
+            $wiki_id = $wiki_arr['ID'];
         }
         
-        $stmt2->execute();
+        $stmt4->bind_param("ii", $user_id, $wiki_id); 
+        $stmt4->execute();
         
 
     }

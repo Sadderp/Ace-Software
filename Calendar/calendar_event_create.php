@@ -11,8 +11,8 @@
         $date = $_GET['date'];
     };
 
-    if(!empty($_GET['End_date'])){
-        $End_date = $_GET['End_date'];
+    if(!empty($_GET['end_date'])){
+        $end_date = $_GET['end_date'];
     };
 
     if(!empty($_GET['title'])){
@@ -24,10 +24,10 @@
     };
 
     
-    $sql = "INSERT INTO calendar_event(serviceID, date, End_date, title, description) VALUES (?,?,?,?,?)";
+    $sql = "INSERT INTO calendar_event(serviceID, date, end_date, title, description) VALUES (?,?,?,?,?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issss", $serviceID, $date, $End_date, $title, $description);
+    $stmt->bind_param("issss", $serviceID, $date, $end_date, $title, $description);
     $stmt->execute();
 
     if ($stmt->affected_rows === 1) {

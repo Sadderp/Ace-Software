@@ -18,16 +18,14 @@
         $selfraga = $db->query($sel);
         if ($selfraga->num_rows > 0) {
             while($row = $selfraga->fetch_assoc()) {
-                $search = array("ID "=>$row["ID"],"Title "=>$row["title"],"date "=>$row["date"], "End_date "=>$row["End_date"], "Title "=>$row["title"], "description "=>$row["description"]);
+                $search = array("ID "=>$row["ID"],"Title "=>$row["title"],"date "=>$row["date"], "end_date "=>$row["end_date"], "Title "=>$row["title"], "description "=>$row["description"]);
                 echo json_encode($search);
                 }
-        } else {
-            echo json_encode("0 results");
         }
     }
     else if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $search = array("ID "=>$row["ID"],"Title "=>$row["title"],"date "=>$row["date"], "End_date "=>$row["End_date"], "Title "=>$row["title"], "description "=>$row["description"]);
+            $search = array("ID "=>$row["ID"],"Title "=>$row["title"],"date "=>$row["date"], "end_date "=>$row["end_date"], "Title "=>$row["title"], "description "=>$row["description"]);
             echo json_encode($search);
             }
     } else {

@@ -6,7 +6,7 @@
 // Calls the databas
 //==================================================
 require_once "./db.php";
-
+$version = "0.0.1";
 
 
 //==================================================
@@ -22,23 +22,27 @@ if(!empty($_GET['name']) && !empty($_GET['password'])) {
     $stmt->execute();
     $result = $stmt->get_result();
 
+    $_SESSION['user_username'] = $name;
+    $_SESSION['password'] = $password;
+
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
             if(password_verify($password, $row['password'])) {
                 if($row['admin'] == 1) {
-                    echo 'hej';// admin
+                    // admin
                 } else if($row['ban'] == 0) {
-                    echo 'hej2';// normal user
+                    // normal user
+                    echo $_SESSION['user_username'];
+                    echo $_SESSION['password'];
                 } else {
-                    echo 'hej3';// is banned and is not an admin
+                    // is banned and is not an admin
                 }
-            } else {
-                echo 'hej4';// not a user
             }
         }
     } 
     else {
-        echo 'hej5';// not a user
+        // not a user
+        echo ("NOT A USER!");
     }
 }
 

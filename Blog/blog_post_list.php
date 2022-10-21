@@ -1,21 +1,24 @@
 <?php
 require_once('../db.php');
+$version = "0.0.1"; // Variable for version (hardcoded)
 
-    if (!empty($_GET['blog'])){
-        $blog = $_GET['blog'];
-        $sql = "SELECT * FROM service, blog_post, content, img WHERE serviceID = $blog";
-        $result = mysqli_query($conn, $sql);
-        if (mysqli_num_rows($result) > 0) {
-                
-            while($row = mysqli_fetch_assoc($result)) {
-                if ($row['type'] == 'blog') {
-                    $age = array("serviceID"=>$row['serviceID'], "blog_post.title"=>$row['title'], "content.contents"=>$row['contents'], "img.img_url"=>$row['img_url']);
-                    echo json_encode($age);
-                }
+    if (!empty($_GET['blog'])){   
+        $blog = $_GET['blog'];    // retrieves data from url and shows which blog you selected.
+        
+        $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID INNER JOIN img ON content.imgID = img.ID WHERE content.serviceID = ?");
+        $stmt->bind_param("i", $blog);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $data = "blog name:{$row['title']} content:{$row['contents']} img url:{$row['img_url']}";   // assosiative array with blog title, content and img url.
+                $json_result = ["Version: "=>$version, "Status: "=>"OK", "Data: "=>$data];
+                echo json_encode($json_result);     // Prints associative array above in json.
             }
         }
         else {
-        echo "ingen information hittades";
+            echo "ingen information hittades";
         }
     }
 
