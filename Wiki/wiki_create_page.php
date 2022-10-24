@@ -1,7 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $version = "0.0.1";
+    $version = "0.0.2";
 
     // ! ! THIS PAGE IS MISSING USER VERIFICATION ! !
 
@@ -17,16 +17,15 @@
     $wiki_id = get_if_set('wiki_id');
     $page_title = get_if_set('page_title');
 
-    //==============================
-    //    Create page and return status
-    //==============================
-
     // Give error message if one or more inputs are blank
     if(!$wiki_id or !$page_title) {
         $result = ["version"=>$version, "status"=>"ERROR", "data"=>"Missing input - expected: 'wiki_id' and 'page_title'"];
         die(json_encode($result));
     }
 
+    //==============================
+    //    Create page and return status
+    //==============================
     $stmt->execute();
     
     // Check if operation is successful
@@ -37,4 +36,6 @@
     }
     
     echo json_encode($result);
+
+    $stmt->close();
 ?>
