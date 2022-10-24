@@ -11,10 +11,12 @@ if (!empty($_GET['title']) && !empty($_GET['user']) && !empty($_GET['password'])
     
 
     $sql = "SELECT user.ID,user.username,user.password FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY username= '$user'";
+
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
+
                 $userID = $row['ID'];
                 
                 if(password_verify($password, $row['password'])) {
@@ -37,6 +39,7 @@ if (!empty($_GET['title']) && !empty($_GET['user']) && !empty($_GET['password'])
                     $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
                     echo json_encode($json_array);
                 }
+
         }
     } else {
 

@@ -1,6 +1,7 @@
 <?php
     require_once("../db.php");
     $version = "0.0.1";
+    
     //==============================
     //    Prepared statements
     //==============================
