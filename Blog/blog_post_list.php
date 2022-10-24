@@ -1,5 +1,6 @@
 <?php
 require_once('../db.php');
+require_once('../token.php');
 $version = "0.0.1"; // Variable for version (hardcoded)
 
     if (!empty($_GET['blog'])){   
