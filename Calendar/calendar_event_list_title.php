@@ -4,31 +4,22 @@
     $db = $conn;
     
     $title = $_GET['title'];
+    $userID = $_GET['userID'];
     
 
-    $sel = "SELECT * FROM calendar_event WHERE title=?";
+    $sel = "SELECT * FROM calendar_event WHERE userID=? OR title=?";
 
     $stmt = $conn->prepare($sel);
-    $stmt->bind_param("s", $title);
+    $stmt->bind_param("is", $userID, $title);
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    if ($_GET['title'] == NULL){
-        $sel = "SELECT * FROM calendar_event";
-        $selfraga = $db->query($sel);
-        if ($selfraga->num_rows > 0) {
-            while($row = $selfraga->fetch_assoc()) {
-                $search = array("ID "=>$row["ID"],"Title "=>$row["title"],"date "=>$row["date"], "end_date "=>$row["end_date"], "Title "=>$row["title"], "description "=>$row["description"]);
-                echo json_encode($search);
-                }
-        }
-    }
-    else if ($result->num_rows > 0) {
+ 
+    if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
             $search = array("ID "=>$row["ID"],"Title "=>$row["title"],"date "=>$row["date"], "end_date "=>$row["end_date"], "Title "=>$row["title"], "description "=>$row["description"]);
             echo json_encode($search);
             }
-    } else {
+    }else {
         echo json_encode("0 results");
     }
 ?>
