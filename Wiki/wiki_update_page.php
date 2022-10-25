@@ -1,7 +1,8 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $v = "0.0.3";
+    require_once("wiki_get_recent_version.php");
+    $v = "0.0.4";
 
     // TEST LINK:
     // http://localhost:8080/webbutveckling/TE4/Ace-Software/wiki/wiki_update_page.php?user_id=1&page_id=1&content=["<h1>RobTop</h1>","<p>RobTop is the lead developer of Geometry Dash</p>"]
@@ -12,11 +13,6 @@
     //==============================
     //    Prepared statements
     //==============================
-
-    // Get current version
-    $sql = "SELECT MAX(num) AS 'version_num' FROM wiki_page_version WHERE pageID = ?";
-    $stmt_get_version = $conn->prepare($sql);
-    $stmt_get_version->bind_param("i",$page_id);
 
     // Create new version
     $sql = "INSERT INTO wiki_page_version (pageID,num,userID,date) VALUES (?,?,?,now())";
@@ -52,14 +48,8 @@
         error_message($v,"Missing input(s) - expected: 'user_id', 'page_id' and 'content'");
     }
 
-    //==============================
-    //    Get current version number
-    //==============================
-    $stmt_get_version->execute();
-    $current_version = mysqli_fetch_assoc($stmt_get_version->get_result())['version_num'];
-    if(!$current_version) {
-        $current_version = 0;
-    }
+    // Get recent version
+    $current_version = get_recent_version($page_id);
     $new_version = $current_version + 1;
 
     //==============================
@@ -103,7 +93,6 @@
 
     echo json_encode($result);
 
-    $stmt_get_version->close();
     $stmt_get_wiki->close();
     $stmt_check_perms->close();
     $stmt_add_version->close();
