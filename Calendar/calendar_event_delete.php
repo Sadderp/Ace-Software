@@ -9,6 +9,7 @@
 
     $del = "DELETE FROM calendar_event WHERE ID=?";
     
+    //prepared statement
     $stmt = $conn->prepare($del);
     $stmt->bind_param("i", $ID);
     $stmt->execute();
