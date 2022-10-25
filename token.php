@@ -15,8 +15,7 @@ $version = "0.0.1";
 //==================================================
 // What time it is rn
 //==================================================
-$time = date('H:i:s', time());
-
+$time = date('Y-m-d H:i:s', time());
 
 
 //==================================================
@@ -43,11 +42,12 @@ if ($result->num_rows > 0) {
 
 foreach($list as $x) {
     if($time >= $x['end_date']) {
-        $new_time = ((intval($time)+1) % 24)*10000;
+        $new_time = ((intval(date('H', time())+1)));
+        $time = date("Y-m-d $new_time:00:00", time());
         $new_token = bin2hex(random_bytes(32));
 
         $stmt = $conn->prepare("UPDATE user SET token=?, end_date=? WHERE id=?");
-        $stmt->bind_param("ssi", $new_token, $new_time, $x['id']);
+        $stmt->bind_param("ssi", $new_token, $time, $x['id']);
         $stmt->execute();
     }
 }
