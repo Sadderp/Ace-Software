@@ -23,9 +23,6 @@ if(!empty($_GET['name']) && !empty($_GET['password'])) {
     $stmt->execute();
     $result = $stmt->get_result();
 
-    $_SESSION['user_username'] = $name;
-    $_SESSION['password'] = $password;
-
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
             if(password_verify($password, $row['password'])) {
@@ -33,8 +30,6 @@ if(!empty($_GET['name']) && !empty($_GET['password'])) {
                     // admin
                 } else if($row['ban'] == 0) {
                     // normal user
-                    echo $_SESSION['user_username'];
-                    echo $_SESSION['password'];
                 } else {
                     // is banned and is not an admin
                 }
@@ -43,7 +38,6 @@ if(!empty($_GET['name']) && !empty($_GET['password'])) {
     } 
     else {
         // not a user
-        echo ("NOT A USER!");
     }
 }
 
