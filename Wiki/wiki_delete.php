@@ -26,7 +26,6 @@
     if(!empty($_GET['wiki_title'])) {
 
 
-
         $stmt->bind_param("s", $wiki_title);
         $stmt->execute();
         $result_wid = $stmt->get_result();
