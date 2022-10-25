@@ -1,5 +1,9 @@
 <?php
-    require_once('../db.php');
+    require_once("../db.php");
+    require_once("../token.php");
+    $version = "0.0.8";
+    $ok = "OK";
+    $error = "Error";
 
     $db = $conn;
 
@@ -15,5 +19,5 @@
     $stmt->execute();
     $result = $stmt->get_result();
 
-    echo json_encode("Borta?");
+    echo json_encode("Version: "=>$version, "Type: "=>$ok, "Data: "=>"Borta?");
 ?>

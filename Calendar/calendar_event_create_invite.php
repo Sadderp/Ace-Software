@@ -1,5 +1,9 @@
 <?php
-    require_once('../db.php');
+    require_once("../db.php");
+    require_once("../token.php");
+    $version = "0.0.2";
+    $ok = "OK";
+    $error = "Error";
 
     if(!empty($_GET['userID'])){
         $userID = $_GET['userID'];
@@ -18,8 +22,8 @@
     $result = $stmt->get_result();
 
     if ($stmt->affected_rows === 1) {
-        echo json_encode("Invite created");
+        echo json_encode("Version: "=>$version, "Type: "=>$ok, "Data: "=>"Invite created");
       } else {
-        echo json_encode("Uh oh");
+        echo json_encode("Version: "=>$version, "Type: "=>$error, "Data: "=>"Uh oh");
     };
 ?>

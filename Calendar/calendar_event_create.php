@@ -1,5 +1,9 @@
 <?php
-    require_once('../db.php');
+    require_once("../db.php");
+    require_once("../token.php");
+    $version = "0.0.8";
+    $ok = "OK";
+    $error = "Error";
 
     $db = $conn;
 
@@ -29,8 +33,8 @@
     $stmt->execute();
 
     if ($stmt->affected_rows === 1) {
-        echo json_encode("Event created");
+        echo json_encode("Version: "=>$version, "Type: "=>$ok, "Data: "=>"Event created");
       } else {
-        echo json_encode("Uh oh");
+        echo json_encode("Version: "=>$version, "Type: "=>$error, "Data: "=>"Uh oh");
     };
 ?>
