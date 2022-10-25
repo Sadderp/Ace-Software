@@ -7,8 +7,29 @@
 
     $db = $conn;
     
+    if(!empty($_GET['username'])&& !empty($_GET['token'])){
+        $username = $_GET['username'];
+        $token = $_GET['token'];
+    }else{
+        echo json_encode(["Version: "=>$version, "Type: "=>$error, "Data: "=>"You need to log in"]);
+    }
+    
     /*$title = $_GET['title']*/;
-    $userID = $_GET['userID'];
+
+    $sql2 = "SELECT * FROM user WHERE username=? AND token=?";
+
+    $statement = $conn->prepare($sql2);
+    $statement->bind_param("ss", $username, $token);
+    $statement->execute();
+    $result3 = $statement->get_result();
+
+    if ($result->num_rows > 0) {
+        while($row = $result3->fetch_assoc()) {
+            $userID = $row['ID'];
+            }
+    }else {
+        echo json_encode("No user");
+    }
     
     //Checks what events you're invited to
     $sel = "SELECT * FROM calendar_event INNER JOIN calendar_invite ON calendar_event.userID!=calendar_invite.userID 
@@ -30,18 +51,16 @@
     // Your own event
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $search = ["Version: "=>$version, "Type: "=>$ok, "Data: "=>" ID: ".$row["ID"]. " date: ".$row["date"]. " end_date: ".$row["end_date"]. " Title: ".$row["title"]. " description: ".$row["description"]];
-            echo json_encode($search);
+            $json_result = ["Version: "=>$version, "Type: "=>$ok, "Data: "=>" ID: ".$row["ID"]. " date: ".$row["date"]. " end_date: ".$row["end_date"]. " Title: ".$row["title"]. " description: ".$row["description"]];
+            echo json_encode($json_result);
             }
-    }else {
-        echo json_encode("0 results");
     }
 
     // Invited to
     if ($result2->num_rows > 0) {
         while($row = $result2->fetch_assoc()) {
-            $search = ["Version: "=>$version, "Type: "=>$ok, "Data: "=> " Invited to: "."ID: ".$row["eventID"]. " date: ".$row["date"]. " end_date: ".$row["end_date"]. " Title: ".$row["title"]. " description: ".$row["description"]];
-            echo json_encode($search);
+            $json_result = ["Version: "=>$version, "Type: "=>$ok, "Data: "=> " Invited to: "."ID: ".$row["eventID"]. " date: ".$row["date"]. " end_date: ".$row["end_date"]. " Title: ".$row["title"]. " description: ".$row["description"]];
+            echo json_encode($json_result);
             }
     }
 ?>
