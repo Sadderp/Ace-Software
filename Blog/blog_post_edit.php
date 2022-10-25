@@ -30,7 +30,8 @@ if (!empty($_GET['contents']) && !empty($_GET['contentID']) && !empty($_GET['use
                         $stmt->bind_param("si",$content,$contentID); 
                         $stmt->execute();
                         $stmt->close();
-                        $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Old content edited successfully'];
+                        $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Content was edited successfully'];
+                        echo json_encode($json_array);
                     }
                     else{
                         $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'This content is not in the right blog!'];
