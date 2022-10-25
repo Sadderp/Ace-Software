@@ -7,6 +7,8 @@
 
     $db = $conn;
     
+    $username = $_GET['username'];
+    $token = $_GET['token'];
     $evdate = $_GET['evdate'];
     $evend_date = $_GET['evend_date'];
     $userID = $_GET['userID'];

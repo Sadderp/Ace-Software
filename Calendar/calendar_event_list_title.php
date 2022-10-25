@@ -7,8 +7,12 @@
 
     $db = $conn;
     
+    $username = $_GET['username'];
+    $token = $_GET['token'];
     /*$title = $_GET['title']*/;
     $userID = $_GET['userID'];
+    $username = $_GET['username'];
+    $token = $_GET['token'];
     
     //Checks what events you're invited to
     $sel = "SELECT * FROM calendar_event INNER JOIN calendar_invite ON calendar_event.userID!=calendar_invite.userID 

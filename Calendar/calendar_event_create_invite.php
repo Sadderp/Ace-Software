@@ -5,6 +5,8 @@
     $ok = "OK";
     $error = "Error";
 
+    $username = $_GET['username'];
+    $token = $_GET['token'];
     if(!empty($_GET['userID'])){
         $userID = $_GET['userID'];
     };

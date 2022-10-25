@@ -7,6 +7,8 @@
 
     $db = $conn;
 
+    $username = $_GET['username'];
+    $token = $_GET['token'];
     if(!empty($_GET['ID'])){
         $ID = $_GET['ID'];
     }

@@ -7,6 +7,9 @@
 
     $db = $conn;
 
+    $username = $_GET['username'];
+    $token = $_GET['token'];
+
     //kollar info om eventet
     if(!empty($_GET['date'])){
         $date = $_GET['date'];
