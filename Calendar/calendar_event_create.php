@@ -3,6 +3,7 @@
 
     $db = $conn;
 
+    //kollar info om eventet
     if(!empty($_GET['date'])){
         $date = $_GET['date'];
     };
@@ -22,6 +23,7 @@
     
     $sql = "INSERT INTO calendar_event(date, end_date, title, description) VALUES (?,?,?,?)";
 
+    //prepared statement
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssss", $date, $end_date, $title, $description);
     $stmt->execute();
