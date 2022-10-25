@@ -1,5 +1,6 @@
 <?php
 require_once('../db.php');
+require_once('../token.php');
 $version = "0.0.1";
 $ok = "OK";
 $error = "Error";
@@ -17,7 +18,7 @@ if (!empty($_GET['name'])) {
             $stmt->execute();
         
             if($stmt->affected_rows == 1){
-                $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data"=>"Old blog edited successfully"];
+                $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data"=>"Blog edited successfully"];
                 echo json_encode($json_array);
             }
             else{

@@ -1,5 +1,9 @@
 <?php
-    require_once('../db.php');
+    require_once("../db.php");
+    require_once("../token.php");
+    $version = "0.0.8";
+    $ok = "OK";
+    $error = "Error";
 
     $db = $conn;
 
@@ -9,10 +13,11 @@
 
     $del = "DELETE FROM calendar_event WHERE ID=?";
     
+    //prepared statement
     $stmt = $conn->prepare($del);
     $stmt->bind_param("i", $ID);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    echo json_encode("Borta?");
+    echo json_encode("Version: "=>$version, "Type: "=>$ok, "Data: "=>"Borta?");
 ?>

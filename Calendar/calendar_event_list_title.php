@@ -1,25 +1,47 @@
 <?php
-    require_once('../db.php');
+    require_once("../db.php");
+    require_once("../token.php");
+    $version = "0.0.8";
+    $ok = "OK";
+    $error = "Error";
 
     $db = $conn;
     
-    $title = $_GET['title'];
+    /*$title = $_GET['title']*/;
     $userID = $_GET['userID'];
     
-
-    $sel = "SELECT * FROM calendar_event WHERE userID=? OR title=?";
+    //Checks what events you're invited to
+    $sel = "SELECT * FROM calendar_event INNER JOIN calendar_invite ON calendar_event.userID!=calendar_invite.userID 
+    WHERE calendar_invite.userID=? AND calendar_event.ID=calendar_invite.eventID";
 
     $stmt = $conn->prepare($sel);
-    $stmt->bind_param("is", $userID, $title);
+    $stmt->bind_param("i", $userID/*, $title)*/);
     $stmt->execute();
-    $result = $stmt->get_result();
+    $result2 = $stmt->get_result();
+
+    //Checks what events you have made
+    $sql = "SELECT * FROM calendar_event WHERE userID=?";
+
+    $stamt = $conn->prepare($sql);
+    $stamt->bind_param("i", $userID/*, $title)*/);
+    $stamt->execute();
+    $result = $stamt->get_result();
  
+    // Your own event
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $search = array("ID "=>$row["ID"],"Title "=>$row["title"],"date "=>$row["date"], "end_date "=>$row["end_date"], "Title "=>$row["title"], "description "=>$row["description"]);
+            $search = ["Version: "=>$version, "Type: "=>$ok, "Data: "=>" ID: ".$row["ID"]. " date: ".$row["date"]. " end_date: ".$row["end_date"]. " Title: ".$row["title"]. " description: ".$row["description"]];
             echo json_encode($search);
             }
     }else {
         echo json_encode("0 results");
+    }
+
+    // Invited to
+    if ($result2->num_rows > 0) {
+        while($row = $result2->fetch_assoc()) {
+            $search = ["Version: "=>$version, "Type: "=>$ok, "Data: "=> " Invited to: "."ID: ".$row["eventID"]. " date: ".$row["date"]. " end_date: ".$row["end_date"]. " Title: ".$row["title"]. " description: ".$row["description"]];
+            echo json_encode($search);
+            }
     }
 ?>
