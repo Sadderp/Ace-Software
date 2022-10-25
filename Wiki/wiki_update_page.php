@@ -2,7 +2,7 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("wiki_get_recent_version.php");
-    $v = "0.0.4";
+    $v = "0.0.5";
 
     // TEST LINK:
     // http://localhost:8080/webbutveckling/TE4/Ace-Software/wiki/wiki_update_page.php?user_id=1&page_id=1&content=["<h1>RobTop</h1>","<p>RobTop is the lead developer of Geometry Dash</p>"]
@@ -31,11 +31,6 @@
     $stmt_get_wiki = $conn->prepare($sql);
     $stmt_get_wiki->bind_param("i",$page_id);
 
-    // Check if user has wiki privileges
-    $sql = "SELECT * FROM end_user WHERE userID = ? AND serviceID = ?";
-    $stmt_check_perms = $conn->prepare($sql);
-    $stmt_check_perms->bind_param("ii",$user_id,$wiki_id);
-
     //==============================
     //    Get variables
     //==============================
@@ -52,9 +47,7 @@
     $current_version = get_recent_version($page_id);
     $new_version = $current_version + 1;
 
-    //==============================
-    //    Get wiki ID
-    //==============================
+    // Get wiki ID
     $stmt_get_wiki->execute();
     $result = $stmt_get_wiki->get_result();
     $r = mysqli_fetch_assoc($result);
@@ -66,10 +59,9 @@
     $wiki_id = $r['wikiID'];
 
     //==============================
-    //    Check user permissions in wiki
+    //    Check user permissions
     //==============================
-    $stmt_check_perms->execute();
-    if($stmt_check_perms->get_result()->num_rows == 0) {
+    if(!check_end_user($user_id,$wiki_id)) {
         error_message($v,"User does not have permission to edit this page");
     }
 
@@ -94,7 +86,6 @@
     echo json_encode($result);
 
     $stmt_get_wiki->close();
-    $stmt_check_perms->close();
     $stmt_add_version->close();
     $stmt_add_content->close();
 ?>
