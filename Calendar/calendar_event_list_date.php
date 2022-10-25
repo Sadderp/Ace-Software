@@ -9,6 +9,7 @@
 
     $sel = "SELECT * FROM calendar_event WHERE (date>? AND date<?) OR (end_date>? AND end_date<?) AND userID=?";
 
+    //prepared statement
     $stmt = $conn->prepare($sel);
     $stmt->bind_param("ssssi", $evdate, $evend_date, $evdate, $evend_date, $userID);
     $stmt->execute();
