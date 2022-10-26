@@ -22,8 +22,8 @@
      * @param   string  $msg        Error message
      *
      */
-    function error_message($version,$msg) {
-        $result = ["version"=>$version, "status"=>"ERROR", "data"=>$msg];
+    function error_message($msg) {
+        $result = ["version"=>$GLOBALS['version'], "status"=>"ERROR", "data"=>$msg];
         die(json_encode($result));
     }
 
@@ -46,6 +46,49 @@
         } else {
             return true;
         }
+    }
+
+    /**
+     * Get the account ID from its username
+     *
+     * @param   int     $username        name of the user
+     * @return  int
+     *
+     */
+    function id_from_username($username) {
+        $sql = "SELECT ID FROM user WHERE username = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("s",$username);
+        $stmt->execute();
+
+        $user_id = mysqli_fetch_assoc($stmt->get_result())['ID'];
+
+        if(!$user_id) {
+            return 0;
+        }
+
+        return $userID;
+    }
+
+    /**
+     * Get the account username from its ID
+     *
+     * @param   int     $user_id        ID of the user
+     *
+     */
+    function username_from_id($user_id) {
+        $sql = "SELECT username FROM user WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$user_id);
+        $stmt->execute();
+
+        $username = mysqli_fetch_assoc($stmt->get_result())['username'];
+
+        if(!$username) {
+            return 0;
+        }
+
+        return $username;
     }
 ?>
 
