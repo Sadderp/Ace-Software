@@ -26,7 +26,7 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s",$title); 
                     $stmt->execute();
-                    printf($lastID = $conn->insert_id); 
+                    $lastID = $conn->insert_id; 
 
 
                     $sql2= "INSERT INTO end_user(userID,serviceID) VALUES (?,?)";
@@ -35,6 +35,7 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
                     $stmt2->execute();
                     $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was created successfully'];
                     echo json_encode($json_array);
+                    die();
                 }else{
                     $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
                     echo json_encode($json_array);
