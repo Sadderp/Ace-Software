@@ -11,13 +11,8 @@
 
     // Create wiki page
     $sql = "INSERT INTO wiki_page (serviceID, title) VALUES (?,?)";
-    $stmt_new_page = $conn->prepare($sql);
-    $stmt_new_page->bind_param("is",$wiki_id,$page_title);
-
-    // Check if user has wiki privileges
-    $sql = "SELECT * FROM end_user WHERE userID = ? AND serviceID = ?";
-    $stmt_check_perms = $conn->prepare($sql);
-    $stmt_check_perms->bind_param("ii",$user_id,$wiki_id);
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("is",$wiki_id,$page_title);
     
     //==============================
     //    Get variables
@@ -34,18 +29,17 @@
     //==============================
     //    Check user permissions in wiki
     //==============================
-    $stmt_check_perms->execute();
-    if($stmt_check_perms->get_result()->num_rows == 0) {
+    if(!check_end_user($user_id,$wiki_id)) {
         error_message($v,"User does not have permission to edit this page");
     }
 
     //==============================
     //    Create page
     //==============================
-    $stmt_new_page->execute();
+    $stmt->execute();
     
     // Check if operation is successful
-    if($stmt_new_page->affected_rows === 1) {
+    if($stmt->affected_rows === 1) {
         $result = ["version"=>$v, "status"=>"OK", "data"=>$page_title];
     } else {
         error_message($v,"Failed to add to database");
@@ -53,6 +47,5 @@
     
     echo json_encode($result);
 
-    $stmt_new_page->close();
-    $stmt_check_perms->close();
+    $stmt->close();
 ?>
