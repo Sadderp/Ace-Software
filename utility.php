@@ -90,5 +90,30 @@
 
         return $username;
     }
+
+    /**
+     * If the given service is of the given type, return true. Else return false.
+     *
+     * @param   int     $service_id     ID of the service
+     * @param   string  $type           Desired service type ('wiki', 'blog', or 'calendar')
+     * @return  boolean
+     */
+    function verify_service_type($service_id,$type) {
+        // Prepared statement
+        $sql = "SELECT type FROM service WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$service_id);
+
+        // Get service type
+        $stmt->execute();
+        $service_type = mysqli_fetch_assoc($stmt->get_result())['type'];
+
+        // Compare service type to desired type. Return true if match
+        if($service_type == $type) {
+            return true;
+        }
+
+        return false;
+    }
 ?>
 
