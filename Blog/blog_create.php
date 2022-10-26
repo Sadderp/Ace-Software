@@ -1,7 +1,7 @@
 <?php
 require_once('../db.php');
 require_once('../token.php');
-$version = "0.0.1";
+$version = "1.0.1";
 $ok = "OK";
 $error = "Error";
 
@@ -33,25 +33,25 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
                     $stmt2 = $conn->prepare($sql2);
                     $stmt2->bind_param("ii",$userID,$lastID); 
                     $stmt2->execute();
-                    $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Blog was created successfully'];
+                    $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was created successfully'];
                     echo json_encode($json_array);
                 }else{
-                    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
                     echo json_encode($json_array);
                 }
             }else{
-                $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
                 echo json_encode($json_array);
             }
         }
     } else {
         
-        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
         echo json_encode($json_array);
     }
 } else{
     
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'The URL is empty!'];
+    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'The URL is empty!'];
     echo json_encode($json_array);
 }
 ?>
