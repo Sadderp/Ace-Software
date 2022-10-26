@@ -1,9 +1,10 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
+    require_once("../verify_token.php");
     require_once("wiki_get_recent_version.php");
     require_once("get_wiki_from_page.php");
-    $version = "0.0.6";
+    $version = "0.0.7";
 
     // TEST LINK:
     // http://localhost:8080/webbutveckling/TE4/Ace-Software/wiki/wiki_update_page.php?user_id=1&page_id=1&content=["<h1>RobTop</h1>","<p>RobTop is the lead developer of Geometry Dash</p>"]
@@ -29,12 +30,13 @@
     //    Get variables
     //==============================
     $user_id = get_if_set('user_id');
+    $token = get_if_set('token');
     $page_id = get_if_set('page_id');
     $content_array = get_if_set('content');
 
     // Give error message if one or more inputs are blank
     if(!$user_id or !$page_id) {
-        error_message("Missing input(s) - expected: 'user_id', 'page_id' and 'content'");
+        error_message("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
     }
 
     // Get recent version
@@ -50,9 +52,14 @@
     //==============================
     //    Check user permissions
     //==============================
+    if(!verify_token($user_id,$token)) {
+        error_message("Token is invalid or expired, please refresh your login.");
+    }
+
     if(!check_end_user($user_id,$wiki_id)) {
         error_message("User does not have permission to edit this page");
     }
+    
 
     //==============================
     //    Add new version and content to database
