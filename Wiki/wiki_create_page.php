@@ -1,7 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $version = "0.0.3";
+    $version = "0.0.4";
 
     // ! ! THIS PAGE IS MISSING USER VERIFICATION ! !
 
@@ -24,6 +24,10 @@
     // Give error message if one or more inputs are blank
     if(!$wiki_id or !$user_id or !$page_title) {
         error_message("Missing input - expected: 'wiki_id', 'user_id' and 'page_title'");
+    }
+
+    if(!verify_service_type($wiki_id,"wiki")) {
+        error_message("Service is not a wiki");
     }
 
     //==============================
