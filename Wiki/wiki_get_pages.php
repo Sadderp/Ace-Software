@@ -1,7 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $v = "0.0.1";
+    $version = "0.0.1";
 
     /**
      * wiki_get_pages.php
@@ -29,7 +29,7 @@
     $wiki_id = get_if_set('wiki_id');
 
     if(!$wiki_id) {
-        error_message($v,"Missing input(s) - expected: 'wiki_id'");
+        error_message("Missing input(s) - expected: 'wiki_id'");
     }
 
     //==============================
@@ -39,11 +39,11 @@
     $service_type = mysqli_fetch_assoc($stmt_verify_wiki->get_result())['type'];
 
     if(!$service_type) {
-        error_message($v,"Service does not exist");
+        error_message("Service does not exist");
     }
 
     if($service_type != 'wiki') {
-        error_message($v,"Service not a wiki");
+        error_message("Service not a wiki");
     }
 
     //==============================
@@ -58,7 +58,7 @@
         array_push($data,$p);
     }
 
-    $result = ["version"=>$v, "status"=>"OK", "data"=>$data];
+    $result = ["version"=>$version, "status"=>"OK", "data"=>$data];
     echo json_encode($result);
 
     $stmt_verify_wiki->close();

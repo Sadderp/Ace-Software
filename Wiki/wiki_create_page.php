@@ -1,7 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $v = "0.0.2";
+    $version = "0.0.3";
 
     // ! ! THIS PAGE IS MISSING USER VERIFICATION ! !
 
@@ -23,14 +23,14 @@
 
     // Give error message if one or more inputs are blank
     if(!$wiki_id or !$user_id or !$page_title) {
-        error_message($v,"Missing input - expected: 'wiki_id', 'user_id' and 'page_title'");
+        error_message("Missing input - expected: 'wiki_id', 'user_id' and 'page_title'");
     }
 
     //==============================
     //    Check user permissions in wiki
     //==============================
     if(!check_end_user($user_id,$wiki_id)) {
-        error_message($v,"User does not have permission to edit this page");
+        error_message("User does not have permission to edit this page");
     }
 
     //==============================
@@ -40,9 +40,9 @@
     
     // Check if operation is successful
     if($stmt->affected_rows === 1) {
-        $result = ["version"=>$v, "status"=>"OK", "data"=>$page_title];
+        $result = ["version"=>$version, "status"=>"OK", "data"=>$page_title];
     } else {
-        error_message($v,"Failed to add to database");
+        error_message("Failed to add to database");
     }
     
     echo json_encode($result);

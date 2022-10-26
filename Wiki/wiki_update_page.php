@@ -3,7 +3,7 @@
     require_once("../utility.php");
     require_once("wiki_get_recent_version.php");
     require_once("get_wiki_from_page.php");
-    $v = "0.0.6";
+    $version = "0.0.6";
 
     // TEST LINK:
     // http://localhost:8080/webbutveckling/TE4/Ace-Software/wiki/wiki_update_page.php?user_id=1&page_id=1&content=["<h1>RobTop</h1>","<p>RobTop is the lead developer of Geometry Dash</p>"]
@@ -34,7 +34,7 @@
 
     // Give error message if one or more inputs are blank
     if(!$user_id or !$page_id) {
-        error_message($v,"Missing input(s) - expected: 'user_id', 'page_id' and 'content'");
+        error_message("Missing input(s) - expected: 'user_id', 'page_id' and 'content'");
     }
 
     // Get recent version
@@ -44,14 +44,14 @@
     // Get wiki ID
     $wiki_id = get_wiki_from_page($page_id);
     if($wiki_id == 0) {
-        error_message($v,"Wiki page not found");
+        error_message("Wiki page not found");
     }
 
     //==============================
     //    Check user permissions
     //==============================
     if(!check_end_user($user_id,$wiki_id)) {
-        error_message($v,"User does not have permission to edit this page");
+        error_message("User does not have permission to edit this page");
     }
 
     //==============================
@@ -67,9 +67,9 @@
     }
 
     if($stmt_add_version->affected_rows == 1 and $stmt_add_content->affected_rows >= 1) {
-        $result = ["version"=>$v, "status"=>"OK", "data"=>"Successfully updated wiki page (v" . $new_version . ")"];
+        $result = ["version"=>$version, "status"=>"OK", "data"=>"Successfully updated wiki page (v" . $new_version . ")"];
     } else {
-        error_message($v,"Failed to add to database");
+        error_message("Failed to add to database");
     }
 
     echo json_encode($result);
