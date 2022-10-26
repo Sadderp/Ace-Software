@@ -9,33 +9,41 @@ $error = "Error";
 //==================================================
 // content table
 //==================================================
-    if ((!empty($_GET['contents'])) && (!empty($_GET['imgID'])) && (!empty($_GET['serviceID'])) && (!empty($_GET['userID'])) && !empty($_GET['user']) && !empty($_GET['token']))  {    //checks if the if is empty if so "dies". 
+    if ((!empty($_GET['contents'])) && (!empty($_GET['imgID'])) && (!empty($_GET['serviceID'])) && !empty($_GET['user']) && !empty($_GET['token']))  {    //checks if the if is empty if so "dies". 
                                                                                                                                     
         $contents = $_GET['contents'];
         $imgID = $_GET['imgID'];
         $serviceID = $_GET['serviceID'];
-        $userID = $_GET['userID'];
         $user = $_GET['user'];
         $token = $_GET['token'];
 
         
-        $sql = "SELECT * FROM user WHERE BINARY username = ? AND token=?";
+        $sql = "SELECT user.ID AS Uid, user.username, user.token, end_user.userID, end_user.serviceID, service.ID, service.type FROM user INNER JOIN end_user ON user.ID = end_user.userID
+                                   INNER JOIN service ON end_user.serviceID = service.ID WHERE BINARY username = ? AND token=?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss",$user,$token); 
         $stmt->execute();
         $result = $stmt->get_result();
         $stmt->close();
+        print_r($result);
         if($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
+                $userID = $row['Uid'];
                 if($row['token'] == $_GET['token']){
                     if($row['username'] == $_GET['user']){
-                        $stmt = $conn->prepare("INSERT INTO content (contents, imgID, serviceID, userID) VALUES (?, ?, ?, ?)");
-                        $stmt->bind_param("siii",$contents, $imgID, $serviceID, $userID);
-                        $stmt->execute(); 
-                        $stmt->close(); 
-                        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'New content added!'];
-                        echo json_encode($json_array);
-                        die();
+                        if($row['type'] == 'blog'){
+                            $stmt = $conn->prepare("INSERT INTO content (contents, imgID, serviceID, userID) VALUES (?, ?, ?, ?)");
+                            $stmt->bind_param("siii",$contents, $imgID, $serviceID, $userID);
+                            $stmt->execute(); 
+                            $stmt->close(); 
+                            $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'New content added!'];
+                            echo json_encode($json_array);
+                            die();
+                        }else{
+                            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'This is not a blog!'];
+                            echo json_encode($json_array);
+                            die();
+                        }
                 }else{
                     $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
                     echo json_encode($json_array);

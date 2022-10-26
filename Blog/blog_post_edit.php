@@ -42,13 +42,11 @@ if (!empty($_GET['contents']) && !empty($_GET['contentID']) && !empty($_GET['use
                     echo json_encode($json_array);
                 }
         }else{
-            echo "hej";
             $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
             echo json_encode($json_array);
         }
     }
 }else{
-    echo "hejsan";
     $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
     echo json_encode($json_array);
 }

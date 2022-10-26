@@ -11,7 +11,7 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
     $token = $_GET['token'];
     
 
-    $sql = "SELECT * FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
+    $sql = "SELECT user.ID AS Uid, username, userID, token FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$user,$token); 
     $stmt->execute();
@@ -19,6 +19,7 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
     $stmt->close();
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
+            $userID = $row['Uid'];
             if($row['token'] == $_GET['token']) {
                 if($row['username'] == $_GET['user']){
                     $sql = "INSERT INTO service(title,type) VALUES (?,'blog')";
@@ -32,7 +33,6 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
                     $stmt2 = $conn->prepare($sql2);
                     $stmt2->bind_param("ii",$userID,$lastID); 
                     $stmt2->execute();
-                    $userID = $row['ID'];
                     $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Blog was created successfully'];
                     echo json_encode($json_array);
                 }else{
