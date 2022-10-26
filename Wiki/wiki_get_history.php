@@ -3,7 +3,8 @@
     require_once("../utility.php");
     require_once("wiki_get_version.php");
     require_once("get_wiki_from_page.php");
-    $v = "0.0.2";
+    require_once("../verify_token.php");
+    $version = "0.0.3";
 
     /**
      * wiki_get_history.php
@@ -24,17 +25,25 @@
     //==============================
     $page_id = get_if_set('page_id');
     $user_id = get_if_set('user_id');
+    $token = get_if_set('token');
 
-    if(!$page_id or !$user_id) {
-        error_message($v,"Missing input(s) - expected: 'page_id' and 'user_id'");
+    if(!$page_id or !$user_id or !$token) {
+        error_message("Missing input(s) - expected: 'page_id', 'user_id' and 'token'");
     }
 
     //==============================
     //    Check user permissions
     //==============================
+
+    // Token verification
+    if(!verify_token($user_id,$token)) {
+        error_message("Token is invalid or expired, please refresh your login.");
+    }
+
+    // Check if user has end-user privileges
     $wiki_id = get_wiki_from_page($page_id);
     if(!check_end_user($user_id,$wiki_id)) {
-        error_message($v,"User does not have permission to view the history of this page");
+        error_message("User does not have permission to view the history of this page");
     }
 
     //==============================
@@ -44,11 +53,11 @@
     $v_count = mysqli_fetch_assoc($stmt->get_result())['versions'];
 
     $data = [];
-    for($version=1;$version<=$v_count;$version++) {
-        array_push($data,get_version_content($page_id,$version));
+    for($v=1;$version<=$v_count;$v++) {
+        array_push($data,get_version_content($page_id,$v));
     }
 
-    $result = ["version"=>$v, "status"=>"OK", "data"=>$data];
+    $result = ["version"=>$version, "status"=>"OK", "data"=>$data];
     echo json_encode($result);
 
     $stmt->close();

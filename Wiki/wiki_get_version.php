@@ -10,9 +10,9 @@
      * @return  object
      * 
      */
-    function get_version_content($page_id,$version) {
+    function get_version_content($page_id,$v) {
         $data = [
-            'version'=>$version, 'user_id'=>null, 'username'=>null, 'date'=>null
+            'version'=>$v, 'user_id'=>null, 'username'=>null, 'date'=>null
         ];
 
         //==============================
@@ -24,12 +24,12 @@
         LEFT JOIN user u ON v.userID = u.ID
         WHERE v.pageID = ? and v.num = ?";
         $stmt_version_info = $GLOBALS['conn']->prepare($sql);
-        $stmt_version_info->bind_param("ii",$page_id,$version);
+        $stmt_version_info->bind_param("ii",$page_id,$v);
 
         // Get all content from current version
         $sql = "SELECT contents FROM content WHERE pageID = ? AND versionID = ?";
         $stmt_get_content = $GLOBALS['conn']->prepare($sql);
-        $stmt_get_content->bind_param("ii",$page_id,$version);
+        $stmt_get_content->bind_param("ii",$page_id,$v);
 
         //==============================
         //    Get version info

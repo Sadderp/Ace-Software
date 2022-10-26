@@ -22,8 +22,8 @@
      * @param   string  $msg        Error message
      *
      */
-    function error_message($version,$msg) {
-        $result = ["version"=>$version, "status"=>"ERROR", "data"=>$msg];
+    function error_message($msg) {
+        $result = ["version"=>$GLOBALS['version'], "status"=>"ERROR", "data"=>$msg];
         die(json_encode($result));
     }
 
@@ -46,6 +46,74 @@
         } else {
             return true;
         }
+    }
+
+    /**
+     * Get the account ID from its username
+     *
+     * @param   int     $username        name of the user
+     * @return  int
+     *
+     */
+    function id_from_username($username) {
+        $sql = "SELECT ID FROM user WHERE username = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("s",$username);
+        $stmt->execute();
+
+        $user_id = mysqli_fetch_assoc($stmt->get_result())['ID'];
+
+        if(!$user_id) {
+            return 0;
+        }
+
+        return $userID;
+    }
+
+    /**
+     * Get the account username from its ID
+     *
+     * @param   int     $user_id        ID of the user
+     *
+     */
+    function username_from_id($user_id) {
+        $sql = "SELECT username FROM user WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$user_id);
+        $stmt->execute();
+
+        $username = mysqli_fetch_assoc($stmt->get_result())['username'];
+
+        if(!$username) {
+            return 0;
+        }
+
+        return $username;
+    }
+
+    /**
+     * If the given service is of the given type, return true. Else return false.
+     *
+     * @param   int     $service_id     ID of the service
+     * @param   string  $type           Desired service type ('wiki', 'blog', or 'calendar')
+     * @return  boolean
+     */
+    function verify_service_type($service_id,$type) {
+        // Prepared statement
+        $sql = "SELECT type FROM service WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$service_id);
+
+        // Get service type
+        $stmt->execute();
+        $service_type = mysqli_fetch_assoc($stmt->get_result())['type'];
+
+        // Compare service type to desired type. Return true if match
+        if($service_type == $type) {
+            return true;
+        }
+
+        return false;
     }
 ?>
 

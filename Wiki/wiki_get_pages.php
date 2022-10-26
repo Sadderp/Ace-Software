@@ -1,7 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $v = "0.0.1";
+    $version = "0.0.2";
 
     /**
      * wiki_get_pages.php
@@ -12,11 +12,6 @@
     //==============================
     //    Prepared statements
     //==============================
-
-    // Check if service is a wiki
-    $sql = "SELECT type FROM service WHERE ID = ?";
-    $stmt_verify_wiki = $conn->prepare($sql);
-    $stmt_verify_wiki->bind_param("i",$wiki_id);
 
     // Get wiki pages
     $sql = "SELECT ID,title FROM wiki_page WHERE serviceID = ?";
@@ -29,21 +24,14 @@
     $wiki_id = get_if_set('wiki_id');
 
     if(!$wiki_id) {
-        error_message($v,"Missing input(s) - expected: 'wiki_id'");
+        error_message("Missing input(s) - expected: 'wiki_id'");
     }
 
     //==============================
     //    Check if service is a wiki
     //==============================
-    $stmt_verify_wiki->execute();
-    $service_type = mysqli_fetch_assoc($stmt_verify_wiki->get_result())['type'];
-
-    if(!$service_type) {
-        error_message($v,"Service does not exist");
-    }
-
-    if($service_type != 'wiki') {
-        error_message($v,"Service not a wiki");
+    if(!verify_service_type($wiki_id,'wiki')) {
+        error_message("Page is not a wiki");
     }
 
     //==============================
@@ -58,9 +46,8 @@
         array_push($data,$p);
     }
 
-    $result = ["version"=>$v, "status"=>"OK", "data"=>$data];
+    $result = ["version"=>$version, "status"=>"OK", "data"=>$data];
     echo json_encode($result);
 
-    $stmt_verify_wiki->close();
     $stmt_get_pages->close();
 ?>
