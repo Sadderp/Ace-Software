@@ -11,7 +11,7 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
     $token = $_GET['token'];
     
 
-    $sql = "SELECT user.ID AS Uid, username, userID, token FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
+    $sql = "SELECT user.ID AS Uid, username, token FROM user WHERE BINARY user.username = ? AND user.token=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$user,$token); 
     $stmt->execute();
@@ -26,9 +26,15 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("s",$title); 
                     $stmt->execute();
+                    $stmt->close();
                     $lastID = $conn->insert_id; 
 
-
+                    $sql = "SELECT user.ID AS Uid, username, userID, token FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("ss",$user,$token); 
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $stmt->close();
                     $sql2= "INSERT INTO end_user(userID,serviceID) VALUES (?,?)";
                     $stmt2 = $conn->prepare($sql2);
                     $stmt2->bind_param("ii",$userID,$lastID); 
@@ -37,16 +43,18 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
                     echo json_encode($json_array);
                     die();
                 }else{
+                    echo "hej";
                     $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
                     echo json_encode($json_array);
                 }
             }else{
+                echo "hejsan";
                 $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
                 echo json_encode($json_array);
             }
         }
     } else {
-        
+        echo "hello";
         $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
         echo json_encode($json_array);
     }
