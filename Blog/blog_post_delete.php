@@ -11,17 +11,17 @@ if(!empty($_GET['ID']) && !empty($_GET['serviceID']) && !empty($_GET['user']) &&
     $token = $_GET['token'];
     $serviceID = $_GET['serviceID'];
 
-    $sql = "SELECT ID, token FROM user WHERE BINARY username = ? AND token=?";
+    $sql = "SELECT username, token FROM user WHERE BINARY username = ? AND token=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$user,$token); 
     $stmt->execute();
-    $stmt->close();
     $result = $stmt->get_result();
+    $stmt->close();
 
         if($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
                 if($row['token'] == $_GET['token']){
-                    if($row['ID'] == $_GET['user']){
+                    if($row['username'] == $_GET['user']){
         
                             $sql = "DELETE FROM content WHERE ID = ? AND serviceID = ? ";
                             $stmt = $conn->prepare($sql);
@@ -52,7 +52,6 @@ if(!empty($_GET['ID']) && !empty($_GET['serviceID']) && !empty($_GET['user']) &&
         $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
         echo json_encode($json_array);
     }
-    $stmt->close();
 }
 else{
     $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'The URL is empty!'];
