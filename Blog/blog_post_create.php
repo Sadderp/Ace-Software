@@ -9,14 +9,18 @@ $error = "Error";
 //==================================================
 // content table
 //==================================================
-    if ((!empty($_GET['contents'])) && (!empty($_GET['imgID'])) && (!empty($_GET['serviceID'])) && !empty($_GET['user']) && !empty($_GET['token']))  {    //checks if the if is empty if so "dies". 
+    if ((!empty($_GET['contents'])) && (!empty($_GET['serviceID'])) && !empty($_GET['user']) && !empty($_GET['token']))  {    //checks if the if is empty if so "dies". 
                                                                                                                                     
         $contents = $_GET['contents'];
-        $imgID = $_GET['imgID'];
         $serviceID = $_GET['serviceID'];
         $user = $_GET['user'];
         $token = $_GET['token'];
-
+        if(empty($_GET['imgID'])){
+            $imgID = 0;
+        }
+        else{
+           $imgID = $_GET['imgID']; 
+        } 
         
         $sql = "SELECT user.ID AS Uid, user.username, user.token, end_user.userID, end_user.serviceID, service.ID, service.type FROM user INNER JOIN end_user ON user.ID = end_user.userID
                                    INNER JOIN service ON end_user.serviceID = service.ID WHERE BINARY username = ? AND token=?";
@@ -25,7 +29,7 @@ $error = "Error";
         $stmt->execute();
         $result = $stmt->get_result();
         $stmt->close();
-        print_r($result);
+
         if($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
                 $userID = $row['Uid'];
