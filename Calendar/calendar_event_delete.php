@@ -23,10 +23,10 @@
     $statement = $conn->prepare($sql2);
     $statement->bind_param("ss", $username, $token);
     $statement->execute();
-    $result3 = $statement->get_result();
+    $result2 = $statement->get_result();
 
     if ($result->num_rows > 0) {
-        while($row = $result3->fetch_assoc()) {
+        while($row = $result2->fetch_assoc()) {
             $userID = $row['ID'];
             }
     }else {
@@ -41,6 +41,6 @@
     $stmt->execute();
     $result = $stmt->get_result();
 
-    $delete = ["Version: "=>$version, "Status: "=>$error, "Data: "=>"event removed"];
-    echo json_encode($json_result);
+    $delete = ["Version: "=>$version, "Status: "=>$ok, "Data: "=>"event removed"];
+    echo json_encode($delete);
 ?>
