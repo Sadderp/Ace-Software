@@ -1,7 +1,7 @@
 <?php
 require_once('../db.php');
 require_once('../token.php');
-$version = "0.0.1";
+$version = "1.0.1";
 $ok = "OK";
 $error = "Error";
 
@@ -30,24 +30,24 @@ if (!empty($_GET['contents']) && !empty($_GET['contentID']) && !empty($_GET['use
                         $stmt->bind_param("si",$content,$contentID); 
                         $stmt->execute();
                         $stmt->close();
-                        $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Content was edited successfully'];
+                        $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Content was edited successfully'];
                         echo json_encode($json_array);
                     }
                     else{
-                        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'This content is not in the right blog!'];
+                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This content is not in the right blog!'];
                         echo json_encode($json_array);
                     } 
                 }else{
-                    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
+                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
                     echo json_encode($json_array);
                 }
         }else{
-            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
             echo json_encode($json_array);
         }
     }
 }else{
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
     echo json_encode($json_array);
 }
 
@@ -79,33 +79,33 @@ else if (!empty($_GET['img_url']) && !empty($_GET['imgID']) && !empty($_GET['use
                         $stmt->bind_param("ss",$img_url,$imgID); 
                         $stmt->execute();
                         $stmt->close();
-                        $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Old image edited successfully'];
+                        $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Old image edited successfully'];
                         echo json_encode($json_array);
                         die();
                     }
                     else{
-                        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'This image is not in the right blog!'];
+                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This image is not in the right blog!'];
                         echo json_encode($json_array);
                     }
                 }else{
-                    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
+                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
                     echo json_encode($json_array);
                 }
         }else{
             echo "hej";
-            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
             echo json_encode($json_array);
         }
     }
 }else{
     echo "hejsan";
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
     echo json_encode($json_array);
 }
 
 }
 else{
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data"=>"The URL is empty!"];
+    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data"=>"The URL is empty!"];
     echo json_encode($json_array);
 }
 ?>

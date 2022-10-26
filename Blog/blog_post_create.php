@@ -1,7 +1,7 @@
 <?php
 require_once('../db.php');
 require_once('../token.php');
-$version = "0.0.1";
+$version = "1.0.1";
 $ok = "OK";
 $error = "Error";
 
@@ -36,27 +36,27 @@ $error = "Error";
                             $stmt->bind_param("siii",$contents, $imgID, $serviceID, $userID);
                             $stmt->execute(); 
                             $stmt->close(); 
-                            $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'New content added!'];
+                            $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'New content added!'];
                             echo json_encode($json_array);
                             die();
                         }else{
-                            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'This is not a blog!'];
+                            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This is not a blog!'];
                             echo json_encode($json_array);
                             die();
                         }
                 }else{
-                    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
+                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
                     echo json_encode($json_array);
                     die();
                 }
         }else{
-            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
             echo json_encode($json_array);
             die();
         }
     }
 }else{
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
     echo json_encode($json_array);
     die();
 }
@@ -94,23 +94,23 @@ $error = "Error";
                         echo json_encode($json_result);
                 
                     }else{
-                        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Insertion failed!'];
+                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Insertion failed!'];
                         echo json_encode($json_array);
                         die();
                     }
             }else{
-                $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
                 echo json_encode($json_array);
                 die();
             }
         }
     }else{
-        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
         echo json_encode($json_array);
         die();
     }
     }else{
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'The URL is empty!'];
+    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'The URL is empty!'];
     echo json_encode($json_array);
     die();
     }
