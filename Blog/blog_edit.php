@@ -12,16 +12,16 @@ if(!empty($_GET['ID']) && !empty($_GET['title']) && !empty($_GET['user']) && !em
     $user = $_GET['user'];
     $token = $_GET['token'];
 
-    $sql = "SELECT user.ID AS uID, user.token, end_user.userID, end_user.serviceID FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
+    $sql = "SELECT user.ID AS uID, user.token, user.username, end_user.userID, end_user.serviceID FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$user,$token); 
     $stmt->execute();
-    $stmt->close();
     $result = $stmt->get_result();
+    $stmt->close();
         if($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
                 if($row['token'] == $_GET['token']){
-                    if($row['uID'] == $_GET['user']){
+                    if($row['username'] == $_GET['user']){
                         if($row['userID'] == $row['uID']){
                             $sql = "UPDATE service SET title = ? WHERE ID = ? AND type = 'blog'";
                             $stmt = $conn->prepare($sql);
@@ -31,28 +31,37 @@ if(!empty($_GET['ID']) && !empty($_GET['title']) && !empty($_GET['user']) && !em
                             if($stmt->affected_rows == 1){
                                 $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data"=>"Blog edited successfully"];
                                 echo json_encode($json_array);
+                                die();
                             }
                             else{
                                 $json_array = ["Version: "=>$version,"Type: "=>$error,"Data"=>"This is not a blog!"];
                                 echo json_encode($json_array);
+                                die();
                             }
                         }else{
                             echo "hej";
                             $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'You cannot delete this blog since its not yours!'];
                             echo json_encode($json_array);
+                            die();
                         }
                 }else{
+                    echo "hello";
                     $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
                     echo json_encode($json_array);
+                    die();
                 }
             }else{
+                echo "hejsan";
                 $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
                 echo json_encode($json_array);
+                die();
             }
         }
     }else{
+        echo "hej på dig";
         $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
         echo json_encode($json_array);
+        die();
     }
 }
 else{
