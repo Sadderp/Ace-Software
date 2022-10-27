@@ -115,5 +115,28 @@
 
         return false;
     }
+
+    /**
+     * If the given user is an admin, return true. Else return false.
+     *
+     * @param   int     $user_id      ID of the service
+     * @return  boolean
+     */
+    function check_admin($user_id) {
+        // Prepared statement
+        $sql = "SELECT admin FROM user WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$user_id);
+
+        // Get admin status
+        $stmt->execute();
+        $admin = mysqli_fetch_assoc($stmt->get_result())['admin'];
+
+        if($admin) {
+            return true;
+        } 
+
+        return false;
+    }
 ?>
 
