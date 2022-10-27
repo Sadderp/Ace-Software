@@ -39,6 +39,7 @@ if(!empty($_GET['ID']) && !empty($_GET['user']) && !empty($_GET['token'])) {
                             else{
                                 $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This is not a blog!'];
                                 echo json_encode($json_array);
+                                die();
                             } 
                     }else{
                         echo "hej";

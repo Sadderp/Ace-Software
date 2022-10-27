@@ -8,6 +8,8 @@
 require_once("./db.php");
 require_once("./token.php");
 $version = "0.0.1";
+$ok = "OK";
+$error = "Error";
 
 
 
@@ -20,8 +22,9 @@ if(!empty($_GET['display_name']) && !empty($_GET['name']) && !empty($_GET['passw
     $password = $_GET['password'];
     $cpassword = $_GET['cpassword'];
 
-    $sql = "SELECT * FROM user";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT * FROM user");
+    $stmt->execute();
+    $result = $stmt->get_result();
         
     $list = [];
     while ($row = $result->fetch_assoc()) {
@@ -29,18 +32,20 @@ if(!empty($_GET['display_name']) && !empty($_GET['name']) && !empty($_GET['passw
     }
         
     foreach($list as $x) {
-        if($name == $x["username"] && $password == $x["password"]) {
+        if($name == $x["username"] && $password == password_verify($password, $x["password"])) {
             // this account already exist
+            $sign_up = ["Version"=>$version,"Status"=>$error,"Date"=>"This account already exists"];
+            echo json_encode($sign_up);
         }
         else if($list[count($list)-1] == $x ) {
             if($password === $cpassword) {
                 $stmt = $conn->prepare("INSERT INTO user(displayname, username, password) VALUE(?, ?, ?)");
                 $stmt->bind_param("sss", $display_name, $name, password_hash($password, PASSWORD_DEFAULT));
                 $stmt->execute();
-                $result = $stmt->get_result();
-                
-                if ($conn->query($sql) == TRUE) {
-                    header("Location: login.php"); // created account
+
+                if ($stmt->affected_rows == 1) {
+                    // created account
+                    header("Location: login.php");
                 }
                 else {
                     // i do not know how they will come to here???
@@ -48,6 +53,8 @@ if(!empty($_GET['display_name']) && !empty($_GET['name']) && !empty($_GET['passw
             }
             else {
                 // cpassword and password is not same
+                $sign_up = ["Version"=>$version,"Status"=>$error,"Date"=>"Password and cpassword did not match"];
+                echo json_encode($sign_up);
             }
         }
     }

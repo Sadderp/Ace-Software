@@ -11,6 +11,7 @@ if(!empty($_GET['title'])&& !empty($_GET['userID']) && !empty($_GET['token'])){
     $token = $_GET['token'];
     
 
+
     $sql = "SELECT user.ID, user.username, user.token, end_user.userID, end_user.serviceID, service.ID, service.type FROM user INNER JOIN end_user ON user.ID = end_user.userID 
                                                                                                                                INNER JOIN service ON end_user.serviceID = service.ID WHERE BINARY user.ID = ? AND token = ? AND type = 'blog'";
     $stmt = $conn->prepare($sql);
@@ -30,6 +31,7 @@ if(!empty($_GET['title'])&& !empty($_GET['userID']) && !empty($_GET['token'])){
             echo json_encode($json_array);
             die();
         }
+
         if($row['username'] != $_GET['user']){
             $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
             echo json_encode($json_array);

@@ -1,58 +1,61 @@
 <?php
     require_once("../db.php");
-    require_once("../token.php");
-    $version = "0.0.1";
+    require_once("../utility.php");
+    require_once("../verify_token.php");
+    $version = "0.0.2";
     
     //==============================
     //     Prepared statements
     //==============================
-    $stmt = $conn->prepare("SELECT ID FROM service WHERE title = ?");
 
-    $stmt2 = $conn->prepare("DELETE FROM service WHERE title = ? AND type = ?");
-    $stmt2->bind_param("ss", $wiki_title, $wiki_type);
-    
-    $stmt3 = $conn->prepare("DELETE FROM end_user WHERE serviceID = ?");
+    $stmt = $conn->prepare("DELETE FROM service WHERE ID = ?");
+    $stmt->bind_param("i", $wiki_id);
+ 
+    //==============================
+    //      Get variables
+    //==============================
+
+    $wiki_id = get_if_set('wiki_id');
+    $user_id = get_if_set('user_id');
+    $token = get_if_set('token');
 
     //==============================
-    //          Variables
+    //      Requirements
     //==============================
-    $wiki_title = $_GET['wiki_title'];
-    $wiki_type = "wiki";
 
+    // All input variables must be set
+    if(!$wiki_id or !$user_id or !$token) {
+        error_message("Missing input(s) - expected: 'wiki_id', 'user_id' and 'token'");
+    }
+
+    // Token must be valid
+    if(!verify_token($user_id,$token)) {
+        error_message("Token is invalid or expired");
+    }
+
+    // User must be admin
+    if(!check_admin($user_id)) {
+        error_message("You must be an admin to delete a wiki.");
+    }
+
+    // Page must be a wiki
+    if(!verify_service_type($wiki_id,'wiki')) {
+        error_message("Not a wiki");
+    }
     
     //=====================================
     //  Deletes from service and end_user
     //=====================================
-    if(!empty($_GET['wiki_title'])) {
 
+    $stmt->execute();
 
-        $stmt->bind_param("s", $wiki_title);
-        $stmt->execute();
-        $result_wid = $stmt->get_result();
-        
-        if($result_wid->num_rows == 1){
-            $wiki_arr = $result_wid->fetch_assoc();
-            $wiki_id = $wiki_arr['ID'];
-        }
-        
-        $stmt3->bind_param("i", $wiki_id); 
-        $stmt3->execute();
-
-        $stmt2->execute();
-        if ($stmt2->affected_rows == 1) {
-            $status = "OK";
-            $json_result = ["Version "=>$version, "Status "=>$status, "Data "=>$wiki_title];
-            echo json_encode($json_result);        
-        } else {
-            echo "Error: " . $stmt2 . "<br>" . $conn->error;
-        }
-
-
-
+    if ($stmt->affected_rows == 0) {
+        error_message("Failed to delete");
     }
 
+    $status = "OK";
+    $json_result = ["Version"=>$version, "Status"=>$status, "Data"=>"Successfully deleted Wiki (ID " . $wiki_id . ")"];
+    echo json_encode($json_result);        
 
     $stmt->close();
-    $stmt2->close();
-    $stmt3->close();
 ?>
