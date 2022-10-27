@@ -57,7 +57,7 @@
         array_push($data,get_version_content($page_id,$v));
     }
 
-    $result = ["version"=>$version, "status"=>"OK", "data"=>$data];
+    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>$data];
     echo json_encode($result);
 
     $stmt->close();

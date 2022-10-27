@@ -23,7 +23,7 @@
      *
      */
     function error_message($msg) {
-        $result = ["version"=>$GLOBALS['version'], "status"=>"ERROR", "data"=>$msg];
+        $result = ["Version"=>$GLOBALS['version'], "Status"=>"Error", "Data"=>$msg];
         die(json_encode($result));
     }
 

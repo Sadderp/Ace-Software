@@ -44,7 +44,7 @@
     
     // Check if operation is successful
     if($stmt->affected_rows === 1) {
-        $result = ["version"=>$version, "status"=>"OK", "data"=>$page_title];
+        $result = ["Version"=>$version, "Status"=>"OK", "Data"=>$page_title];
     } else {
         error_message("Failed to add to database");
     }
