@@ -11,7 +11,7 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
     $token = $_GET['token'];
     
 
-    $sql = "SELECT user.ID AS Uid, username, userID, token FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
+    $sql = "SELECT user.ID AS Uid, username, token FROM user WHERE BINARY user.username = ? AND user.token=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$user,$token); 
     $stmt->execute();
@@ -45,7 +45,7 @@ if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
             }
         }
     } else {
-        
+        echo "hello";
         $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
         echo json_encode($json_array);
     }
