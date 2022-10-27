@@ -36,27 +36,27 @@
 
     // All input variables must be set
     if(!$page_id or !$rollback_version or !$user_id or !$token) {
-        error_message("Missing input(s) - expected: 'page_id', 'rollback_version', 'user_id' and 'token'");
+        output_error("Missing input(s) - expected: 'page_id', 'rollback_version', 'user_id' and 'token'");
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        error_message("Token is invalid or expired");
+        output_error("Token is invalid or expired");
     }
 
     // User must be admin
     if(!check_admin($user_id)) {
-        error_message("You must be an admin to delete a wiki.");
+        output_error("You must be an admin to delete a wiki.");
     }
 
     // 'rollback_version' must be a number
     if(!is_numeric($rollback_version)) {
-        error_message("'rollback_version' is not a number");
+        output_error("'rollback_version' is not a number");
     }
 
     // Rollback version must be less than current version
     if($rollback_version >= $current_version or $rollback_version < 1) {
-        error_message("You cannot rollback to this version");
+        output_error("You cannot rollback to this version");
     }
     
     //==============================
@@ -67,10 +67,9 @@
     $stmt_delete_content->execute();
 
     if($stmt_delete_version->affected_rows == 0 and $stmt_delete_content->affected_rows == 0) {
-        error_message("Failed to delete");
+        output_error("Failed to delete");
     }
 
-    $json_result = ["Version"=>$version, "Status"=>"OK", "Data"=>"Successfully rolled back " . ($current_version - $rollback_version) . " versions"];
-    echo json_encode($json_result);
+    output_ok("Successfully rolled back " . ($current_version - $rollback_version) . " versions");
 ?>
 

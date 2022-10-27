@@ -29,22 +29,22 @@
 
     // Make sure all variables are set;
     if(!$wiki_name or !$user_id or !$visibility or !$token) {
-        error_message("Missing input - expected: 'wiki_name', 'visibility', 'user_id' and 'token'");
+        output_error("Missing input - expected: 'wiki_name', 'visibility', 'user_id' and 'token'");
     }
     
     // Make sure visibility is either private or public
     if($visibility != 'public' and $visibility != 'private') {
-        error_message("'visibility' must be set to either 'private' or 'public'");
+        output_error("'visibility' must be set to either 'private' or 'public'");
     }
 
     // Check token validity
     if(!verify_token($user_id,$token)) {
-        error_message("Token is invalid or expired");
+        output_error("Token is invalid or expired");
     }
 
     // Check if user is admin
     if(!check_admin($user_id)) {
-        error_message("You must be an admin to create a wiki. If you think this is dumb, please file a complaint to The Provider.");
+        output_error("You must be an admin to create a wiki. If you think this is dumb, please file a complaint to The Provider.");
     }
 
     //==============================
@@ -54,7 +54,7 @@
     $stmt_create->execute();
 
     if($stmt_create->affected_rows == 0) {
-        error_message("Failed to add to database");
+        output_error("Failed to add to database");
     }
 
     // Get wiki ID
@@ -66,12 +66,11 @@
     $stmt_end_user->execute();
 
     if($stmt_end_user->affected_rows == 0) {
-        error_message("Failed to set end user");
+        output_error("Failed to set end user");
     }
 
     // JSON
-    $json_result = ["Version"=>$version, "Status"=>"OK", "Data"=>$wiki_name];
-    echo json_encode($json_result); 
+    output_ok($wiki_name);
 
     // Close statements
     $stmt_create->close();

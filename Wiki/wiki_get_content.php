@@ -17,7 +17,7 @@
     $page_id = get_if_set('page_id');
 
     if(!$page_id) {
-        error_message("Missing input(s) - expected: 'page_id'");
+        output_error("Missing input(s) - expected: 'page_id'");
     }
 
     //==============================
@@ -25,6 +25,5 @@
     //==============================
     $page_v = get_recent_version($page_id);
     $data = get_version_content($page_id,$page_v);
-    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>$data];
-    echo json_encode($result);
+    output_ok($data);
 ?>

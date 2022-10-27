@@ -39,7 +39,7 @@
     // Get wiki ID
     $wiki_id = get_wiki_from_page($page_id);
     if($wiki_id == 0) {
-        error_message("Wiki page not found");
+        output_error("Wiki page not found");
     }
 
     //==============================
@@ -48,12 +48,12 @@
 
     // All input variables must be set
     if(!$user_id or !$page_id or !$token) {
-        error_message("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
+        output_error("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        error_message("Token is invalid or expired, please refresh your login.");
+        output_error("Token is invalid or expired, please refresh your login.");
     }
 
     //==============================
@@ -70,10 +70,8 @@
     }
 
     if($stmt_add_version->affected_rows == 0) {
-        error_message("Failed to add to database");
+        output_error("Failed to add to database");
     }
 
-    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>"Successfully updated wiki page (v" . $new_version . ")"];
-
-    echo json_encode($result);
+    output_ok("Successfully updated wiki page (v" . $new_version . ")");
 ?>

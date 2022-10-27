@@ -26,17 +26,17 @@
 
     // All input variables must be set
     if(!$ban_id or !$user_id or !$token) {
-        error_message("Missing input(s) - expected: 'ban_id', 'user_id' and 'token'");
+        output_error("Missing input(s) - expected: 'ban_id', 'user_id' and 'token'");
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        error_message("Token is invalid or expired, please refresh your login.");
+        output_error("Token is invalid or expired, please refresh your login.");
     }
 
     // User must be admin
     if(!check_admin($user_id)) {
-        error_message("You must be an admin to delete a wiki.");
+        output_error("You must be an admin to delete a wiki.");
     }
 
     //==============================
@@ -46,9 +46,8 @@
     $stmt->execute();
 
     if($stmt->affected_rows == 0) {
-        error_message("Failed to unban user. Either the user doesn't exist or there was an issue connecting to the database. We're not really sure");
+        output_error("Failed to unban user. Either the user doesn't exist or there was an issue connecting to the database. We're not really sure");
     }
 
-    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>"User was unbanned"];
-    echo json_encode($result);
+    output_ok("User was unbanned");
 ?>

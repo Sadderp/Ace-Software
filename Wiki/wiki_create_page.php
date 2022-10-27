@@ -27,17 +27,17 @@
 
     // All input variables must be set
     if(!$wiki_id or !$page_title or !$user_id or !$token) {
-        error_message("Missing input - expected: 'wiki_id', 'user_id' and 'page_title'");
+        output_error("Missing input - expected: 'wiki_id', 'user_id' and 'page_title'");
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        error_message("Token is invalid or expired");
+        output_error("Token is invalid or expired");
     }
 
     // Page must be a wiki
     if(!verify_service_type($wiki_id,"wiki")) {
-        error_message("Service is not a wiki");
+        output_error("Service is not a wiki");
     }
     
     //==============================
@@ -48,11 +48,10 @@
     
     // Check if operation is successful
     if($stmt->affected_rows == 0) {
-        error_message("Failed to add to database");
+        output_error("Failed to add to database");
     }
 
-    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>$page_title];
-    echo json_encode($result);
+    output_ok($page_title);
 
     $stmt->close();
 ?>
