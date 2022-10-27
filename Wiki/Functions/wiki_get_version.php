@@ -1,6 +1,6 @@
 <?php
-    require_once("../db.php");
-    require_once("../utility.php");
+    require_once("../../db.php");
+    require_once("../../utility.php");
 
     /**
      * Get and return the properties of a wiki page version and the content assigned to it.
