@@ -6,7 +6,6 @@
 // Calls the databas
 //==================================================
 require_once("./db.php");
-require_once("./token.php");
 
 
 
