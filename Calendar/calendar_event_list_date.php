@@ -4,6 +4,7 @@
     $version = "0.0.8";
     $ok = "OK";
     $error = "Error";
+    $data = [];
 
     $db = $conn;
     
@@ -49,20 +50,22 @@
     $stmt->execute();
     $result = $stmt->get_result();
 
-    
-   // Your own event
+    // Your own event
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $json_result = ["Version: "=>$version, "Type: "=>$ok, "Data: "=>" ID: ".$row["ID"]. " date: ".$row["date"]. " end_date: ".$row["end_date"]. " Title: ".$row["title"]. " description: ".$row["description"]];
-            echo json_encode($json_result);
+            $json_result = ["ID: ".$row["ID"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"]];
+            array_push($data,$json_result);
             }
     }
 
     // Invited to
     if ($result2->num_rows > 0) {
         while($row = $result2->fetch_assoc()) {
-            $json_result = ["Version: "=>$version, "Type: "=>$ok, "Data: "=> " Invited to: "."ID: ".$row["eventID"]. " date: ".$row["date"]. " end_date: ".$row["end_date"]. " Title: ".$row["title"]. " description: ".$row["description"]];
-            echo json_encode($json_result);
+            $json_result = ["Invited to:"." ID: ".$row["eventID"]." by: "." userID ".$row["userID"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"]];
+            array_push($data,$json_result);
             }
     }
+    
+    $resultat = ["Version"=>$version, "Status"=>$ok, "Data"=>$data];
+    echo json_encode($resultat);
 ?>

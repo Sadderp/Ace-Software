@@ -55,10 +55,10 @@
     $stmt->execute();
 
     if ($stmt->affected_rows === 1) {
-        $json_result = ["Version: "=>$version, "Status: "=>$ok, "Data: "=>"event created"];
+        $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"event created"];
         echo json_encode($json_result);
     } else {
-        $json_result = ["Version: "=>$version, "Status: "=>$error, "Data: "=>"uh oh"];
+        $json_result = ["Version"=>$version, "Status"=>$error, "Data"=>"uh oh"];
         echo json_encode($json_result);
     }   
 ?>
