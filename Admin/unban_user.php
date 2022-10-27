@@ -1,23 +1,22 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $version = "0.0.5";
+    require_once("../verify_token.php");
+    $version = "0.0.1";
 
     //==============================
     //    Prepared statements
     //==============================
 
-    // Create wiki page
-    $sql = "INSERT INTO wiki_page (serviceID, title) VALUES (?,?)";
+    $sql = "UPDATE user SET ban = 0 WHERE ID = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("is",$wiki_id,$page_title);
-    
+    $stmt->bind_param("i",$ban_id);
+
     //==============================
     //    Get variables
     //==============================
 
-    $wiki_id = get_if_set('wiki_id');
-    $page_title = get_if_set('page_title');
+    $ban_id = get_if_set('ban_id');
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
 
@@ -26,32 +25,29 @@
     //==============================
 
     // All input variables must be set
-    if(!$wiki_id or !$page_title or !$user_id or !$token) {
-        output_error("Missing input - expected: 'wiki_id', 'user_id' and 'page_title'");
+    if(!$ban_id or !$user_id or !$token) {
+        output_error("Missing input(s) - expected: 'ban_id', 'user_id' and 'token'");
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        output_error("Token is invalid or expired");
+        output_error("Token is invalid or expired, please refresh your login.");
     }
 
-    // Page must be a wiki
-    if(!verify_service_type($wiki_id,"wiki")) {
-        output_error("Service is not a wiki");
+    // User must be admin
+    if(!check_admin($user_id)) {
+        output_error("You must be an admin to delete a wiki.");
     }
-    
+
     //==============================
-    //    Create page
+    //    Unban user
     //==============================
 
     $stmt->execute();
-    
-    // Check if operation is successful
+
     if($stmt->affected_rows == 0) {
-        output_error("Failed to add to database");
+        output_error("Failed to unban user. Either the user doesn't exist or there was an issue connecting to the database. We're not really sure");
     }
 
-    output_ok($page_title);
-
-    $stmt->close();
+    output_ok("User was unbanned");
 ?>
