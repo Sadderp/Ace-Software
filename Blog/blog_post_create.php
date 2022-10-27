@@ -23,7 +23,7 @@ $error = "Error";
         } 
         
         $sql = "SELECT user.ID AS Uid, user.username, user.token, end_user.userID, end_user.serviceID, service.ID, service.type FROM user INNER JOIN end_user ON user.ID = end_user.userID
-                                   INNER JOIN service ON end_user.serviceID = service.ID WHERE BINARY username = ? AND token=?";
+                                   INNER JOIN service ON end_user.serviceID = service.ID WHERE BINARY username = ? AND token=? AND type = 'blog'";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss",$user,$token); 
         $stmt->execute();
@@ -35,19 +35,20 @@ $error = "Error";
                 $userID = $row['Uid'];
                 if($row['token'] == $_GET['token']){
                     if($row['username'] == $_GET['user']){
-                        if($row['type'] == 'blog'){
                             $stmt = $conn->prepare("INSERT INTO content (contents, imgID, serviceID, userID) VALUES (?, ?, ?, ?)");
                             $stmt->bind_param("siii",$contents, $imgID, $serviceID, $userID);
                             $stmt->execute(); 
-                            $stmt->close(); 
-                            $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'New content added!'];
-                            echo json_encode($json_array);
-                            die();
-                        }else{
-                            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This is not a blog!'];
-                            echo json_encode($json_array);
-                            die();
-                        }
+                            
+                            if($stmt->affected_rows == 1){   
+                                $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'New content added!'];
+                                echo json_encode($json_array);
+                                die();
+                            }else{
+                                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This is not a blog!'];
+                                echo json_encode($json_array);
+                                die();
+                            }
+                            $stmt->close();
                 }else{
                     $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
                     echo json_encode($json_array);
