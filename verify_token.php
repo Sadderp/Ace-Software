@@ -1,6 +1,6 @@
 <?php
-    require_once("../db.php");
-    require_once("../utility.php");
+    require_once("db.php");
+    require_once("utility.php");
 
     /**
      * Check if token matches with the user token stored in the database.
@@ -24,16 +24,10 @@
             error_message("User not found");
         }
 
-        // Generate a new token if the previous one has expired
+        // If the token is expired or the token doesn't match, deny access.
         $time = date('Y-m-d H:i:s', time());
         $end_time = $result['end_date'];
-        if($time >= $end_time) {
-            generate_token($user_id);
-            return false;
-        }
-
-        // Check if token matches
-        if($result['token'] != $token) {
+        if($time >= $end_time or $result['token'] != $token) {
             return false;
         }
 
@@ -41,22 +35,29 @@
     }
 
     /**
-     * Generate a new token for the user and replace the new one
+     * Replace the existing token and create an end time for it
      * 
      * @param   int     $user_id    ID of the user
      */
-    function generate_token($user_id) {
+    function replace_token($user_id,$token) {
         // Generate end time
         $new_hour = ((intval(date('H', time())+1)));
-        $end_time = date("Y-m-d $new_hour:00:00", time());
-
-        // Generate token
-        $token = bin2hex(random_bytes(32));
+        $end_date = date("Y-m-d $new_hour:00:00", time());
 
         // Update existing token
         $sql = "UPDATE user SET token=?, end_date=? WHERE id=?";
         $stmt = $GLOBALS['conn']->prepare($sql);
-        $stmt->bind_param("ssi", $token, $end_time, $user_id);
+        $stmt->bind_param("ssi", $token, $end_date, $user_id);
         $stmt->execute();
+    }
+
+    /**
+     * Generate a new token
+     * 
+     * @return  string
+     */
+    function generate_token() {
+        $token = bin2hex(random_bytes(32));
+        return $token;
     }
 ?>
