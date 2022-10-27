@@ -1,7 +1,8 @@
 <?php
     require_once("../db.php");
+    require_once("../utility.php");
     require_once("../token.php");
-    $version = "1.0.1";
+    $version = "1.0.2";
     
     //==============================
     //    Prepared statements
@@ -30,10 +31,10 @@
 
         if ($stmt->affected_rows == 1) {
             $status = "OK";
-            $json_result = ["Version: "=>$version, "Status: "=>$status, "Data: "=>$wiki_name];
+            $json_result = ["Version"=>$version, "Status"=>$status, "Data"=>$wiki_name];
             echo json_encode($json_result);        
         } else {
-            echo "Error: " . $stmt . "<br>" . $conn->error;
+            error_message("Failed to add to database");
         }
         $stmt->close();
 

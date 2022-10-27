@@ -25,6 +25,6 @@
     //==============================
     $page_v = get_recent_version($page_id);
     $data = get_version_content($page_id,$page_v);
-    $result = ["version"=>$version, "status"=>"OK", "data"=>$data];
+    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>$data];
     echo json_encode($result);
 ?>

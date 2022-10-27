@@ -1,5 +1,6 @@
 <?php
     require_once("../db.php");
+    require_once("../utility.php");
     require_once("../token.php");
     $version = "0.0.1";
     
@@ -41,10 +42,10 @@
         $stmt2->execute();
         if ($stmt2->affected_rows == 1) {
             $status = "OK";
-            $json_result = ["Version "=>$version, "Status "=>$status, "Data "=>$wiki_title];
+            $json_result = ["Version"=>$version, "Status"=>$status, "Data"=>$wiki_title];
             echo json_encode($json_result);        
         } else {
-            echo "Error: " . $stmt2 . "<br>" . $conn->error;
+            error_message("Failed to delete");
         }
 
 

@@ -74,7 +74,7 @@
     }
 
     if($stmt_add_version->affected_rows == 1 and $stmt_add_content->affected_rows >= 1) {
-        $result = ["version"=>$version, "status"=>"OK", "data"=>"Successfully updated wiki page (v" . $new_version . ")"];
+        $result = ["Version"=>$version, "Status"=>"OK", "Data"=>"Successfully updated wiki page (v" . $new_version . ")"];
     } else {
         error_message("Failed to add to database");
     }

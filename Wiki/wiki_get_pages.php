@@ -46,7 +46,7 @@
         array_push($data,$p);
     }
 
-    $result = ["version"=>$version, "status"=>"OK", "data"=>$data];
+    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>$data];
     echo json_encode($result);
 
     $stmt_get_pages->close();
