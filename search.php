@@ -6,7 +6,6 @@
 // Calls the databas
 //==================================================
 require_once("./db.php");
-require_once("./token.php");
 
 
 
@@ -17,14 +16,16 @@ if(!empty($_GET['type']) && !empty($_GET['title'])) {
   $type = $_GET['type'];
   $title = "%".$_GET['title']."%";
 
-  $stmt = $conn->prepare("SELECT * FROM wiki_page WHERE serviceID=? AND title LIKE ?");
+  $stmt = $conn->prepare("SELECT * FROM service WHERE type=? AND title LIKE ?");
   $stmt->bind_param("ss", $type, $title);
+  $stmt->execute();
 }
 else if(!empty($_GET['type'])) {
   $type = $_GET['type'];
 
-  $stmt = $conn->prepare("SELECT * FROM wiki_page WHERE serviceID=?");
+  $stmt = $conn->prepare("SELECT * FROM service WHERE type=?");
   $stmt->bind_param("s", $type);
+  $stmt->execute();
 }
 //==================================================
 // Wiki Page

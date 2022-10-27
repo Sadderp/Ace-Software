@@ -31,7 +31,7 @@
             return false;
         }
 
-        return true;   
+        return true;
     }
 
     /**
@@ -42,7 +42,7 @@
     function replace_token($user_id,$token) {
         // Generate end time
         $new_hour = ((intval(date('H', time())+1)));
-        $end_date = date("Y-m-d $new_hour:00:00", time());
+        $end_date = date("Y-m-d $new_hour:i:s", time());
 
         // Update existing token
         $sql = "UPDATE user SET token=?, end_date=? WHERE id=?";
