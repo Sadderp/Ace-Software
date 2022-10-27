@@ -1,8 +1,8 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    require_once("wiki_get_version.php");
-    require_once("get_wiki_from_page.php");
+    require_once("Functions/wiki_get_version.php");
+    require_once("Functions/get_wiki_from_page.php");
     require_once("../verify_token.php");
     $version = "0.0.3";
 
