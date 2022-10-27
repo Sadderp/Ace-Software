@@ -1,7 +1,7 @@
 <?php
 require_once('../db.php');
 require_once('../token.php');
-$version = "0.0.1"; // Variable for version (hardcoded)
+$version = "1.0.1";
 $error = "Error";
 
     if (!empty($_GET['blog'])){   
@@ -20,7 +20,7 @@ $error = "Error";
             }
         }
         else {
-            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
+            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
             echo json_encode($json_array);
         }
     }

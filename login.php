@@ -14,6 +14,7 @@ $error = "Error";
 //==================================================
 //      Get variables
 //==================================================
+
 $name = get_if_set('name');
 $password = get_if_set('password');
 
@@ -40,20 +41,24 @@ if(!password_verify($password, $user['password'])) {
     die(json_encode($login));
 }
 
-// User is banned
+// Check if user is banned
 if($user['ban'] == 1) {
     $login = ["Version"=>$version,"Status"=>$ok,"Data"=>"This account is banned"];
     die(json_encode($login));
 }
 
+// Different login message depending on if you're admin
 if($user['admin'] == 1) {
     $msg = "You logged in as an admin";
 } else {
     $msg = "You logged in as a user";
 }
     
+// Request token
 $token = generate_token();
 replace_token($user['ID'],$token);
+
+// JSON
 $login = ["Version"=>$version,"Status"=>$ok,"Data"=>["msg"=>$msg,"token"=>$token]];
 echo json_encode($login);
 ?>

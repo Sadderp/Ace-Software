@@ -5,63 +5,52 @@ $version = "1.0.1";
 $ok = "OK";
 $error = "Error";
 
-if(!empty($_GET['ID']) && !empty($_GET['user']) && !empty($_GET['token'])) {
+if(!empty($_GET['ID']) && !empty($_GET['serviceID']) && !empty($_GET['user']) && !empty($_GET['token']) )  {
     $ID = $_GET['ID'];
     $user = $_GET['user'];
     $token = $_GET['token'];
+    $serviceID = $_GET['serviceID'];
 
-    $sql = "SELECT user.ID AS uID, user.username, user.token, end_user.userID, end_user.serviceID FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
+    $sql = "SELECT username, token FROM user WHERE BINARY username = ? AND token=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss",$user,$token); 
     $stmt->execute();
     $result = $stmt->get_result();
     $stmt->close();
+
         if($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
                 if($row['token'] == $_GET['token']){
                     if($row['username'] == $_GET['user']){
-                        if($row['userID'] == $row['uID']){
-                            $sql = "DELETE FROM service WHERE ID = ? AND type = 'blog'";
+        
+                            $sql = "DELETE FROM content WHERE ID = ? AND serviceID = ? ";
                             $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i",$ID); 
+                            $stmt->bind_param("ii",$ID, $serviceID); 
                             $stmt->execute();
 
-                            
                             if($stmt->affected_rows == 1){
-                                $sql2= "DELETE FROM end_user WHERE serviceID = ?";
-                                $stmt2 = $conn->prepare($sql2);
-                                $stmt2->bind_param("i",$ID); 
-                                $stmt2->execute();
-                                $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was deleted successfully!'];
+                                $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Content was deleted successfully!'];
                                 echo json_encode($json_array);
                                 die();
                             }
                             else{
-                                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This is not a blog!'];
+                                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This content is not in the right blog!'];
                                 echo json_encode($json_array);
-                                die();
                             } 
                     }else{
-                        echo "hej";
-                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this blog since its not yours!'];
+                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
                         echo json_encode($json_array);
-                        die();
                     }
-                }else{
-                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-                    echo json_encode($json_array);
-                    die();
-                }
             }else{
+                echo "hej";
                 $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
                 echo json_encode($json_array);
-                die();
             }
         }
     }else{
+        echo "hejsan";
         $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
         echo json_encode($json_array);
-        die();
     }
 }
 else{
