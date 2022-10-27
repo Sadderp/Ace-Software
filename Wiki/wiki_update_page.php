@@ -2,8 +2,8 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
-    require_once("wiki_get_recent_version.php");
-    require_once("get_wiki_from_page.php");
+    require_once("Functions/wiki_get_recent_version.php");
+    require_once("Functions/get_wiki_from_page.php");
     $version = "0.0.8";
 
     // TEST LINK:
@@ -75,7 +75,4 @@
     }
 
     echo json_encode($result);
-
-    $stmt_add_version->close();
-    $stmt_add_content->close();
 ?>
