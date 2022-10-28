@@ -2,7 +2,7 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
-    $version = "0.0.2";
+    $version = "0.0.3";
     
     //==============================
     //     Prepared statements
@@ -33,9 +33,9 @@
         output_error("Token is invalid or expired");
     }
 
-    // User must be admin
-    if(!check_admin($user_id)) {
-        output_error("You must be an admin to delete a wiki.");
+    // User must be admin or manager
+    if(!check_admin($user_id) and !check_manager($user_id)) {
+        output_error("You must be an admin or manager to delete a wiki.");
     }
 
     // Page must be a wiki
