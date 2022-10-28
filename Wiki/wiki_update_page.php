@@ -5,6 +5,7 @@
     require_once("wiki_utility.php");
     $version = "0.0.9";
 
+
     // TEST LINK:
     // http://localhost:8080/webbutveckling/TE4/Ace-Software/wiki/wiki_update_page.php?user_id=1&page_id=1&content=["<h1>RobTop</h1>","<p>RobTop is the lead developer of Geometry Dash</p>"]
 

@@ -1,71 +1,54 @@
 <?php
 require_once('../db.php');
-require_once('../token.php');
+require_once('../verify_token.php');
+require_once('../utility.php');
 $version = "1.0.1";
 $ok = "OK";
 $error = "Error";
 
-if(!empty($_GET['ID']) && !empty($_GET['user']) && !empty($_GET['token'])) {
-    $ID = $_GET['ID'];
-    $user = $_GET['user'];
-    $token = $_GET['token'];
+$blogID = get_if_set('blogID');
+$user_id = get_if_set('userID');
+$token = get_if_set('token');
 
-    $sql = "SELECT user.ID AS uID, user.username, user.token, end_user.userID, end_user.serviceID FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss",$user,$token); 
+if(!$blogID && !$user_id && !$token) {
+    error_message("The URL is empty!");
+}
+
+if(!verify_token($user_id,$token)) {
+    error_message("access denied");
+}
+
+$stmt = $conn->prepare("SELECT * FROM end_user WHERE userID=? AND serviceID=?");
+$stmt->bind_param("ii", $user_id, $blogID); 
+$stmt->execute();
+$result = $stmt->get_result();
+
+if($result->num_rows != 0) {
+    $stmt = $conn->prepare("DELETE FROM service WHERE ID=? AND type='blog'");
+    $stmt->bind_param("i",$blogID); 
     $stmt->execute();
-    $result = $stmt->get_result();
-    $stmt->close();
-        if($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                if($row['token'] == $_GET['token']){
-                    if($row['username'] == $_GET['user']){
-                        if($row['userID'] == $row['uID']){
-                            $sql = "DELETE FROM service WHERE ID = ? AND type = 'blog'";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i",$ID); 
-                            $stmt->execute();
 
-                            
-                            if($stmt->affected_rows == 1){
-                                $sql2= "DELETE FROM end_user WHERE serviceID = ?";
-                                $stmt2 = $conn->prepare($sql2);
-                                $stmt2->bind_param("i",$ID); 
-                                $stmt2->execute();
-                                $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was deleted successfully!'];
-                                echo json_encode($json_array);
-                                die();
-                            }
-                            else{
-                                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This is not a blog!'];
-                                echo json_encode($json_array);
-                                die();
-                            } 
-                    }else{
-                        echo "hej";
-                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this blog since its not yours!'];
-                        echo json_encode($json_array);
-                        die();
-                    }
-                }else{
-                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-                    echo json_encode($json_array);
-                    die();
-                }
-            }else{
-                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-                echo json_encode($json_array);
-                die();
-            }
-        }
-    }else{
-        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
+    if($stmt->affected_rows == 1){
+        $stmt = $conn->prepare("DELETE FROM end_user WHERE serviceID = ? AND userID = ?");
+        $stmt->bind_param("ii", $blogID, $user_id); 
+        $stmt->execute();
+    
+        $stmt = $conn->prepare("DELETE FROM content WHERE serviceID = ? AND userID = ?");
+        $stmt->bind_param("ii", $blogID, $user_id); 
+        $stmt->execute();
+    
+        $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was deleted successfully!'];
         echo json_encode($json_array);
         die();
     }
+    else{
+        error_message("This is not a blog!");
+    }
 }
-else{
-    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'The URL is empty!'];
-    echo json_encode($json_array);
+else {
+    error_message("This is not your blog!");
 }
+
+
+                
 ?>
