@@ -134,7 +134,7 @@
     /**
      * If the given user is an admin, return true. Else return false.
      *
-     * @param   int     $user_id      ID of the service
+     * @param   int     $user_id      ID of the user
      * @return  boolean
      */
     function check_admin($user_id) {
@@ -200,6 +200,7 @@
     /**
      * If the user is the manager of the given service, return true. Else returns false.
      *
+     * @param   int     $wiki_id      ID of the wiki
      * @param   int     $user_id      ID of the user
      * @return  boolean
      */
