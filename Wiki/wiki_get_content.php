@@ -1,9 +1,8 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    require_once("Functions/wiki_get_version.php");
-    require_once("Functions/wiki_get_recent_version.php");
-    $version = "0.0.2";
+    require_once("wiki_utility.php");
+    $version = "0.0.3";
 
     /**
      * wiki_get_content.php
@@ -16,8 +15,17 @@
     //==============================
     $page_id = get_if_set('page_id');
 
+    //==============================
+    //    Requirements
+    //==============================
+
     if(!$page_id) {
         output_error("Missing input(s) - expected: 'page_id'");
+    }
+
+    // Page must not be deleted
+    if(check_page_deletion($page_id)) {
+        output_error("Failed to get content - Page is deleted");
     }
 
     //==============================

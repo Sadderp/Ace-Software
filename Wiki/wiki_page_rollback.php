@@ -2,8 +2,8 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
-    require_once("Functions/wiki_get_recent_version.php");
-    $version = "0.0.1";
+    require_once("wiki_utility.php");
+    $version = "0.0.2";
 
     //==============================
     //    Prepared statements
@@ -57,6 +57,11 @@
     // Rollback version must be less than current version
     if($rollback_version >= $current_version or $rollback_version < 1) {
         output_error("You cannot rollback to this version");
+    }
+
+    // Page must not be deleted
+    if(check_page_deletion($page_id)) {
+        output_error("Failed to rollback - Page is deleted");
     }
     
     //==============================

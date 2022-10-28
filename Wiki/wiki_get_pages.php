@@ -1,7 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $version = "0.0.2";
+    $version = "0.0.3";
 
     /**
      * wiki_get_pages.php
@@ -14,7 +14,7 @@
     //==============================
 
     // Get wiki pages
-    $sql = "SELECT ID,title FROM wiki_page WHERE serviceID = ?";
+    $sql = "SELECT ID,title FROM wiki_page WHERE serviceID = ? AND deleted = 0";
     $stmt_get_pages = $conn->prepare($sql);
     $stmt_get_pages->bind_param("i",$wiki_id);
 
