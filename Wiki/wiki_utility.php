@@ -91,7 +91,7 @@
      */
     function get_version_content($page_id,$v) {
         $data = [
-            'version'=>$v, 'user_id'=>null, 'username'=>null, 'date'=>null
+            'version'=>$v, 'user_id'=>null, 'username'=>null, 'date'=>null, 'deletion'=>FALSE
         ];
 
         //==============================
