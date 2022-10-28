@@ -18,7 +18,7 @@
         //==============================
 
         // Get information about a version
-        $sql = "SELECT v.userID,v.date,u.username FROM wiki_page_version v
+        $sql = "SELECT v.userID,v.date,u.username,v.deletion FROM wiki_page_version v
         LEFT JOIN user u ON v.userID = u.ID
         WHERE v.pageID = ? and v.num = ?";
         $stmt_version_info = $GLOBALS['conn']->prepare($sql);
@@ -40,6 +40,12 @@
             $data['user_id'] = $result['userID'];
             $data['username'] = $result['username'];
             $data['date'] = $result['date'];
+        } 
+
+        // Check if version is a page deletion
+        if($result['deletion'] == 1) {
+            $data['deletion'] = TRUE;
+            return $data;
         } 
 
         //==============================

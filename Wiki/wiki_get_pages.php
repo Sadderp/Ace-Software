@@ -14,7 +14,7 @@
     //==============================
 
     // Get wiki pages
-    $sql = "SELECT ID,title FROM wiki_page WHERE serviceID = ?";
+    $sql = "SELECT ID,title FROM wiki_page WHERE serviceID = ? AND deleted = 0";
     $stmt_get_pages = $conn->prepare($sql);
     $stmt_get_pages->bind_param("i",$wiki_id);
 

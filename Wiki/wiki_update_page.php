@@ -4,6 +4,7 @@
     require_once("../verify_token.php");
     require_once("Functions/wiki_get_recent_version.php");
     require_once("Functions/get_wiki_from_page.php");
+    require_once("Functions/check_page_deletion.php");
     $version = "0.0.8";
 
     // TEST LINK:
@@ -54,6 +55,11 @@
     // Token must be valid
     if(!verify_token($user_id,$token)) {
         output_error("Token is invalid or expired, please refresh your login.");
+    }
+
+    // Page must not be deleted
+    if(check_page_deletion($page_id)) {
+        output_error("Page is deleted and cannot be written to");
     }
 
     //==============================
