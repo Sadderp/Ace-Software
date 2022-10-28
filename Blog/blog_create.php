@@ -12,8 +12,13 @@ $token = get_if_set('token');
 
 
 if(!$title && !$user_id && !$token){
-    error_message("The URL is empty!");
+    output_error("The URL is empty!");
 }
+
+if(!verify_token($user_id,$token)) {
+    output_error("access denied");
+}
+
 
 
 //==================================================
@@ -26,11 +31,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    error_message("You already have a blog!");
-}
-
-if(!verify_token($user_id,$token)) {
-    error_message("access denied");
+    output_error("You already have a blog!");
 }
 
 //==================================================
@@ -46,8 +47,6 @@ $stmt = $conn->prepare("INSERT INTO end_user(userID,serviceID) VALUES (?,?)");
 $stmt->bind_param("ii",$user_id,$lastID); 
 $stmt->execute();
 
-$json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was created successfully'];
-echo json_encode($json_array);
-
+output_ok("Blog was created successfully");
 ?>
 
