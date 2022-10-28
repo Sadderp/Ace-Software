@@ -1,7 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    $version = "0.0.2";
+    $version = "0.0.3";
 
     /**
      * wiki_get_pages.php

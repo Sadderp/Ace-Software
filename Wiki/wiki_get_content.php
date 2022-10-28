@@ -4,7 +4,7 @@
     require_once("Functions/wiki_get_version.php");
     require_once("Functions/wiki_get_recent_version.php");
     require_once("Functions/check_page_deletion.php");
-    $version = "0.0.2";
+    $version = "0.0.3";
 
     /**
      * wiki_get_content.php
