@@ -1,9 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
-    require_once("Functions/wiki_get_version.php");
-    require_once("Functions/wiki_get_recent_version.php");
-    require_once("Functions/check_page_deletion.php");
+    require_once("wiki_utility.php");
     $version = "0.0.3";
 
     /**
