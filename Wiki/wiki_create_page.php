@@ -1,6 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
+    require_once("../verify_token.php");
     $version = "0.0.5";
 
     //==============================
@@ -27,7 +28,7 @@
 
     // All input variables must be set
     if(!$wiki_id or !$page_title or !$user_id or !$token) {
-        output_error("Missing input - expected: 'wiki_id', 'user_id' and 'page_title'");
+        output_error("Missing input - expected: 'wiki_id', 'page_title', 'user_id' and 'token'");
     }
 
     // Token must be valid

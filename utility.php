@@ -134,7 +134,7 @@
     /**
      * If the given user is an admin, return true. Else return false.
      *
-     * @param   int     $user_id      ID of the service
+     * @param   int     $user_id      ID of the user
      * @return  boolean
      */
     function check_admin($user_id) {
@@ -152,6 +152,71 @@
         } 
 
         return false;
+    }
+
+    /**
+     * If the account exists, return true. Else return false.
+     *
+     * @param   int     $user_id      ID of the user
+     * @return  boolean
+     */
+    function verify_account_existance($user_id) {
+        // Prepared statement
+        $sql = "SELECT * FROM user WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$user_id);
+
+        // Get user
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if($result->num_rows == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * If the account is banned, return true. Else returns false.
+     *
+     * @param   int     $user_id      ID of the user
+     * @return  boolean
+     */
+    function check_ban_status($user_id) {
+        // Prepared statement
+        $sql = "SELECT ban FROM user WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$user_id);
+
+        // Get ban status
+        $stmt->execute();
+        $ban = mysqli_fetch_assoc($stmt->get_result())['ban'];
+
+        if($ban == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * If the user is the manager of the given service, return true. Else returns false.
+     *
+     * @param   int     $wiki_id      ID of the wiki
+     * @param   int     $user_id      ID of the user
+     * @return  boolean
+     */
+    function check_manager($wiki_id,$user_id) {
+        // Prepared statement
+        $sql = "SELECT * FROM service WHERE ID = ? AND managerID = ? AND type = 'wiki'";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("ii",$wiki_id,$user_id);
+
+        // Get result
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if($result->num_rows == 0) {
+            return false;
+        }
+        return true;
     }
 ?>
 
