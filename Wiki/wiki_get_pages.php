@@ -24,14 +24,14 @@
     $wiki_id = get_if_set('wiki_id');
 
     if(!$wiki_id) {
-        error_message("Missing input(s) - expected: 'wiki_id'");
+        output_error("Missing input(s) - expected: 'wiki_id'");
     }
 
     //==============================
     //    Check if service is a wiki
     //==============================
     if(!verify_service_type($wiki_id,'wiki')) {
-        error_message("Page is not a wiki");
+        output_error("Page is not a wiki");
     }
 
     //==============================
@@ -46,8 +46,7 @@
         array_push($data,$p);
     }
 
-    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>$data];
-    echo json_encode($result);
+    output_ok($data);
 
     $stmt_get_pages->close();
 ?>

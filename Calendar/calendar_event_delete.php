@@ -7,8 +7,8 @@
 
     $db = $conn;
 
-    if(!empty($_GET['username'])&& !empty($_GET['token'])){
-        $username = $_GET['username'];
+    if(!empty($_GET['userID'])&& !empty($_GET['token'])){
+        $userID = $_GET['userID'];
         $token = $_GET['token'];
     }else{
         echo json_encode(["Version: "=>$version, "Type: "=>$error, "Data: "=>"You need to log in"]);
@@ -18,19 +18,20 @@
         $ID = $_GET['ID'];
     }
 
-    $sql2 = "SELECT * FROM user WHERE username=? AND token=?";
+    $sql2 = "SELECT * FROM user WHERE ID=? AND token=?";
 
     $statement = $conn->prepare($sql2);
-    $statement->bind_param("ss", $username, $token);
+    $statement->bind_param("ss", $userID, $token);
     $statement->execute();
     $result2 = $statement->get_result();
 
-    if ($result->num_rows > 0) {
+    if ($result2->num_rows > 0) {
         while($row = $result2->fetch_assoc()) {
             $userID = $row['ID'];
             }
     }else {
-        echo json_encode("Don't try to delete someone else's event");
+        $result = ["Version"=>$version, "Status"=>$ok, "Data"=>"Please log in"];
+        echo json_encode($result);
     }
 
     $del = "DELETE FROM calendar_event WHERE ID=?";
@@ -41,6 +42,6 @@
     $stmt->execute();
     $result = $stmt->get_result();
 
-    $delete = ["Version: "=>$version, "Status: "=>$ok, "Data: "=>"event removed"];
+    $delete = ["Version"=>$version, "Status"=>$ok, "Data"=>"event removed"];
     echo json_encode($delete);
 ?>

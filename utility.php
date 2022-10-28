@@ -15,16 +15,31 @@
         }
     }
 
+    // Keeping this here for now to not break everyone's code.
+    function error_message($msg) {
+        die(json_encode("!! error_message() IS NO LONGER IN USE, PLEASE SWITCH TO output_error() !!"));
+    }
+
     /**
      * Give a JSON error message and exit the program
      *
-     * @param   string  $version    The program version
      * @param   string  $msg        Error message
      *
      */
-    function error_message($msg) {
+    function output_error($msg) {
         $result = ["Version"=>$GLOBALS['version'], "Status"=>"Error", "Data"=>$msg];
         die(json_encode($result));
+    }
+
+    /**
+     * Echo json data
+     *
+     * @param   string  $msg        Data
+     *
+     */
+    function output_ok($msg) {
+        $result = ["Version"=>$GLOBALS['version'], "Status"=>"OK", "Data"=>$msg];
+        echo json_encode($result);
     }
 
 
@@ -119,7 +134,7 @@
     /**
      * If the given user is an admin, return true. Else return false.
      *
-     * @param   int     $user_id      ID of the service
+     * @param   int     $user_id      ID of the user
      * @return  boolean
      */
     function check_admin($user_id) {
@@ -137,6 +152,71 @@
         } 
 
         return false;
+    }
+
+    /**
+     * If the account exists, return true. Else return false.
+     *
+     * @param   int     $user_id      ID of the user
+     * @return  boolean
+     */
+    function verify_account_existance($user_id) {
+        // Prepared statement
+        $sql = "SELECT * FROM user WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$user_id);
+
+        // Get user
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if($result->num_rows == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * If the account is banned, return true. Else returns false.
+     *
+     * @param   int     $user_id      ID of the user
+     * @return  boolean
+     */
+    function check_ban_status($user_id) {
+        // Prepared statement
+        $sql = "SELECT ban FROM user WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$user_id);
+
+        // Get ban status
+        $stmt->execute();
+        $ban = mysqli_fetch_assoc($stmt->get_result())['ban'];
+
+        if($ban == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * If the user is the manager of the given service, return true. Else returns false.
+     *
+     * @param   int     $wiki_id      ID of the wiki
+     * @param   int     $user_id      ID of the user
+     * @return  boolean
+     */
+    function check_manager($wiki_id,$user_id) {
+        // Prepared statement
+        $sql = "SELECT * FROM service WHERE ID = ? AND managerID = ? AND type = 'wiki'";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("ii",$wiki_id,$user_id);
+
+        // Get result
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if($result->num_rows == 0) {
+            return false;
+        }
+        return true;
     }
 ?>
 

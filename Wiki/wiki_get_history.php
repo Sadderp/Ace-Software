@@ -28,7 +28,7 @@
     $token = get_if_set('token');
 
     if(!$page_id or !$user_id or !$token) {
-        error_message("Missing input(s) - expected: 'page_id', 'user_id' and 'token'");
+        output_error("Missing input(s) - expected: 'page_id', 'user_id' and 'token'");
     }
 
     //==============================
@@ -37,13 +37,13 @@
 
     // Token verification
     if(!verify_token($user_id,$token)) {
-        error_message("Token is invalid or expired, please refresh your login.");
+        output_error("Token is invalid or expired, please refresh your login.");
     }
 
     // Check if user has end-user privileges
     $wiki_id = get_wiki_from_page($page_id);
     if(!check_end_user($user_id,$wiki_id)) {
-        error_message("User does not have permission to view the history of this page");
+        output_error("User does not have permission to view the history of this page");
     }
 
     //==============================
@@ -57,8 +57,7 @@
         array_push($data,get_version_content($page_id,$v));
     }
 
-    $result = ["Version"=>$version, "Status"=>"OK", "Data"=>$data];
-    echo json_encode($result);
+    output_ok($data);
 
     $stmt->close();
 ?>

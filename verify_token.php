@@ -21,7 +21,7 @@
 
         // Give an error if the return for user is blank.
         if(!$result) {
-            error_message("User not found");
+            output_error("User not found");
         }
 
         // If the token is expired or the token doesn't match, deny access.
