@@ -4,13 +4,12 @@
     require_once("../verify_token.php");
     require_once("Functions/wiki_get_recent_version.php");
     require_once("Functions/get_wiki_from_page.php");
-    $version = "0.0.7";
+
+    $version = "0.0.8";
+
 
     // TEST LINK:
     // http://localhost:8080/webbutveckling/TE4/Ace-Software/wiki/wiki_update_page.php?user_id=1&page_id=1&content=["<h1>RobTop</h1>","<p>RobTop is the lead developer of Geometry Dash</p>"]
-
-    // THIS PAGE IS MISSING USER TOKEN VERIFICATION ! !
-    // DON'T KNOW HOW TO DO THAT SHIT ! !
 
     //==============================
     //    Prepared statements
@@ -29,15 +28,11 @@
     //==============================
     //    Get variables
     //==============================
+
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
     $page_id = get_if_set('page_id');
     $content_array = get_if_set('content');
-
-    // Give error message if one or more inputs are blank
-    if(!$user_id or !$page_id) {
-        error_message("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
-    }
 
     // Get recent version
     $current_version = get_recent_version($page_id);
@@ -46,14 +41,21 @@
     // Get wiki ID
     $wiki_id = get_wiki_from_page($page_id);
     if($wiki_id == 0) {
-        error_message("Wiki page not found");
+        output_error("Wiki page not found");
     }
 
     //==============================
-    //    Check user permissions
+    //    Requirements
     //==============================
+
+    // All input variables must be set
+    if(!$user_id or !$page_id or !$token) {
+        output_error("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
+    }
+
+    // Token must be valid
     if(!verify_token($user_id,$token)) {
-        error_message("Token is invalid or expired, please refresh your login.");
+        output_error("Token is invalid or expired, please refresh your login.");
     }
 
     if(!check_end_user($user_id,$wiki_id)) {
@@ -64,6 +66,7 @@
     //==============================
     //    Add new version and content to database
     //==============================
+
     $content_array = json_decode($content_array);
 
     $stmt_add_version->execute();
@@ -73,14 +76,9 @@
         $stmt_add_content->execute();
     }
 
-    if($stmt_add_version->affected_rows == 1 and $stmt_add_content->affected_rows >= 1) {
-        $result = ["Version"=>$version, "Status"=>"OK", "Data"=>"Successfully updated wiki page (v" . $new_version . ")"];
-    } else {
-        error_message("Failed to add to database");
+    if($stmt_add_version->affected_rows == 0) {
+        output_error("Failed to add to database");
     }
 
-    echo json_encode($result);
-
-    $stmt_add_version->close();
-    $stmt_add_content->close();
+    output_ok("Successfully updated wiki page (v" . $new_version . ")");
 ?>

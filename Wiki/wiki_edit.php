@@ -36,11 +36,9 @@
 
         $stmt2->execute();
         if ($stmt2->affected_rows == 1) {
-            $status = "OK";
-            $json_result = ["Version"=>$version, "Status"=>$status, "Data"=>$new_wiki_title];
-            echo json_encode($json_result);        
+            output_ok($new_wiki_title);
         } else {
-            error_message("Failed to edit");
+            output_error("Failed to edit");
         }
 
         $stmt2->close();

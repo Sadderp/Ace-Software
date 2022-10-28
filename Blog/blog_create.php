@@ -1,67 +1,53 @@
 <?php
 require_once('../db.php');
-require_once('../token.php');
-$version = "1.0.1";
+require_once('../verify_token.php');
+require_once('../utility.php');
+$version = "0.0.1";
 $ok = "OK";
 $error = "Error";
 
-if (!empty($_GET['title'])&& !empty($_GET['user']) && !empty($_GET['token'])){
-    $title = $_GET['title'];
-    $user = $_GET['user'];
-    $token = $_GET['token'];
-    
+$title = get_if_set('title');
+$user_id = get_if_set('userID');
+$token = get_if_set('token');
 
-    $sql = "SELECT user.ID AS Uid, username, token FROM user WHERE BINARY user.username = ? AND user.token=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss",$user,$token); 
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $stmt->close();
-    if ($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            $userID = $row['Uid'];
-            if($row['token'] == $_GET['token']) {
-                if($row['username'] == $_GET['user']){
-                    $sql = "INSERT INTO service(title,type) VALUES (?,'blog')";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("s",$title); 
-                    $stmt->execute();
-                    $stmt->close();
-                    $lastID = $conn->insert_id; 
 
-                    $sql = "SELECT user.ID AS Uid, username, userID, token FROM user INNER JOIN end_user ON user.ID = end_user.userID WHERE BINARY user.username = ? AND user.token=?";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("ss",$user,$token); 
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $stmt->close();
-                    $sql2= "INSERT INTO end_user(userID,serviceID) VALUES (?,?)";
-                    $stmt2 = $conn->prepare($sql2);
-                    $stmt2->bind_param("ii",$userID,$lastID); 
-                    $stmt2->execute();
-                    $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was created successfully'];
-                    echo json_encode($json_array);
-                    die();
-                }else{
-                    echo "hej";
-                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-                    echo json_encode($json_array);
-                }
-            }else{
-                echo "hejsan";
-                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-                echo json_encode($json_array);
-            }
-        }
-    } else {
-        echo "hello";
-        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-        echo json_encode($json_array);
-    }
-} else{
-    
-    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'The URL is empty!'];
-    echo json_encode($json_array);
+if(!$title && !$user_id && !$token){
+    error_message("The URL is empty!");
 }
+
+
+//==================================================
+// Checks if you all ready have a blog
+//==================================================
+$stmt = $conn->prepare("SELECT user.ID, user.username, user.token, end_user.userID, end_user.serviceID, service.ID, service.type FROM user INNER JOIN end_user ON user.ID = end_user.userID 
+                                                                                                                                           INNER JOIN service ON end_user.serviceID = service.ID WHERE BINARY user.ID = ? AND token = ? AND type = 'blog'");
+$stmt->bind_param("is",$user_id,$token); 
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    error_message("You already have a blog!");
+}
+
+if(!verify_token($user_id,$token)) {
+    error_message("access denied");
+}
+
+//==================================================
+// Makes a blog if you do not have one already
+//==================================================
+$stmt = $conn->prepare("INSERT INTO service(title,type) VALUES (?,'blog')");
+$stmt->bind_param("s",$title); 
+$stmt->execute();
+
+$lastID = $conn->insert_id; 
+
+$stmt = $conn->prepare("INSERT INTO end_user(userID,serviceID) VALUES (?,?)");
+$stmt->bind_param("ii",$user_id,$lastID); 
+$stmt->execute();
+
+$json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was created successfully'];
+echo json_encode($json_array);
+
 ?>
 

@@ -2,7 +2,7 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
-    $version = "0.0.2";
+    $version = "0.0.3";
     
     //==============================
     //     Prepared statements
@@ -40,22 +40,22 @@
 
     // All input variables must be set
     if(!$wiki_id or !$user_id or !$token) {
-        error_message("Missing input(s) - expected: 'wiki_id', 'user_id' and 'token'");
+        output_error("Missing input(s) - expected: 'wiki_id', 'user_id' and 'token'");
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        error_message("Token is invalid or expired");
+        output_error("Token is invalid or expired");
     }
 
-    // User must be admin
-    if(!check_admin($user_id)) {
-        error_message("You must be an admin to delete a wiki.");
+    // User must be admin or manager
+    if(!check_admin($user_id) and !check_manager($user_id)) {
+        output_error("You must be an admin or manager to delete a wiki.");
     }
 
     // Page must be a wiki
     if(!verify_service_type($wiki_id,'wiki')) {
-        error_message("Not a wiki");
+        output_error("Not a wiki");
     }
     
     //=====================================
@@ -102,13 +102,13 @@
 
     $stmt6->execute();
 
+
     if ($stmt6->affected_rows == 0) {
         error_message("Failed to delete end user");
+
     }
 
-    $status = "OK";
-    $json_result = ["Version"=>$version, "Status"=>$status, "Data"=>"Successfully deleted Wiki (ID " . $wiki_id . ")"];
-    echo json_encode($json_result);        
+    output_ok("Successfully deleted Wiki (ID " . $wiki_id . ")");      
 
     $stmt3->close();
     $stmt4->close();

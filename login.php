@@ -6,7 +6,6 @@
 require_once("db.php");
 require_once("utility.php");
 require_once("verify_token.php");
-require_once("token.php");
 $version = "0.0.2";
 $ok = "OK";
 $error = "Error";
@@ -19,7 +18,7 @@ $name = get_if_set('name');
 $password = get_if_set('password');
 
 if(!$name or !$password) {
-    error_message("Missing input(s) - expected: 'name' and 'password'");
+    output_error("Missing input(s) - expected: 'name' and 'password'");
 }
 
 // Prepared statement
@@ -30,7 +29,7 @@ $result = $stmt->get_result();
 
 // Check if account exists
 if($result->num_rows == 0) {
-    error_message("This account does not exist in the database");
+    output_error("This account does not exist in the database");
 }
 
 $user = mysqli_fetch_assoc($result);
@@ -58,7 +57,5 @@ if($user['admin'] == 1) {
 $token = generate_token();
 replace_token($user['ID'],$token);
 
-// JSON
-$login = ["Version"=>$version,"Status"=>$ok,"Data"=>["msg"=>$msg,"token"=>$token]];
-echo json_encode($login);
+output_ok(["msg"=>$msg,"token"=>$token]);
 ?>
