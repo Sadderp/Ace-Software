@@ -1,6 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../utility.php");
+    require_once("../verify_token.php");
     $version = "0.0.5";
 
     //==============================
