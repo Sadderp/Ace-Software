@@ -1,6 +1,6 @@
 <?php
     require_once("../db.php");
-    require_once("../token.php");
+    require_once("../verify_token.php");
     $version = "0.0.2";
     $ok = "OK";
     $error = "Error";
@@ -12,6 +12,9 @@
         echo json_encode(["Version: "=>$version, "Type: "=>$error, "Data: "=>"You need to log in"]);
     }
 
+    verify_token($userID, $token);
+
+
     $sql2 = "SELECT * FROM user WHERE ID=? AND token=?";
 
     $statement = $conn->prepare($sql2);
@@ -19,7 +22,7 @@
     $statement->execute();
     $result3 = $statement->get_result();
 
-    if ($result->num_rows > 0) {
+    if ($result3->num_rows > 0) {
         while($row = $result3->fetch_assoc()) {
             $userID = $row['ID'];
             }

@@ -1,6 +1,6 @@
 <?php
     require_once("../db.php");
-    require_once("../token.php");
+    require_once("../verify_token.php");
     $version = "0.0.8";
     $ok = "OK";
     $error = "Error";
@@ -14,6 +14,9 @@
     }else{
         echo json_encode(["Version: "=>$version, "Type: "=>$error, "Data: "=>"You need to log in"]);
     }
+    
+    verify_token($userID, $token);
+
     
     if(!empty($_GET['title'])){
         $title = $_GET['title'];
