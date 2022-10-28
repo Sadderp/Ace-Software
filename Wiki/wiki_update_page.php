@@ -4,7 +4,9 @@
     require_once("../verify_token.php");
     require_once("Functions/wiki_get_recent_version.php");
     require_once("Functions/get_wiki_from_page.php");
+
     $version = "0.0.8";
+
 
     // TEST LINK:
     // http://localhost:8080/webbutveckling/TE4/Ace-Software/wiki/wiki_update_page.php?user_id=1&page_id=1&content=["<h1>RobTop</h1>","<p>RobTop is the lead developer of Geometry Dash</p>"]
@@ -55,6 +57,11 @@
     if(!verify_token($user_id,$token)) {
         output_error("Token is invalid or expired, please refresh your login.");
     }
+
+    if(!check_end_user($user_id,$wiki_id)) {
+        error_message("User does not have permission to edit this page");
+    }
+    
 
     //==============================
     //    Add new version and content to database

@@ -1,5 +1,8 @@
 <?php
 
+    require_once("../db.php");
+    require_once("../utility.php");
+
     /**
      * get_recent_version
      * 
