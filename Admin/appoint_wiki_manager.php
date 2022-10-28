@@ -41,7 +41,7 @@
     } 
 
     // User must be admin
-    if(!check_admin($user_id) and !check_manager($wiki_id)) {
+    if(!check_admin($user_id) and !check_manager($user_id)) {
         output_error("You must be an admin or manager to appoint a manager.");
     }
 
