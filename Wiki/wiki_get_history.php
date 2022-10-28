@@ -3,7 +3,7 @@
     require_once("../utility.php");
     require_once("../verify_token.php");
     require_once("wiki_utility.php");
-    $version = "0.0.3";
+    $version = "0.0.4";
 
     /**
      * wiki_get_history.php
@@ -39,12 +39,6 @@
         output_error("Token is invalid or expired, please refresh your login.");
     }
 
-    // Check if user has end-user privileges
-    $wiki_id = get_wiki_from_page($page_id);
-    if(!check_end_user($user_id,$wiki_id)) {
-        output_error("User does not have permission to view the history of this page");
-    }
-
     //==============================
     //    Get page history
     //==============================
@@ -52,7 +46,7 @@
     $v_count = mysqli_fetch_assoc($stmt->get_result())['versions'];
 
     $data = [];
-    for($v=1;$version<=$v_count;$v++) {
+    for($v=1;$v<=$v_count;$v++) {
         array_push($data,get_version_content($page_id,$v));
     }
 
