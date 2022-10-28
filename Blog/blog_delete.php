@@ -11,11 +11,11 @@ $user_id = get_if_set('userID');
 $token = get_if_set('token');
 
 if(!$blogID && !$user_id && !$token) {
-    error_message("The URL is empty!");
+    output_error("The URL is empty!");
 }
 
 if(!verify_token($user_id,$token)) {
-    error_message("access denied");
+    output_error("access denied");
 }
 
 $stmt = $conn->prepare("SELECT * FROM end_user WHERE userID=? AND serviceID=?");
@@ -37,18 +37,14 @@ if($result->num_rows != 0) {
         $stmt->bind_param("ii", $blogID, $user_id); 
         $stmt->execute();
     
-        $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Blog was deleted successfully!'];
-        echo json_encode($json_array);
-        die();
+        output_ok("Blog was deleted successfully!");
     }
     else{
-        error_message("This is not a blog!");
+        output_error("This is not a blog!");
     }
 }
 else {
-    error_message("This is not your blog!");
+    output_error("This is not your blog!");
 }
-
-
-                
+              
 ?>
