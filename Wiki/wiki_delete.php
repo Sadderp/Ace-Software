@@ -8,8 +8,23 @@
     //     Prepared statements
     //==============================
 
-    $stmt = $conn->prepare("DELETE FROM service WHERE ID = ?");
-    $stmt->bind_param("i", $wiki_id);
+    $stmt1 = $conn->prepare("SELECT ID FROM wiki_page WHERE serviceID = ?");
+    $stmt1->bind_param("i", $wiki_id);
+
+    $stmt2 = $conn->prepare("DELETE FROM content WHERE pageID = ?");
+    $stmt2->bind_param("i", $wiki_pID);
+
+    $stmt3 = $conn->prepare("DELETE FROM wiki_page_version WHERE pageID = ?");
+    $stmt3->bind_param("i", $wiki_pID);
+
+    $stmt4 = $conn->prepare("DELETE FROM wiki_page WHERE serviceID = ?");
+    $stmt4->bind_param("i", $wiki_id);
+
+    $stmt5 = $conn->prepare("DELETE FROM service WHERE ID = ? AND type = 'wiki'");
+    $stmt5->bind_param("i", $wiki_id);
+
+    $stmt6 = $conn->prepare("DELETE FROM end_user WHERE serviceID = ?");
+    $stmt6->bind_param("i", $wiki_id);
  
     //==============================
     //      Get variables
@@ -52,10 +67,50 @@
     //  Deletes from service and end_user
     //=====================================
 
-    $stmt->execute();
+    $stmt1->execute();
 
-    if ($stmt->affected_rows == 0) {
-        output_error("Failed to delete");
+    if ($stmt1->affected_rows == 0) {
+        error_message("Failed to fetch pageID");
+    }
+
+    $result_pID = $stmt1->get_result();
+        
+    if($result_pID->num_rows == 1){
+        $pID_arr = $result_pID->fetch_assoc();
+        $wiki_pID = $pID_arr['ID'];
+    }
+    $stmt1->close();
+
+    $stmt2->execute();
+
+    if ($stmt2->affected_rows == 0) {
+        error_message("Failed to delete content");
+    }
+
+    $stmt3->execute();
+
+    if ($stmt3->affected_rows == 0) {
+        error_message("Failed to delete wiki page versions");
+    }
+
+    $stmt4->execute();
+
+    if ($stmt4->affected_rows == 0) {
+        error_message("Failed to delete wiki page");
+    }
+
+    $stmt5->execute();
+
+    if ($stmt5->affected_rows == 0) {
+        error_message("Failed to delete wiki");
+    }
+
+    $stmt6->execute();
+
+
+    if ($stmt6->affected_rows == 0) {
+        error_message("Failed to delete end user");
+
     }
 
     output_ok("Successfully deleted Wiki (ID " . $wiki_id . ")");      
