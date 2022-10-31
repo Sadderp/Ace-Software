@@ -1,44 +1,42 @@
 <?php
 require_once('../db.php');
-require_once('../token.php');
-$version = "0.0.1";
+
+require_once('../verify_token.php');
+require_once('../utility.php');
+$version = "1.0.1";
 $ok = "OK";
 $error = "Error";
 
-if (!empty($_GET['name'])) {
 
-    if ($_GET['name'] == $_SESSION['username']) {
-        if (!empty($_GET['ID']) && !empty($_GET['title'])){
-            $sql = "UPDATE service SET title = ?, WHERE ID = ? AND type = 'blog')";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si",$title,$ID); 
-        
-            $title = $_GET['title'];
-            $title = $_GET['ID'];
-            $stmt->execute();
-        
-            if($stmt->affected_rows == 1){
-                $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data"=>"Old blog edited successfully"];
-                echo json_encode($json_array);
-            }
-            else{
-                $json_array = ["Version: "=>$version,"Type: "=>$error,"Data"=>"This is not a blog!"];
-                echo json_encode($json_array);
-            }
-        }
+$title = get_if_set('title');
+$blogID = get_if_set('blogID');
+$user_id = get_if_set('user_id');
+$token = get_if_set('token');
 
-    }
-    else {
-        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
-        echo json_encode($json_array);
-
-    }
-
+if(!$blogID && !$title && !$user && !$token){
+    output_error("The URL is empty!");
 }
 
-
-else{
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'The URL is empty!'];
-    echo json_encode($json_array);
+if(!verify_token($user_id,$token)) {
+    output_error("Access denied");
 }
+
+$stmt = $conn->prepare("SELECT * FROM end_user WHERE userID=? AND serviceID=?");
+$stmt->bind_param("ii", $user_id, $blogID); 
+$stmt->execute();
+$result = $stmt->get_result();
+
+if($result->num_rows > 0) {
+    $stmt = $conn->prepare("UPDATE service SET title = ? WHERE ID = ? AND type = 'blog'");
+    $stmt->bind_param("si",$title,$blogID); 
+    $stmt->execute();
+
+    if($stmt->affected_rows == 1){
+        output_ok("Blog edited successfully");
+    }
+    else{
+        output_error("This is not a blog!");
+    }
+}
+
 ?>

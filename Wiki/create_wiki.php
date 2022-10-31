@@ -1,73 +1,78 @@
 <?php
     require_once("../db.php");
-    $version = "0.0.1";
+    require_once("../utility.php");
+    require_once("../verify_token.php");
+    $version = "0.0.3";
     
     //==============================
     //    Prepared statements
     //==============================
-    $stmt = $conn->prepare("INSERT INTO service (title, type) VALUES (?, ?)");
-    $stmt->bind_param("ss", $wiki_name, $type_wiki); 
 
-    $stmt2 = $conn->prepare("SELECT ID FROM user WHERE username = ? AND password = ?");
-    $stmt2->bind_param("ss", $user, $pass);  
-    
-    $stmt3 = $conn->prepare("SELECT ID FROM service WHERE title = ?");
-    $stmt3->bind_param("s", $wiki_name);  
+    $stmt_create = $conn->prepare("INSERT INTO service (title, type, visibility) VALUES (?, 'wiki', ?)");
+    $stmt_create->bind_param("ss", $wiki_name, $visibility); 
 
-    $stmt4 = $conn->prepare("INSERT INTO end_user (userID, serviceID) VALUES (?, ?)");
-
+    $stmt_end_user = $conn->prepare("INSERT INTO end_user (userID, serviceID) VALUES (?, ?)");
+    $stmt_end_user->bind_param("ii", $user_id, $wiki_id);
 
     //==============================
-    //    Creating variables
+    //    Get variables
     //==============================
-    $wiki_name = $_GET['wiki_name'];
-    $type_wiki = 'wiki';
+
+    $wiki_name = get_if_set('wiki_name');
+    $visibility = get_if_set('visibility');
+    $user_id = get_if_set('user_id');
+    $token = get_if_set('token');
 
     //==============================
-    // Creates wiki in service table
+    //    Requirements
     //==============================
-    if(!empty($_GET['wiki_name'])) {
-        $stmt->execute();
 
-        if ($stmt->affected_rows == 1) {
-            $status = "OK";
-            $json_result = ["Version: "=>$version, "Status: "=>$status, "Data: "=>$wiki_name];
-            echo json_encode($json_result);        
-        } else {
-            echo "Error: " . $stmt . "<br>" . $conn->error;
-        }
-
-        $user = "spookiebruh";
-        $pass = "hurrdurr1";
-
-        $stmt2->execute();
-        $resultuid = $stmt2->get_result();
-        
-        if($resultuid->num_rows == 1){
-            $user_arr = $resultuid->fetch_assoc();
-            $user_id = $user_arr['ID'];
-        }
-
-        $stmt3->execute();
-        $resultsid = $stmt3->get_result();
-
-        if($resultsid->num_rows == 1){
-            $wiki_arr = $resultsid->fetch_assoc();
-            $wiki_id = $wiki_arr['ID'];
-        }
-        
-        $stmt4->bind_param("ii", $user_id, $wiki_id); 
-        $stmt4->execute();
-        
-
+    // Make sure all variables are set;
+    if(!$wiki_name or !$user_id or !$visibility or !$token) {
+        output_error("Missing input - expected: 'wiki_name', 'visibility', 'user_id' and 'token'");
     }
     
+    // Make sure visibility is either private or public
+    if($visibility != 'public' and $visibility != 'private') {
+        output_error("'visibility' must be set to either 'private' or 'public'");
+    }
 
+    // Check token validity
+    if(!verify_token($user_id,$token)) {
+        output_error("Token is invalid or expired");
+    }
 
+    // Check if user is admin
+    if(!check_admin($user_id)) {
+        output_error("You must be an admin to create a wiki. If you think this is dumb, please file a complaint to The Provider.");
+    }
 
-    $stmt3->close();
-    $stmt4->close();
-    $stmt->close();
-    $stmt2->close();
-    $conn->close();
+    //==============================
+    //    Creates wiki in service table
+    //==============================
+
+    $stmt_create->execute();
+
+    if($stmt_create->affected_rows == 0) {
+        output_error("Failed to add to database");
+    }
+
+    // Get wiki ID
+    $wiki_id = $stmt_create->insert_id;
+
+    //==============================
+    //     Set end user
+    //==============================
+    $stmt_end_user->execute();
+
+    if($stmt_end_user->affected_rows == 0) {
+        output_error("Failed to set end user");
+    }
+
+    // JSON
+    output_ok($wiki_name);
+
+    // Close statements
+    $stmt_create->close();
+    $stmt_end_user->close();
 ?>

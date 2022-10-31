@@ -1,99 +1,62 @@
 <?php
 require_once('../db.php');
-require_once('../token.php');
-$version = "0.0.1";
+
+require_once('../verify_token.php');
+require_once('../utility.php');
+$version = "1.0.1";
 $ok = "OK";
 $error = "Error";
+
+$contents = get_if_set('contents');
+$serviceID = get_if_set('serviceID');
+$user_id = get_if_set('user_id');
+$token = get_if_set('token');
+$img_url = get_if_set('img_url');
+
+if(!verify_token($user_id,$token)) {
+    output_error("access denied");
+}
+
 
 
 //==================================================
 // content table
 //==================================================
-    if ((!empty($_GET['contents'])) && (!empty($_GET['imgID'])) && (!empty($_GET['serviceID'])) && (!empty($_GET['userID'])))  {    //checks if the if is empty if so "dies". 
-                                                                                                                                    
-        $contents = $_GET['contents'];
-        $imgID = $_GET['imgID'];
-        $serviceID = $_GET['serviceID'];
-        $userID = $_GET['userID'];
+if(!$contents && !$serviceID && !$user_id){
+    output_error("The URL is empty!");
+}
 
-        $username = $_SESSION['user_username'];
-        $password = $_SESSION['password'];
-        $sql = "SELECT username,password FROM user WHERE BINARY username='".$username."'";
-        $result = $conn->query($sql);
+$stmt = $conn->prepare("SELECT * FROM end_user INNER JOIN service ON end_user.serviceID = service.ID WHERE service.type = 'blog' AND end_user.userID = ? AND end_user.serviceID = ?");
+$stmt->bind_param("ii",$user_id,$serviceID); 
+$stmt->execute();
+$result = $stmt->get_result();
 
-        
+if($result->num_rows == 0) {
+    output_error("You are not connected to a blog!");
+}
 
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                if(password_verify($password, $row['password'])) {
-                $stmt = $conn->prepare("INSERT INTO content (contents, imgID, serviceID, userID) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("siii",$contents, $imgID, $serviceID, $userID);
-                $stmt->execute(); 
-                
-                $data = "contents:$contents imgID:$imgID serviceID:$serviceID userID:$userID";
-                $json_result = ["Version: "=>$version, "Status: "=>"OK", "Data: "=>$data];
-                echo json_encode($json_result);
-                }
-                else {
-                    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
-                    echo json_encode($json_array);
-                }
-            }
-        }
+$stmt = $conn->prepare("INSERT INTO content (contents, serviceID, userID) VALUES (?, ?, ?)");
+$stmt->bind_param("sii",$contents, $serviceID, $user_id);
+$stmt->execute();
 
-        else {
-            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
-            echo json_encode($json_array);
+$contentID = $conn->insert_id;
 
-        }
-    }
-    else {
-        $data = "";
-        $json_result = ["Version: "=>$version, "Status: "=>"error", "Data: "=>$data];
-        echo json_encode($json_result);
-    }
+output_ok("New content added!");
+
 
 
 //==================================================
 // img table
 //==================================================
-    if (!empty($_GET['contentID']) && (!empty($_GET['img_url']))) {
-        $contentID = $_GET['contentID'];
-        $img_url = $_GET['img_url'];
-
-        $username = $_SESSION['user_username'];
-        $password = $_SESSION['password'];
-        $sql = "SELECT username,password FROM user WHERE BINARY username='".$username."'";
-        $result = $conn->query($sql);
-
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                if(password_verify($password, $row['password'])) {
-                    $stmt = $conn->prepare("INSERT INTO img (contentID, img_url) VALUES (?, ?)");
-                    $stmt->bind_param("is", $contentID, $img_url);
-                    $stmt->execute();
-
-                    $data = "contentID:$contentID img url:$img_url";
-                    $json_result = ["Version: "=>$version, "Status: "=>"OK", "Data: "=>$data];
-                    echo json_encode($json_result);
-                
-                }
-                else {
-                    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
-                    echo json_encode($json_array);
-                }
-            } 
-        }
-
-        else {
-            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
-            echo json_encode($json_array);
-        }
+if($contents && $serviceID && $user_id && $img_url){
+    if($result->num_rows == 1) {
+        $stmt = $conn->prepare("INSERT INTO img (contentID, img_url) VALUES (?, ?)");
+        $stmt->bind_param("is", $contentID, $img_url);
+        $stmt->execute();
+        
+        output_ok("contentID:$contentID img url:$img_url");
+    }else{
+        output_error("You cannot edit this content since it is not your blog!");
     }
-    else {
-        $data = ""; // If the if fails, it will make $data empty which will prevent it from printing
-        $json_result = ["Version: "=>$version, "Status: "=>"Error", "Data: "=>$data];
-        echo json_encode($json_result); // prints the json encode and will display the version, status and data.  
-    }
-
+}
 ?>

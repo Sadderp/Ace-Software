@@ -1,41 +1,50 @@
 <?php
 require_once('../db.php');
-require_once('../token.php');
-$version = "0.0.1";
+require_once('../verify_token.php');
+require_once('../utility.php');
+$version = "1.0.1";
 $ok = "OK";
 $error = "Error";
 
-if (!empty($_GET['ID'])) {
-    $ID = $_GET['ID'];
+$blogID = get_if_set('blogID');
+$user_id = get_if_set('userID');
+$token = get_if_set('token');
 
-    $username = $_SESSION['user_username'];
-    $sql = "SELECT username,password FROM user WHERE BINARY username='".$username."'";
-    $result = $conn->query($sql);
-    if ($result->num_rows > 0) {
-        $sql = "DELETE FROM service WHERE ID = ? AND type = 'blog'";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s",$ID); 
+if(!$blogID && !$user_id && !$token) {
+    output_error("The URL is empty!");
+}
+
+if(!verify_token($user_id,$token)) {
+    output_error("access denied");
+}
+
+$stmt = $conn->prepare("SELECT * FROM end_user WHERE userID=? AND serviceID=?");
+$stmt->bind_param("ii", $user_id, $blogID); 
+$stmt->execute();
+$result = $stmt->get_result();
+
+if($result->num_rows != 0) {
+    $stmt = $conn->prepare("DELETE FROM service WHERE ID=? AND type='blog'");
+    $stmt->bind_param("i",$blogID); 
+    $stmt->execute();
+
+    if($stmt->affected_rows == 1){
+        $stmt = $conn->prepare("DELETE FROM end_user WHERE serviceID = ? AND userID = ?");
+        $stmt->bind_param("ii", $blogID, $user_id); 
         $stmt->execute();
-
-        
-        if($stmt->affected_rows == 1){
-            $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'New blog deleted successfully'];
-            echo json_encode($json_array);
-        }
-        else{
-            $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'This is not a blog!'];
-            echo json_encode($json_array);
-        }
-
-    } else {
-        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'Access denied!'];
-        echo json_encode($json_array);
+    
+        $stmt = $conn->prepare("DELETE FROM content WHERE serviceID = ? AND userID = ?");
+        $stmt->bind_param("ii", $blogID, $user_id); 
+        $stmt->execute();
+    
+        output_ok("Blog was deleted successfully!");
     }
-
-
+    else{
+        output_error("This is not a blog!");
+    }
 }
-else{
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'The URL is empty!'];
-    echo json_encode($json_array);
+else {
+    output_error("This is not your blog!");
 }
+              
 ?>

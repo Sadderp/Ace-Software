@@ -1,58 +1,116 @@
 <?php
     require_once("../db.php");
-    $version = "0.0.1";
+    require_once("../utility.php");
+    require_once("../verify_token.php");
+    $version = "0.0.3";
     
     //==============================
     //     Prepared statements
     //==============================
-    $stmt = $conn->prepare("SELECT ID FROM service WHERE title = ?");
 
-    $stmt2 = $conn->prepare("DELETE FROM service WHERE title = ? AND type = ?");
-    $stmt2->bind_param("ss", $wiki_title, $wiki_type);
-    
-    $stmt3 = $conn->prepare("DELETE FROM end_user WHERE serviceID = ?");
+    $stmt1 = $conn->prepare("SELECT ID FROM wiki_page WHERE serviceID = ?");
+    $stmt1->bind_param("i", $wiki_id);
+
+    $stmt2 = $conn->prepare("DELETE FROM content WHERE pageID = ?");
+    $stmt2->bind_param("i", $wiki_pID);
+
+    $stmt3 = $conn->prepare("DELETE FROM wiki_page_version WHERE pageID = ?");
+    $stmt3->bind_param("i", $wiki_pID);
+
+    $stmt4 = $conn->prepare("DELETE FROM wiki_page WHERE serviceID = ?");
+    $stmt4->bind_param("i", $wiki_id);
+
+    $stmt5 = $conn->prepare("DELETE FROM service WHERE ID = ? AND type = 'wiki'");
+    $stmt5->bind_param("i", $wiki_id);
+
+    $stmt6 = $conn->prepare("DELETE FROM end_user WHERE serviceID = ?");
+    $stmt6->bind_param("i", $wiki_id);
+ 
+    //==============================
+    //      Get variables
+    //==============================
+
+    $wiki_id = get_if_set('wiki_id');
+    $user_id = get_if_set('user_id');
+    $token = get_if_set('token');
 
     //==============================
-    //          Variables
+    //      Requirements
     //==============================
-    $wiki_title = $_GET['wiki_title'];
-    $wiki_type = "wiki";
 
+    // All input variables must be set
+    if(!$wiki_id or !$user_id or !$token) {
+        output_error("Missing input(s) - expected: 'wiki_id', 'user_id' and 'token'");
+    }
+
+    // Token must be valid
+    if(!verify_token($user_id,$token)) {
+        output_error("Token is invalid or expired");
+    }
+
+    // User must be admin or manager
+    if(!check_admin($user_id) and !check_manager($user_id)) {
+        output_error("You must be an admin or manager to delete a wiki.");
+    }
+
+    // Page must be a wiki
+    if(!verify_service_type($wiki_id,'wiki')) {
+        output_error("Not a wiki");
+    }
     
     //=====================================
     //  Deletes from service and end_user
     //=====================================
-    if(!empty($_GET['wiki_title'])) {
 
+    $stmt1->execute();
 
+    if ($stmt1->affected_rows == 0) {
+        error_message("Failed to fetch pageID");
+    }
 
-        $stmt->bind_param("s", $wiki_title);
-        $stmt->execute();
-        $result_wid = $stmt->get_result();
+    $result_pID = $stmt1->get_result();
         
-        if($result_wid->num_rows == 1){
-            $wiki_arr = $result_wid->fetch_assoc();
-            $wiki_id = $wiki_arr['ID'];
-        }
-        
-        $stmt3->bind_param("i", $wiki_id); 
-        $stmt3->execute();
+    if($result_pID->num_rows == 1){
+        $pID_arr = $result_pID->fetch_assoc();
+        $wiki_pID = $pID_arr['ID'];
+    }
+    $stmt1->close();
 
-        $stmt2->execute();
-        if ($stmt2->affected_rows == 1) {
-            $status = "OK";
-            $json_result = ["Version "=>$version, "Status "=>$status, "Data "=>$wiki_title];
-            echo json_encode($json_result);        
-        } else {
-            echo "Error: " . $stmt2 . "<br>" . $conn->error;
-        }
+    $stmt2->execute();
+
+    if ($stmt2->affected_rows == 0) {
+        error_message("Failed to delete content");
+    }
+
+    $stmt3->execute();
+
+    if ($stmt3->affected_rows == 0) {
+        error_message("Failed to delete wiki page versions");
+    }
+
+    $stmt4->execute();
+
+    if ($stmt4->affected_rows == 0) {
+        error_message("Failed to delete wiki page");
+    }
+
+    $stmt5->execute();
+
+    if ($stmt5->affected_rows == 0) {
+        error_message("Failed to delete wiki");
+    }
+
+    $stmt6->execute();
 
 
+    if ($stmt6->affected_rows == 0) {
+        error_message("Failed to delete end user");
 
     }
 
+    output_ok("Successfully deleted Wiki (ID " . $wiki_id . ")");      
 
-    $stmt->close();
-    $stmt2->close();
     $stmt3->close();
+    $stmt4->close();
+    $stmt5->close();
 ?>

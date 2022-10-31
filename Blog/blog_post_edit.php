@@ -1,55 +1,45 @@
 <?php
 require_once('../db.php');
-require_once('../token.php');
-$version = "0.0.1";
+require_once('../verify_token.php');
+require_once('../utility.php');
+$version = "0.1.1";
 $ok = "OK";
 $error = "Error";
+
 
 
 //==================================================
 // Edit the text you've got in a blog post
 //==================================================
-if (!empty($_GET['contents']) && !empty($_GET['conID'])){
-    $content = $_GET['contents'];
-    $conID = $_GET['conID'];
+$contentID = get_if_set('contentID');
+$content = get_if_set('contents');
+$user_id = get_if_set('user_id');
+$token = get_if_set('token');
+$imgID = get_if_set('imgID');
+$img_url = get_if_set('img_url');
 
-    $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
-    $stmt->bind_param("si",$content,$conID); 
-    $stmt->execute();
-
-    if (mysqli_affected_rows($conn) > 0) {
-            $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Old content edited successfully'];
-    }
-    else {
-        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'This is not connected to a blog!'];
-    }
-    
-    echo json_encode($json_array);
+if(!$contentID && !$contents && !$user_id && !$token){
+    output_error("The URL is empty!");
 }
 
+if(!verify_token($user_id,$token)) {
+    output_error("Access denied");
+}
 
+$stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID WHERE service.type = 'blog' AND content.userID=? AND content.ID=?");
+$stmt->bind_param("ii", $user_id, $contentID);
+$stmt->execute();
+$result = $stmt->get_result();
 
-//==================================================
-// Edit the name of a specific blog
-//==================================================
-else if (!empty($_GET['Title']) && !empty($_GET['servID'])){
-    $sql = "UPDATE service SET title = ? WHERE ID = ? AND type = 'blog'";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss",$title,$servID); 
-
-    $title = $_GET['Title'];
-    $servID = $_GET['servID'];
+if($result->num_rows == 1) {
+    $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
+    $stmt->bind_param("si", $content, $contentID);
     $stmt->execute();
-    $result = $stmt->get_result();
 
-    if($stmt->affected_rows == 1){
-        $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data"=>"Old blog edited successfully"];
-        echo json_encode($json_array);
-    }
-    else{
-        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data"=>"This is not a blog!"];
-        echo json_encode($json_array);
-    }
+    output_ok("Content was edited successfully");
+}
+else{
+    output_error("This content is not in the right blog or you signed in as the wrong person");
 }
 
 
@@ -57,31 +47,15 @@ else if (!empty($_GET['Title']) && !empty($_GET['servID'])){
 //==================================================
 // Edit an image in a blog post
 //==================================================
-else if (!empty($_GET['img']) && !empty($_GET['imgID'])){
-    $sql = "UPDATE img INNER JOIN content ON img.contentID = content.ID SET img.img_url = ? WHERE img.ID = ? AND content.pageID = 0";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss",$img,$imgID); 
+if($imgID && $img_url){
+    if($result->num_rows == 1) {
+        $stmt = $conn->prepare("UPDATE img SET img_url = ? WHERE ID = ?");
+        $stmt->bind_param("ss",$img_url,$imgID); 
+        $stmt->execute();
 
-    $img = $_GET['img'];
-    $imgID = $_GET['imgID'];
-    $stmt->execute();
-
-    if (mysqli_affected_rows($conn) > 0) {
-        $json_array = ["Version: "=>$version,"Type: "=>$ok,"Data: "=>'Old image edited successfully'];
+        output_ok("Image was edited successfully");
+    }else{
+        output_error("You cannot edit this content since it is not your blog!");
     }
-    else {
-        $json_array = ["Version: "=>$version,"Type: "=>$error,"Data: "=>'This is not connected to a blog!'];
-    }
-
-echo json_encode($json_array);
-}
-
-
-
-
-
-else{
-    $json_array = ["Version: "=>$version,"Type: "=>$error,"Data"=>"The URL is empty!"];
-    echo json_encode($json_array);
 }
 ?>

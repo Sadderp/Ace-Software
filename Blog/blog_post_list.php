@@ -1,7 +1,8 @@
 <?php
 require_once('../db.php');
 require_once('../token.php');
-$version = "0.0.1"; // Variable for version (hardcoded)
+$version = "1.0.1";
+$error = "Error";
 
     if (!empty($_GET['blog'])){   
         $blog = $_GET['blog'];    // retrieves data from url and shows which blog you selected.
@@ -19,7 +20,8 @@ $version = "0.0.1"; // Variable for version (hardcoded)
             }
         }
         else {
-            echo "ingen information hittades";
+            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
+            echo json_encode($json_array);
         }
     }
 
