@@ -1,6 +1,6 @@
 <?php
     require_once("../db.php");
-    require_once("../token.php");
+    require_once("../verify_token.php");
     $version = "0.0.8";
     $ok = "OK";
     $error = "Error";
@@ -8,24 +8,27 @@
 
     $db = $conn;
     
-    if(!empty($_GET['username'])&& !empty($_GET['token'])){
-        $username = $_GET['username'];
+    if(!empty($_GET['userID'])&& !empty($_GET['token'])){
+        $userID = $_GET['userID'];
         $token = $_GET['token'];
     }else{
         echo json_encode(["Version: "=>$version, "Type: "=>$error, "Data: "=>"You need to log in"]);
     }
 
+    verify_token($userID, $token);
+
+
     $evdate = $_GET['evdate'];
     $evend_date = $_GET['evend_date'];
 
-    $sql2 = "SELECT * FROM user WHERE username=? AND token=?";
+    $sql2 = "SELECT * FROM user WHERE ID=? AND token=?";
 
     $statement = $conn->prepare($sql2);
-    $statement->bind_param("ss", $username, $token);
+    $statement->bind_param("is", $userID, $token);
     $statement->execute();
     $result3 = $statement->get_result();
 
-    if ($result->num_rows > 0) {
+    if ($result3->num_rows > 0) {
         while($row = $result3->fetch_assoc()) {
             $userID = $row['ID'];
             }
