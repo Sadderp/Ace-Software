@@ -2,9 +2,7 @@
 require_once('../db.php');
 require_once('../verify_token.php');
 require_once('../utility.php');
-$version = "1.0.1";
-$ok = "OK";
-$error = "Error";
+
 
 $blogID = get_if_set('blogID');
 $user_id = get_if_set('user_id');

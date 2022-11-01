@@ -2,10 +2,6 @@
 require_once('../db.php');
 require_once('../verify_token.php');
 require_once('../utility.php');
-$version = "0.1.1";
-$ok = "OK";
-$error = "Error";
-
 
 
 //==================================================
@@ -17,7 +13,7 @@ $user_id = get_if_set('user_id');
 $token = get_if_set('token');
 $img_id = get_if_set('img_id');
 $img_url = get_if_set('img_url');
-$output = [];
+
 
 if(!$content_id && !$user_id && !$token){
     output_error("The URL is empty!");

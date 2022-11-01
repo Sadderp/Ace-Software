@@ -2,9 +2,7 @@
 require_once('../db.php');
 require_once('../verify_token.php');
 require_once('../utility.php');
-$version = "1.0.1";
-$ok = "OK";
-$error = "Error";
+
 
 $contents = get_if_set('contents');
 $service_id = get_if_set('service_id');
@@ -12,11 +10,10 @@ $user_id = get_if_set('user_id');
 $token = get_if_set('token');
 $img_url = get_if_set('img_url');
 
+
 if(!verify_token($user_id,$token)) {
-    output_error("access denied");
+    output_error("Access denied");
 }
-
-
 
 //==================================================
 // content table
@@ -40,22 +37,13 @@ $stmt->execute();
 
 $content_id = $conn->insert_id;
 
-output_ok("New content added!");
-
-
-
-//==================================================
-// img table
-//==================================================
-if($content_id && $user_id && $img_url){
-    if($result->num_rows == 1) {
-        $stmt = $conn->prepare("INSERT INTO img (contentID, img_url) VALUES (?, ?)");
-        $stmt->bind_param("is", $content_id, $img_url);
-        $stmt->execute();
-        
-        output_ok("contentID:$content_id img url:$img_url");
-    }else{
-        output_error("You cannot edit this content since it is not your blog!");
-    }
+if($img_url && !$contents){
+    output_error("You cannot create a new image without a post!"); 
 }
+else{
+    $stmt = $conn->prepare("INSERT INTO img (contentID, img_url) VALUES (?, ?)");
+    $stmt->bind_param("is", $content_id, $img_url);
+    $stmt->execute();
+}
+output_ok("New content added!");
 ?>

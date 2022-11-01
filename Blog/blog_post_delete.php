@@ -2,9 +2,6 @@
 require_once('../db.php');
 require_once('../verify_token.php');
 require_once('../utility.php');
-$version = "0.1.1";
-$ok = "OK";
-$error = "Error";
 
 
 $content_id = get_if_set('content_id');
