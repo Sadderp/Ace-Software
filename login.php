@@ -6,9 +6,8 @@
 require_once("db.php");
 require_once("utility.php");
 require_once("verify_token.php");
-$version = "0.0.2";
-$ok = "OK";
-$error = "Error";
+
+
 
 //==================================================
 //      Get variables
