@@ -37,8 +37,6 @@
     }else {
         echo json_encode("No user");
     }
-
-    print_r($_GET['userID']);
     
     //Checks what events you're invited to
     $sel = "SELECT * FROM calendar_event INNER JOIN calendar_invite ON calendar_event.userID!=calendar_invite.userID 

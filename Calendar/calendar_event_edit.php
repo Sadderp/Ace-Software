@@ -43,14 +43,14 @@
     $result = $stmt->get_result();
 
 
-    if($stmt->affected_rows == 1){
+    if($result->affected_rows == 1){
         if(!empty($_GET['date'])){
             $date  = $_GET['date'];
 
-            $sql = "UPDATE calendar_event SET date=?";
+            $sql = "UPDATE calendar_event SET date=? WHERE ID=?";
 
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $date);
+            $stmt->bind_param("si", $date, $eventID);
             $stmt->execute();
             $result = $stmt->get_result();
 
@@ -60,12 +60,12 @@
             array_push($data, $json_result);
         }
         if(!empty($_GET['end_date'])){
-            $date  = $_GET['end_date'];
+            $end_date  = $_GET['end_date'];
 
-            $sql = "UPDATE calendar_event SET end_date=?";
+            $sql = "UPDATE calendar_event SET end_date=? WHERE ID=?";
 
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $end_date);
+            $stmt->bind_param("si", $end_date, $eventID);
             $stmt->execute();
             $result = $stmt->get_result();
 
@@ -75,12 +75,12 @@
             array_push($data, $json_result);
         }
         if(!empty($_GET['title'])){
-            $date  = $_GET['title'];
+            $title  = $_GET['title'];
 
-            $sql = "UPDATE calendar_event SET title=?";
+            $sql = "UPDATE calendar_event SET title=? WHERE ID=?";
 
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $title);
+            $stmt->bind_param("si", $title, $eventID);
             $stmt->execute();
             $result = $stmt->get_result();
 
@@ -90,12 +90,12 @@
             array_push($data, $json_result);
         }
         if(!empty($_GET['description'])){
-            $date  = $_GET['description'];
+            $description = $_GET['description'];
 
-            $sql = "UPDATE calendar_event SET description=?";
+            $sql = "UPDATE calendar_event SET description=? WHERE ID=?";
 
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $description);
+            $stmt->bind_param("si", $description, $eventID);
             $stmt->execute();
             $result = $stmt->get_result();
 
@@ -109,4 +109,5 @@
         }
     }
     $result = ["Version"=>$version, "Status"=>$ok, "Data"=>$data]
+    echo json_encode($result)
 ?>
