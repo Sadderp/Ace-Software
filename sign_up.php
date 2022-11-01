@@ -98,7 +98,7 @@ if($password !== $cpassword) {
 // Makes the account
 //==================================================
 $stmt = $conn->prepare("INSERT INTO user(admin, displayname, username, password) VALUE(?, ?, ?, ?)");
-$stmt->bind_param("isss", admin, $display_name, $username, password_hash($password, PASSWORD_DEFAULT));
+$stmt->bind_param("isss", $admin, $display_name, $username, password_hash($password, PASSWORD_DEFAULT));
 $stmt->execute();
 
 if ($stmt->affected_rows == 1) {
