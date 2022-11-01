@@ -1,5 +1,7 @@
 
 <?php
+    $version = '0.10.3';
+
 
     /**
      * Check a $_GET variable and return its value if it has one. Else returns false.
