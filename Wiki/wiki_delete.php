@@ -2,7 +2,7 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
-    $version = "0.0.3";
+    $version = "0.0.4";
     
     //==============================
     //     Prepared statements
@@ -43,6 +43,11 @@
         output_error("Missing input(s) - expected: 'wiki_id', 'user_id' and 'token'");
     }
 
+    // wiki_id and user_id must be numeric
+    if(!is_numeric($wiki_id) or !is_numeric($user_id)) {
+        output_error("'wiki_id' and 'user_id' are not numeric")
+    }
+
     // Token must be valid
     if(!verify_token($user_id,$token)) {
         output_error("Token is invalid or expired");
@@ -53,7 +58,7 @@
         output_error("You must be an admin or manager to delete a wiki.");
     }
 
-    // Page must be a wiki
+    // Service must be a wiki
     if(!verify_service_type($wiki_id,'wiki')) {
         output_error("Not a wiki");
     }
@@ -109,8 +114,4 @@
     }
 
     output_ok("Successfully deleted Wiki (ID " . $wiki_id . ")");      
-
-    $stmt3->close();
-    $stmt4->close();
-    $stmt5->close();
 ?>

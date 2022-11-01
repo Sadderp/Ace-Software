@@ -1,7 +1,7 @@
 <?php
 require_once('../db.php');
 require_once('../token.php');
-$version = "1.0.1";
+$version = "0.0.1";
 $error = "Error";
 
     if (!empty($_GET['blog'])){   

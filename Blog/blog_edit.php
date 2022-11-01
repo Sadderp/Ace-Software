@@ -13,7 +13,7 @@ $blogID = get_if_set('blogID');
 $user_id = get_if_set('user_id');
 $token = get_if_set('token');
 
-if(!$blogID && !$title && !$user && !$token){
+if(!$blogID && !$title && !$user_id && !$token){
     output_error("The URL is empty!");
 }
 
@@ -37,6 +37,9 @@ if($result->num_rows > 0) {
     else{
         output_error("This is not a blog!");
     }
+}
+else{
+    output_error("Blog was not found!");
 }
 
 ?>

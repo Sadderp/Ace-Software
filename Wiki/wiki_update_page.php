@@ -3,7 +3,7 @@
     require_once("../utility.php");
     require_once("../verify_token.php");
     require_once("wiki_utility.php");
-    $version = "0.0.9";
+    $version = "0.1.0";
 
 
     // TEST LINK:
@@ -51,6 +51,11 @@
         output_error("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
     }
 
+    // page_id and user_id must be numeric
+    if(!is_numeric($page_id) or !is_numeric($user_id)) {
+        output_error("'page_id' and 'user_id' are not numeric")
+    }
+
     // Token must be valid
     if(!verify_token($user_id,$token)) {
         output_error("Token is invalid or expired, please refresh your login.");
@@ -61,11 +66,19 @@
         output_error("Page is deleted and cannot be written to");
     }
 
+    // 'content' must be a valid JSON array
+    try {
+        $content_array = json_decode($content_array);
+        if(!is_array($content_array)) {
+            output_error("'content' is not a valid JSON array");
+        }
+    } catch(Exception e) {
+        output_error("'content' is not a valid JSON array");
+    }
+
     //==============================
     //    Add new version and content to database
     //==============================
-
-    $content_array = json_decode($content_array);
 
     $stmt_add_version->execute();
 

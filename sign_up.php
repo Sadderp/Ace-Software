@@ -14,71 +14,97 @@ $error = "Error";
 
 
 
+//==================================================
+// Variables
+//==================================================
 $display_name = get_if_set('display_name');
 $username = get_if_set('username');
 $password = get_if_set('password');
 $cpassword = get_if_set('cpassword');
+$admin = get_if_set('admin');
 
-$user_id = get_if_set('userID');
+$user_id = get_if_set('user_id');
 $token = get_if_set('token');
+
+
 
 //==================================================
 // Looks what you have filled in
 //==================================================
 if(!$display_name OR !$username OR !$password OR !$cpassword) {
-    error_message('You need to fill all the colums. Fill in display_name, username, password, cpassword');
+    output_error('You need to fill all the colums. Fill in display_name, username, password, cpassword, admin');
+}
+
+if($admin == 'true' || $admin == 1) { // 1/true = 1
+    $admin = 1;
+} else if($admin == 'false' || $admin == 0) { // 0/false = 0
+    $admin = 0;
+} else if(empty($admin)){ // empty = 0
+    $admin = 0;
+} else if($admin != 1 && $admin != 0 && $admin != 'true' && $admin != 'false') { // everything else will be error
+    output_error('Admin needs to be inputed as a 1/true or 0/false');
+}
+
+if(!is_numeric($user_id)) {
+    output_error('User ID must be an int');
 }
 
 if(!verify_token($user_id,$token)) {
-    error_message('You need to login as an admin');
+    output_error('Your user_id is invalid or your token has expired');
 }
 
+
+
+//==================================================
+// Looks if admin
+//==================================================
 $stmt = $conn->prepare("SELECT admin FROM user WHERE ID=?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
 $row = $result->fetch_assoc();
 
-if($row[admin] == 1) {
-    $stmt = $conn->prepare("SELECT * FROM user");
-    $stmt->execute();
-    $result = $stmt->get_result();
-        
-    $list = [];
-    while ($row = $result->fetch_assoc()) {
-        $list[] = $row;
-    }
-        
-    foreach($list as $x) {
-        if($username == $x["username"] && $password == password_verify($password, $x["password"])) {
-            // this account already exist
-            $sign_up = ["Version"=>$version,"Status"=>$error,"Date"=>"This account already exists"];
-            echo json_encode($sign_up);
-        }
-        else if($list[count($list)-1] == $x ) {
-            if($password === $cpassword) {
-                $stmt = $conn->prepare("INSERT INTO user(displayname, username, password) VALUE(?, ?, ?)");
-                $stmt->bind_param("sss", $display_name, $username, password_hash($password, PASSWORD_DEFAULT));
-                $stmt->execute();
-    
-                if ($stmt->affected_rows == 1) {
-                    // created account
-                    header("Location: login.php");
-                }
-                else {
-                    // i do not know how they will come to here???
-                }
-            }
-            else {
-                // cpassword and password is not same
-                $sign_up = ["Version"=>$version,"Status"=>$error,"Date"=>"Password and cpassword did not match"];
-                echo json_encode($sign_up);
-            }
-        }
-    }
+if($row['admin'] != 1) {
+    output_error('Only admins can create accounts');
 }
 
 
 
+//==================================================
+// Looks if user already exist
+//==================================================
+$stmt = $conn->prepare("SELECT * FROM user WHERE username=?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+if($result->num_rows == 1) {
+    output_error('A user with this username already exists');
+}
+
+
+
+//==================================================
+// Looks if password and cpassword is correct
+//==================================================
+if($password !== $cpassword) {
+    output_error('Password and cpassword did not match');
+}
+
+
+
+//==================================================
+// Makes the account
+//==================================================
+$stmt = $conn->prepare("INSERT INTO user(admin, displayname, username, password) VALUE(?, ?, ?, ?)");
+$stmt->bind_param("isss", $admin, $display_name, $username, password_hash($password, PASSWORD_DEFAULT));
+$stmt->execute();
+
+if ($stmt->affected_rows == 1) {
+    header("Location: login.php");
+} else {
+    // i do not know how they will come to here???
+    output_error('EMMMMMMMMMM WHAT DID YOU DO!!!!!!');
+}
 ?>
