@@ -28,7 +28,7 @@
             $userID = $row['ID'];
             }
     }else {
-        die(echo json_encode("No user"));
+        die(json_encode("No user"));
     }
 
     if(!empty($_GET['ID'])){
