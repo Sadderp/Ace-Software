@@ -7,7 +7,7 @@ $ok = "OK";
 $error = "Error";
 
 $blogID = get_if_set('blogID');
-$user_id = get_if_set('userID');
+$user_id = get_if_set('user_id');
 $token = get_if_set('token');
 
 if(!$blogID && !$user_id && !$token) {
