@@ -9,7 +9,7 @@ $ok = "OK";
 $error = "Error";
 
 $title = get_if_set('title');
-$user_id = get_if_set('userID');
+$user_id = get_if_set('user_id');
 $token = get_if_set('token');
 
 
