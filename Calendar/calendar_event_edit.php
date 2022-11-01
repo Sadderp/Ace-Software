@@ -37,13 +37,11 @@
     
     $sql = "SELECT * FROM calendar_event WHERE userID=? AND ID=?";
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $userID, $eventID);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt2 = $conn->prepare($sql);
+    $stmt2->bind_param("ii", $userID, $eventID);
+    $stmt2->execute();
 
-
-    if($result->affected_rows == 1){
+    if($stmt2->affected_rows == 1){
         if(!empty($_GET['date'])){
             $date  = $_GET['date'];
 
@@ -52,7 +50,6 @@
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $date, $eventID);
             $stmt->execute();
-            $result = $stmt->get_result();
 
             echo("date");
 
@@ -67,7 +64,6 @@
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $end_date, $eventID);
             $stmt->execute();
-            $result = $stmt->get_result();
 
             echo("end_date");
 
@@ -82,7 +78,6 @@
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $title, $eventID);
             $stmt->execute();
-            $result = $stmt->get_result();
 
             echo("title");
 
@@ -97,7 +92,6 @@
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $description, $eventID);
             $stmt->execute();
-            $result = $stmt->get_result();
 
             echo("desck");
 
@@ -108,6 +102,6 @@
             die(json_encode($json_result));
         }
     }
-    $result = ["Version"=>$version, "Status"=>$ok, "Data"=>$data]
-    echo json_encode($result)
+    $result = ["Version"=>$version, "Status"=>$ok, "Data"=>$data];
+    echo json_encode($result);
 ?>
