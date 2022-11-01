@@ -35,7 +35,6 @@ if($result->num_rows == 1) {
     $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
     $stmt->bind_param("si", $content, $contentID);
     $stmt->execute();
-
     output_ok("Content was edited successfully");
 }
 else{
