@@ -28,7 +28,8 @@ $result = $stmt->get_result();
 
 // Check if account exists
 if($result->num_rows == 0) {
-    output_error("This account does not exist in the database");
+    output_error("This account does not exist in th
+    e database");
 }
 
 $user = mysqli_fetch_assoc($result);
@@ -54,5 +55,6 @@ if($user['admin'] == 1) {
 $token = generate_token();
 replace_token($user['ID'],$token);
 
-output_ok(["msg"=>$msg,"token"=>$token]);
+$login[] = "message"=>$msg,"token"=>$token;
+output_ok($login);
 ?>
