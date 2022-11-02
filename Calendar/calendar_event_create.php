@@ -24,13 +24,13 @@ if(!verify_token($user_id,$token)) {
 //      Finds the user
 //==================================================
 $stmt = $conn->prepare("SELECT * FROM user WHERE ID=? AND token=?");
-$stmt->bind_param("is", $userID, $token);
+$stmt->bind_param("is", $user_id, $token);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    while($row = $result3->fetch_assoc()) {
-        $userID = $row['ID'];
+    while($row = $result->fetch_assoc()) {
+        $user_id = $row['ID'];
         }
 }else {
     output_error("No user");
@@ -44,7 +44,7 @@ if($date > $end_date){
 }
 
 $stmt = $conn->prepare("INSERT INTO calendar_event(userID, date, end_date, title, description) VALUES (?,?,?,?,?)");
-$stmt->bind_param("issss", $userID, $date, $end_date, $title, $description);
+$stmt->bind_param("issss", $user_id, $date, $end_date, $title, $description);
 $stmt->execute();
 
     
