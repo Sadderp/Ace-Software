@@ -1,10 +1,7 @@
 <?php
     require_once("../db.php");
     require_once("../verify_token.php");
-    $version = "0.0.2";
-    $ok = "OK";
-    $error = "Error";
-    $data = [];
+    require_once("../utility.php");
 
     if(!empty($_GET['user_id']) && !empty($_GET['token'])){
         $user_id = $_GET['user_id'];
