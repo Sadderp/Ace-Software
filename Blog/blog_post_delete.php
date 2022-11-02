@@ -18,12 +18,11 @@ if(!verify_token($user_id,$token)) {
 }
 
 if($content_id && !$img_id){
-    $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID 
-                                                  INNER JOIN img ON content.ID = img.contentID WHERE service.type = 'blog' AND content.userID=? AND content.ID=? AND img.ID=?");
-    $stmt->bind_param("iii", $user_id, $content_id, $img_id);
+    $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID WHERE service.type = 'blog' AND content.userID=? AND content.ID=?");
+    $stmt->bind_param("ii", $user_id, $content_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    if($result->num_rows == 1) {
+    if($result->num_rows > 0) {
         $stmt = $conn->prepare("DELETE FROM content WHERE ID = ?");
         $stmt->bind_param("i",$content_id);
         $stmt->execute();
