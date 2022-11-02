@@ -1,94 +1,73 @@
 <?php
-    require_once("../db.php");
-    require_once("../verify_token.php");
-    $version = "0.0.2";
-    $ok = "OK";
-    $error = "Error";
+require_once("../db.php");
+require_once("../verify_token.php");
+require_once("../utility.php");
 
-    if(!empty($_GET['userID']) && !empty($_GET['token'])){
-        $userID = $_GET['userID'];
-        $token = $_GET['token'];
-    }else{
-        echo json_encode(["Version: "=>$version, "Type: "=>$error, "Data: "=>"You need to log in"]);
-    }
+//==================================================
+//      Get variables
+//==================================================
+$user_id = get_if_set('userID');
+$token = get_if_set('token');
 
-    verify_token($userID, $token);
+$invuser_id = get_if_set('invuserID');
+$event_ID = get_if_set('eventID');
 
+//==================================================
+//      Requirements
+//==================================================
+if(!verify_token($user_id,$token)) {
+    output_error("Token is invalid or expired");
+}
+if($user_id == $invuser_id){
+    output_ok("You can't invite yourself to an event");
+    die();
+}
 
-    $sql2 = "SELECT * FROM user WHERE ID=? AND token=?";
+//==================================================
+//      If user owns the event
+//==================================================
+$stmt = $conn->prepare("SELECT * FROM calendar_event WHERE userID=? AND ID=?");
+$stmt->bind_param("ii", $user_id, $event_ID);
+$stmt->execute();
+$result = $stmt->get_result();
 
-    $stmt = $conn->prepare($sql2);
-    $stmt->bind_param("is", $userID, $token);
-    $stmt->execute();
-    $result3 = $stmt->get_result();
+if($stmt->affected_rows == 0){
+    output_ok("You can't invite someone to an event you haven't created");
+    die();
+}
 
-    if ($result3->num_rows > 0) {
-        while($row = $result3->fetch_assoc()) {
-            $userID = $row['ID'];
-            }
-    }else {
-        echo json_encode("No user");
-    }
+//==================================================
+//      Checks if the user is already invited
+//==================================================
+$stmt = $conn->prepare("SELECT * FROM calendar_invite WHERE userID=? AND eventID=?");
+$stmt->bind_param("ii", $invuser_id, $event_ID);
+$stmt->execute();
+$result = $stmt->get_result();
 
-    if(!empty($_GET['invuserID'])){
-        $invuserID = $_GET['invuserID'];
-    };
-
-    if(!empty($_GET['eventID'])){
-        $eventID = $_GET['eventID'];
-    };
-
-    $sql = "SELECT * FROM calendar_event WHERE userID=? AND ID=?";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $userID, $eventID);
+if($stmt->affected_rows == 0){
+    //==================================================
+    //      Creates invite
+    //==================================================
+    $stmt = $conn->prepare("INSERT INTO calendar_invite(userID, eventID) VALUES (?,?)");
+    $stmt->bind_param("ii", $invuser_id, $event_ID);
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    if($stmt->affected_rows > 0){
 
-        $sql = "SELECT * FROM calendar_invite WHERE userID=? AND eventID=?";
+    if ($stmt->affected_rows == 1) {
+        output_ok("Invite created");
+        die();
+    } else {
+        output_error("Can't find any data");
+    }
+}
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ii", $invuserID, $eventID);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if($stmt->affected_rows == 1){
-            $sql = "DELETE FROM calendar_invite WHERE userID=? and eventID=?";
+//==================================================
+//      Removes invite
+//==================================================
+$stmt = $conn->prepare("DELETE FROM calendar_invite WHERE userID=? and eventID=?");
+$stmt->bind_param("ii", $invuser_id, $event_ID);
+$stmt->execute();
 
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ii", $invuserID, $eventID);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"Invite removed"];
-            echo json_encode($json_result);
-
-            # om invite redan finns, ta bort annars gör ny invite
-        }else{
-            $sql = "INSERT INTO calendar_invite(userID, eventID) VALUES (?,?)";
-
-            //prepared statement
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ii", $invuserID, $eventID);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            if($userID == $invuserID){
-                $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"You can't invite yourself to an event"];
-                echo json_encode($json_result);
-            }else{   
-                if ($stmt->affected_rows === 1) {
-                    $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"invite created"];
-                    echo json_encode($json_result);
-                } else {
-                    $json_result = ["Version"=>$version, "Status"=>$error, "Data"=>"uh oh"];
-                    echo json_encode($json_result);
-                };
-            }
-        };
-    }else{
-        $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"you can't invite someone to an event you haven't created"];
-        echo json_encode($json_result);
-    };
+output_ok("Invite removed");
+die();
 ?>
