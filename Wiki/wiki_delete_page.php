@@ -3,7 +3,6 @@
     require_once("../utility.php");
     require_once("../verify_token.php");
     require_once("wiki_utility.php");
-    $version = "0.0.2";
 
     //==============================
     //    Prepared statements

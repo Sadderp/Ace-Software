@@ -2,7 +2,6 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
-    $version = "0.0.1";
 
     //==============================
     //    Prepared statements
@@ -29,6 +28,11 @@
     // All input variables must be set
     if(!$ban_id or !$user_id or !$token) {
         output_error("Missing input(s) - expected: 'ban_id', 'user_id' and 'token'");
+    }
+
+    // ban_id and user_id must be numeric
+    if(!is_numeric($ban_id) or !is_numeric($user_id)) {
+        output_error("'ban_id' and 'user_id' are not numeric");
     }
 
     // Token must be valid

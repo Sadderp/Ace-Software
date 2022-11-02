@@ -2,7 +2,6 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
-    $version = "0.0.1";
 
     //==============================
     //    Prepared statements
@@ -28,6 +27,11 @@
     // All input variables must be set
     if(!$wiki_id or !$manager_id or !$user_id or !$token) {
         output_error("Missing input(s) - expected: 'wiki_id', 'manager_id', 'user_id' and 'token'");
+    }
+
+    // wiki_id, manager_id and user_id must be numeric
+    if(!is_numeric($wiki_id) or !is_numeric($manager_id) or !is_numeric($user_id)) {
+        output_error("'wiki_id', 'manager_id' and 'user_id' are not numeric");
     }
 
     // Token must be valid

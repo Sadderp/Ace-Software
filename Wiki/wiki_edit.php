@@ -2,7 +2,6 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../token.php");
-    $version ="0.0.2";
 
     //==============================
     //    Prepared statements

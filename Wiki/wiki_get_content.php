@@ -2,7 +2,6 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("wiki_utility.php");
-    $version = "0.0.5";
 
     /**
      * wiki_get_content.php
