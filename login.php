@@ -35,14 +35,12 @@ $user = mysqli_fetch_assoc($result);
 
 // Check if password input matches stored password
 if(!password_verify($password, $user['password'])) {
-    $login = ["Version"=>$version,"Status"=>$ok,"Data"=>"Incorrect password"];
-    die(json_encode($login));
+    die(output_ok("Incorrect password"));
 }
 
 // Check if user is banned
 if($user['ban'] == 1) {
-    $login = ["Version"=>$version,"Status"=>$ok,"Data"=>"This account is banned"];
-    die(json_encode($login));
+    die(output_ok("This account is banned"));
 }
 
 // Different login message depending on if you're admin
