@@ -6,102 +6,101 @@
     $error = "Error";
     $data = [];
 
-    if(!empty($_GET['userID']) && !empty($_GET['token'])){
-        $userID = $_GET['userID'];
+    if(!empty($_GET['user_id']) && !empty($_GET['token'])){
+        $user_id = $_GET['user_id'];
         $token = $_GET['token'];
     }else{
-        echo json_encode(["Version: "=>$version, "Type: "=>$error, "Data: "=>"You need to log in"]);
+        output_error("You need to log in");
     }
 
-    verify_token($userID, $token);
+    if(!verify_token($user_id, $token)){
+        output_error("Token is invalid or expired");
+    }
 
-
+    //===============================
+    //    Prepared statements
+    //===============================
     $sql = "SELECT * FROM user WHERE ID=? AND token=?";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("is", $userID, $token);
+    $stmt->bind_param("is", $user_id, $token);
+
+    $sql2 = "SELECT * FROM calendar_event WHERE userID=? AND ID=?";
+
+    $stmt2 = $conn->prepare($sql2);
+    $stmt2->bind_param("ii", $user_id, $eventID);
+
+    $sql3 = "UPDATE calendar_event SET date=? WHERE ID=?";
+
+    $stmt3 = $conn->prepare($sql3);
+    $stmt3->bind_param("si", $date, $eventID);
+
+    $sql4 = "UPDATE calendar_event SET end_date=? WHERE ID=?";
+
+    $stmt4 = $conn->prepare($sql4);
+    $stmt4->bind_param("si", $end_date, $eventID);
+
+    $sql5 = "UPDATE calendar_event SET title=? WHERE ID=?";
+
+    $stmt5 = $conn->prepare($sql5);
+    $stmt5->bind_param("si", $title, $eventID);
+
+    $sql6 = "UPDATE calendar_event SET description=? WHERE ID=?";
+
+    $stmt6 = $conn->prepare($sql6);
+    $stmt6->bind_param("si", $description, $eventID);
+
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $userID = $row['ID'];
+            $user_id = $row['ID'];
             }
     }else {
-        die(json_encode("No user"));
+        output_error("No user");
     }
 
     if(!empty($_GET['ID'])){
         $eventID = $_GET['ID'];
     }
     
-    $sql = "SELECT * FROM calendar_event WHERE userID=? AND ID=?";
-
-    $stmt2 = $conn->prepare($sql);
-    $stmt2->bind_param("ii", $userID, $eventID);
+    //===============================
+    //    Updates the event
+    //===============================
     $stmt2->execute();
-
+    $result = $stmt2->get_result();
     if($stmt2->affected_rows == 1){
         if(!empty($_GET['date'])){
             $date  = $_GET['date'];
+            $stmt3->execute();
 
-            $sql = "UPDATE calendar_event SET date=? WHERE ID=?";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $date, $eventID);
-            $stmt->execute();
-
-            echo("date");
-
-            $json_result = ["Date updated"];
+            $json_result = ("Date updated");
             array_push($data, $json_result);
         }
         if(!empty($_GET['end_date'])){
             $end_date  = $_GET['end_date'];
+            $stmt4->execute();
 
-            $sql = "UPDATE calendar_event SET end_date=? WHERE ID=?";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $end_date, $eventID);
-            $stmt->execute();
-
-            echo("end_date");
-
-            $json_result = ["End date updated"];
+            $json_result = ("End date updated");
             array_push($data, $json_result);
         }
         if(!empty($_GET['title'])){
             $title  = $_GET['title'];
+            $stmt5->execute();
 
-            $sql = "UPDATE calendar_event SET title=? WHERE ID=?";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $title, $eventID);
-            $stmt->execute();
-
-            echo("title");
-
-            $json_result = ["Title updated"];
+            $json_result = ("Title updated");
             array_push($data, $json_result);
         }
         if(!empty($_GET['description'])){
             $description = $_GET['description'];
+            $stmt6->execute();
 
-            $sql = "UPDATE calendar_event SET description=? WHERE ID=?";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $description, $eventID);
-            $stmt->execute();
-
-            echo("desck");
-
-            $json_result = ["Description updated"];
+            $json_result = ("Description updated");
             array_push($data, $json_result);
         }else{
-            $json_result = ["Version"=>$version, "Status"=>$error, "Data"=>"Uh oh"];
-            die(json_encode($json_result));
+            output_ok("Please write what you want to edit");
         }
     }
-    $result = ["Version"=>$version, "Status"=>$ok, "Data"=>$data];
-    echo json_encode($result);
+    output_ok($data);
 ?>

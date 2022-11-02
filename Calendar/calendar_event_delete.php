@@ -9,84 +9,63 @@
     $db = $conn;
 
     //===============================
-    //    Prepared statements
+    //    Checks user_id and token
     //===============================
-    $sql = "SELECT * FROM user WHERE ID=? AND token=?";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss", $userID, $token);
-
-    $sql2 = "DELETE FROM calendar_event WHERE ID=? AND userID=?";
-    
-    $stmt2 = $conn->prepare($sql2);
-    $stmt2->bind_param("ii", $ID, $userID);
-
-    $sql3 = "SELECT * FROM calendar_invite WHERE eventID=?";
-    
-    $stmt3 = $conn->prepare($sql3);
-    $stmt3->bind_param("i", $ID);
-
-    $sql4 = "DELETE FROM calendar_invite WHERE eventID=?";
-
-    $stmt4 = $conn->prepare($sql4);
-    $stmt4->bind_param("i", $ID);
-
-    $sql5 = "DELETE FROM calendar_invite WHERE eventID=? AND userID=?";
-
-    $stmt5 = $conn->prepare($sql5);
-    $stmt5->bind_param("ii", $ID, $userID);
-
-    //===============================
-    //    Checks userID and token
-    //===============================
-    if(!empty($_GET['userID'])&& !empty($_GET['token'])){
-        $userID = $_GET['userID'];
+    if(!empty($_GET['user_id'])&& !empty($_GET['token'])){
+        $user_id = $_GET['user_id'];
         $token = $_GET['token'];
     }else{
-        $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"You need to log in"];
-        echo json_encode($json_result);
+        output_ok("You need to log in")
     }
     
-    verify_token($userID, $token);
+    if(!verify_token($user_id, $token)){
+        output_error("Token is invalid or expired");
+    }
 
     if(!empty($_GET['ID'])){
         $ID = $_GET['ID'];
     }
 
-    $stmt->execute();
+    //===============================
+    //    Prepared statements
+    //===============================
 
-    if ($stmt->num_rows == 1) {
-        while($row = $stmt->fetch_assoc()) {
-            $userID = $row['ID'];
-            }
-    }else {
-        $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"Please log in"];
-        echo json_encode($json_result);
+    $sql = "DELETE FROM calendar_event WHERE ID=? AND userID=?";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $ID, $user_id);
+
+    $sql2 = "DELETE FROM calendar_invite WHERE eventID=?";
+
+    $stmt2 = $conn->prepare($sql2);
+    $stmt2->bind_param("i", $ID);
+
+    $sql3 = "DELETE FROM calendar_invite WHERE eventID=? AND userID=?";
+
+    $stmt3 = $conn->prepare($sql3);
+    $stmt3->bind_param("ii", $ID, $user_id);
+
+    //===============================
+    // Deletes invites and/or events
+    //===============================
+
+    $stmt2->execute();
+    if($stmt2->affected_rows == 0){
+        echo("Couldn't delete invite");
+    }
+    $stmt2->close();    
+    $stmt->execute();
+    
+    if ($stmt->affected_rows == 1){
+        output_ok("event removed");
+    }else if ($stmt->affected_rows == 0){
+        $stmt3->execute();
+        if ($stmt3->affected_rows == 1){
+            output_ok("Invite removed");
+        }else{
+            output_ok("You can't delete someone else's event");
+        } 
+        $stmt3->close();
     }
     $stmt->close();
-
-    $stmt3->execute();
-
-    if($stmt3->affected_rows >= 1){
-        $stmt4->execute();
-        $stmt4->close();
-    }
-    $stmt3->close();
-    $stmt2->execute();
-    
-    if ($stmt2->affected_rows == 1){
-        $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"event removed"];
-        echo json_encode($json_result);
-    }else if ($stmt2->affected_rows == 0){
-        $stmt5->execute();
-        if ($stmt5->affected_rows == 1){
-            $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"invite removed"];
-            echo json_encode($json_result);
-        }else{
-            $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"You can't delete someone else's event"];
-            echo json_encode($json_result);
-        } 
-        $stmt5->close();
-    }
-    $stmt2->close();
 ?>

@@ -1,78 +1,77 @@
 <?php
     require_once("../db.php");
     require_once("../verify_token.php");
-    $version = "0.0.8";
-    $ok = "OK";
-    $error = "Error";
-    $data = [];
-
-    $db = $conn;
+    require_once("../utility.php");
     
-    if(!empty($_GET['userID'])&& !empty($_GET['token'])){
-        $userID = $_GET['userID'];
+    if(!empty($_GET['user_id'])&& !empty($_GET['token'])){
+        $user_id = $_GET['user_id'];
         $token = $_GET['token'];
     }else{
-        echo json_encode(["Version: "=>$version, "Type: "=>$error, "Data: "=>"You need to log in"]);
+        output_error("You need to log in");
     }
     
-    verify_token($userID, $token);
-
-    
-    if(!empty($_GET['title'])){
-        $title = $_GET['title'];
-    };
-
-    //checks your own events
-    $sql2 = "SELECT * FROM user WHERE ID=? AND token=?";
-
-    $statement = $conn->prepare($sql2);
-    $statement->bind_param("ss", $userID, $token);
-    $statement->execute();
-    $result3 = $statement->get_result();
-
-    if ($result3->num_rows > 0) {
-        while($row = $result3->fetch_assoc()) {
-            $userID = $row['ID'];
-            }
-    }else {
-        echo json_encode("No user");
+    if(!verify_token($user_id, $token)){
+        output_error("Token is invalid or expired");
     }
-    
-    //Checks what events you're invited to
-    $sel = "SELECT * FROM calendar_event INNER JOIN calendar_invite ON calendar_event.userID!=calendar_invite.userID 
+
+    $title = get_if_set('title');
+
+    //===============================
+    //    Prepared statements
+    //===============================
+    $sql = "SELECT * FROM user WHERE ID=? AND token=?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $user_id, $token);
+
+    $sql2 = "SELECT * FROM calendar_event INNER JOIN calendar_invite ON calendar_event.userID!=calendar_invite.userID 
     WHERE calendar_invite.userID=? AND calendar_event.ID=calendar_invite.eventID";
 
-    $stmt = $conn->prepare($sel);
-    $stmt->bind_param("i", $userID);
+    $stmt2 = $conn->prepare($sql2);
+    $stmt2->bind_param("i", $user_id);
+
+    $sql3 = "SELECT * FROM calendar_event WHERE userID=? AND title LIKE ?";
+
+    $stmt3 = $conn->prepare($sql3);
+    $title = "%".$title."%";
+    $stmt3->bind_param("is", $user_id, $title);
+
+
     $stmt->execute();
-    $result2 = $stmt->get_result();
+    $result = $stmt->get_result();
 
-    //Checks what events you have made
-    $sql = "SELECT * FROM calendar_event WHERE userID=? AND title=?";
-
-    $stamt = $conn->prepare($sql);
-    $stamt->bind_param("is", $userID, $title);
-    $stamt->execute();
-    $result = $stamt->get_result();
-
-    // Your own event
-    if($result->num_rows == 0){
-        $json_result = ["Version"=>$version, "Status"=>$ok, "Data"=>"You have not created any events yet"];
-    }
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $json_result = ["ID: ".$row["ID"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"]];
-            array_push($data,$json_result);
+            $user_id = $row['ID'];
+            }
+    }else {
+        output_error("User does not exist");
+    }
+   
+    $stmt2->execute();
+    $result2 = $stmt2->get_result();
+
+    $stmt3->execute();
+    $result3 = $stmt3->get_result();
+
+    //===============================
+    //    Lists your own events
+    //===============================
+    if($result3->num_rows == 0){
+        die(output_ok("You have not created any events yet"));
+    }
+    if ($result3->num_rows > 0) {
+        while($row = $result3->fetch_assoc()) {
+            $json_result[] = "ID: ".$row["ID"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"];
             }
     }
-
-    // Invited to
+    //===============================
+    //    Lists invites to events
+    //===============================
     if ($result2->num_rows > 0) {
         while($row = $result2->fetch_assoc()) {
-            $json_result = ["Invited to:"." ID: ".$row["eventID"]." by: "." userID ".$row["userID"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"]];
-            array_push($data,$json_result);
+            $json_result[] = "Invited to:"." ID: ".$row["eventID"]." by: "." user_id: ".$row["user_id"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"];
             }
     }
-    $resultat = ["Version"=>$version, "Status"=>$ok, "Data"=>$data];
-    echo json_encode($resultat);
+    output_ok($json_result);
 ?>
