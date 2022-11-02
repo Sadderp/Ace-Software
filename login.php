@@ -55,6 +55,5 @@ if($user['admin'] == 1) {
 $token = generate_token();
 replace_token($user['ID'],$token);
 
-$login[] = "message"=>$msg,"token"=>$token;
-output_ok($login);
+output_ok(["message"=>$msg,"token"=>$token]);
 ?>
