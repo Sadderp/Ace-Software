@@ -13,27 +13,12 @@ $date = get_if_set('date');
 $end_date = get_if_set('end_date');
 $title = get_if_set('title');
 $description = get_if_set('description');
+
 //==================================================
 //      Requirements
 //==================================================
 if(!verify_token($user_id,$token)) {
     output_error("Token is invalid or expired");
-}
-
-//==================================================
-//      Finds the user
-//==================================================
-$stmt = $conn->prepare("SELECT * FROM user WHERE ID=? AND token=?");
-$stmt->bind_param("is", $user_id, $token);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $user_id = $row['ID'];
-        }
-}else {
-    output_error("No user");
 }
 
 //==================================================
@@ -47,7 +32,6 @@ $stmt = $conn->prepare("INSERT INTO calendar_event(userID, date, end_date, title
 $stmt->bind_param("issss", $user_id, $date, $end_date, $title, $description);
 $stmt->execute();
 
-    
 //==================================================
 //      Skapar ett event om den kan
 //==================================================

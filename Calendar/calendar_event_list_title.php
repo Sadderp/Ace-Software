@@ -3,18 +3,18 @@
     require_once("../verify_token.php");
     require_once("../utility.php");
     
-    if(!empty($_GET['user_id'])&& !empty($_GET['token'])){
-        $user_id = $_GET['user_id'];
-        $token = $_GET['token'];
-    }else{
-        output_error("You need to log in");
+    $title = get_if_set('title');
+
+    $user_id = get_if_set('user_id');
+    $token = get_if_set('token');
+
+    if(!$user_id && !$token){
+        output_ok("You need fill in user_id and token")
     }
     
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
     }
-
-    $title = get_if_set('title');
 
     //===============================
     //    Prepared statements
