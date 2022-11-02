@@ -2,7 +2,6 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("wiki_utility.php");
-    $version = "0.0.3";
 
     /**
      * wiki_get_content.php
@@ -19,8 +18,14 @@
     //    Requirements
     //==============================
 
+    // Input must be set
     if(!$page_id) {
-        output_error("Missing input(s) - expected: 'page_id'");
+        output_error("Missing input - expected: 'page_id'");
+    }
+
+    // page_id must be numeric
+    if(!is_numeric($page_id)) {
+        output_error("'page_id' is not numeric");
     }
 
     // Page must not be deleted

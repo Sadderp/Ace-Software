@@ -2,7 +2,6 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
-    $version = "0.0.5";
 
     //==============================
     //    Prepared statements
@@ -31,6 +30,11 @@
         output_error("Missing input - expected: 'wiki_id', 'page_title', 'user_id' and 'token'");
     }
 
+    // wiki_id and user_id must be numeric
+    if(!is_numeric($wiki_id) or !is_numeric($user_id)) {
+        output_error("'wiki_id' and 'user_id' are not numeric");
+    }
+
     // Token must be valid
     if(!verify_token($user_id,$token)) {
         output_error("Token is invalid or expired");
@@ -53,6 +57,4 @@
     }
 
     output_ok($page_title);
-
-    $stmt->close();
 ?>

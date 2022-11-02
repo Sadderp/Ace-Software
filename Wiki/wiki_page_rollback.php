@@ -3,7 +3,6 @@
     require_once("../utility.php");
     require_once("../verify_token.php");
     require_once("wiki_utility.php");
-    $version = "0.0.2";
 
     //==============================
     //    Prepared statements
@@ -39,6 +38,11 @@
         output_error("Missing input(s) - expected: 'page_id', 'rollback_version', 'user_id' and 'token'");
     }
 
+    // 'rollback_version' must be a number
+    if(!is_numeric($page_id) or !is_numeric($rollback_version) or !is_numeric($user_id)) {
+        output_error("'page_id', 'rollback_version' and 'user_id' are not numeric");
+    }
+
     // Token must be valid
     if(!verify_token($user_id,$token)) {
         output_error("Token is invalid or expired");
@@ -47,11 +51,6 @@
     // User must be admin
     if(!check_admin($user_id)) {
         output_error("You must be an admin to delete a wiki.");
-    }
-
-    // 'rollback_version' must be a number
-    if(!is_numeric($rollback_version)) {
-        output_error("'rollback_version' is not a number");
     }
 
     // Rollback version must be less than current version

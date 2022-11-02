@@ -2,47 +2,62 @@
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../token.php");
-    $version ="1.0.1";
+
     //==============================
     //    Prepared statements
     //==============================
 
-    $stmt = $conn->prepare("SELECT ID FROM service WHERE title = ? AND type = 'wiki'");
-    $stmt->bind_param("s", $wiki_title);
-
-    $stmt2 = $conn->prepare("UPDATE service SET title = ? WHERE ID = ?");
-    $stmt2->bind_param("si", $new_wiki_title, $wiki_id);
+    $sql = "UPDATE service SET title = ? WHERE ID = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $new_wiki_title, $wiki_id);
     
     //==============================
-    //          Variables
+    //      Get Variables
     //==============================
-    $wiki_title = $_GET['wiki_title'];
-    $new_wiki_title = $_GET['new_wiki_title'];
+
+    $wiki_id = get_if_set('wiki_id');
+    $new_title = get_if_set('new_title');
+    $user_id = get_if_set('user_id');
+    $token = get_if_set('token');
+
+    //==============================
+    //      Requirements
+    //==============================
+
+    // All input variables must be set
+    if(!$wiki_id or !$new_title or !$user_id or !$token) {
+        output_error("Missing input(s) - expected: 'wiki_id', 'new_title', 'user_id' and 'token'");
+    }
+
+    // wiki_id and user_id must be numeric
+    if(!is_numeric($wiki_id) or !is_numeric($user_id)) {
+        output_error("'wiki_id' and 'user_id' are not numeric")
+    }
+
+    // Token must be valid
+    if(!verify_token($user_id,$token)) {
+        output_error("Token is invalid or expired");
+    }
+
+    // User must be admin or manager
+    if(!check_admin($user_id) and !check_manager($user_id)) {
+        output_error("You must be an admin or manager to delete a wiki.");
+    }
+
+    // Service must be a wiki
+    if(!verify_service_type($wiki_id,'wiki')) {
+        output_error("Service is not a wiki");
+    }
 
     //==============================
     //  Running statements to edit
     //==============================
-    if(!empty($_GET['wiki_title'])) {
-
         
-        $stmt->execute();
-        $result_wid = $stmt->get_result();
-        
-        if($result_wid->num_rows == 1){
-            $wiki_arr = $result_wid->fetch_assoc();
-            $wiki_id = $wiki_arr['ID'];
-        }
-        $stmt->close();
-
-        $stmt2->execute();
-        if ($stmt2->affected_rows == 1) {
-            output_ok($new_wiki_title);
-        } else {
-            output_error("Failed to edit");
-        }
-
-        $stmt2->close();
-
+    $stmt->execute();
+    
+    if($stmt->affected_rows == 0){
+        output_error("Failed to edit wiki");
     }
-    $conn->close();
+
+    output_ok("Successfully edited wiki title");
 ?>

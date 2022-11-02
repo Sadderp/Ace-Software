@@ -3,7 +3,6 @@
     require_once("../utility.php");
     require_once("../verify_token.php");
     require_once("wiki_utility.php");
-    $version = "0.0.1";
 
     //==============================
     //    Prepared statements
@@ -42,6 +41,11 @@
     // All input variables must be set
     if(!$page_id or !$user_id or !$token) {
         output_error("Missing input - expected: 'page_id', 'user_id' and 'page_title'");
+    }
+
+    // page_id and user_id must be numeric
+    if(!is_numeric($page_id) or !is_numeric($user_id)) {
+        output_error("'page_id' and 'user_id' are not numeric")
     }
 
     // Token must be valid
