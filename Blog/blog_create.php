@@ -1,7 +1,9 @@
 <?php
 require_once('../db.php');
+
 require_once('../verify_token.php');
 require_once('../utility.php');
+
 
 
 $title = get_if_set('title');
