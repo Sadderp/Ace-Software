@@ -6,44 +6,34 @@
     //===============================
     //    Checks user_id and token
     //===============================
-    if(!empty($_GET['user_id'])&& !empty($_GET['token'])){
-        $user_id = $_GET['user_id'];
-        $token = $_GET['token'];
-    }else{
-        output_ok("You need to log in")
+    $event_id = get_if_set('event_id');
+
+    $user_id = get_if_set('user_id');
+    $token = get_if_set('token');
+    
+    if(!$user_id && !$token){
+        output_ok("You need fill in user_id and token")
     }
     
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
     }
 
-    if(!empty($_GET['ID'])){
-        $ID = $_GET['ID'];
-    }
-
     //===============================
     //    Prepared statements
     //===============================
+    $stmt = $conn->prepare("DELETE FROM calendar_event WHERE ID=? AND userID=?");
+    $stmt->bind_param("ii", $event_id, $user_id);
 
-    $sql = "DELETE FROM calendar_event WHERE ID=? AND userID=?";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $ID, $user_id);
+    $stmt2 = $conn->prepare("DELETE FROM calendar_invite WHERE eventID=?");
+    $stmt2->bind_param("i", $event_id);
 
-    $sql2 = "DELETE FROM calendar_invite WHERE eventID=?";
-
-    $stmt2 = $conn->prepare($sql2);
-    $stmt2->bind_param("i", $ID);
-
-    $sql3 = "DELETE FROM calendar_invite WHERE eventID=? AND userID=?";
-
-    $stmt3 = $conn->prepare($sql3);
-    $stmt3->bind_param("ii", $ID, $user_id);
+    $stmt3 = $conn->prepare("DELETE FROM calendar_invite WHERE eventID=? AND userID=?");
+    $stmt3->bind_param("ii", $event_id, $user_id);
 
     //===============================
     // Deletes invites and/or events
     //===============================
-
     $stmt2->execute();
     if($stmt2->affected_rows == 0){
         echo("Couldn't delete invite");
