@@ -6,13 +6,20 @@ require_once("../utility.php");
 //==================================================
 //      Get variables
 //==================================================
-$user_id = get_if_set('userID');
+$user_id = get_if_set('user_id');
 $token = get_if_set('token');
 
 $date = get_if_set('date');
 $end_date = get_if_set('end_date');
 $title = get_if_set('title');
 $description = get_if_set('description');
+
+if(!is_numeric($date) || !is_numeric($end_date)) {
+    output_error("eyo");
+}
+if(strlen($date) >= 9 || strlen($end_date) >= 9) {
+    output_error("Date or end date is formatted wrong");
+}
 
 //==================================================
 //      Requirements
