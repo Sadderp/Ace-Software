@@ -45,23 +45,28 @@
     //==============================
 
     // All input variables must be set
-    if(!$user_id or !$page_id or !$token) {
+    if(!$user_id or !$page_id or !$token or !$content_array) {
         output_error("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
     }
 
     // page_id and user_id must be numeric
     if(!is_numeric($page_id) or !is_numeric($user_id)) {
-        output_error("'page_id' and 'user_id' are not numeric")
+        output_error($num_error);
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        output_error("Token is invalid or expired, please refresh your login.");
+        output_error($token_error);
+    }
+
+    // User must not be banned
+    if(check_ban($user_id)) {
+        output_error($ban_error);
     }
 
     // Page must not be deleted
     if(check_page_deletion($page_id)) {
-        output_error("Page is deleted and cannot be written to");
+        output_error($page_deleted_error);
     }
 
     // 'content' must be a valid JSON array

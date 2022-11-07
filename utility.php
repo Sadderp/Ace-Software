@@ -3,6 +3,12 @@
 
     $version = "0.10.3";
 
+    $num_error = "Numeric input is not a number";
+    $token_error = "Token is invalid or expired";
+    $ban_error = "You are banned from The Provider's services!";
+    $permission_error = "User lacks permission for this action";
+    $page_deleted_error = "Page is deleted";
+
     /**
      * Check a $_GET variable and return its value if it has one. Else returns false.
      *
@@ -219,6 +225,27 @@
             return false;
         }
         return true;
+    }
+
+    /**
+     * If the user is banned, return true. Else returns false.
+     * 
+     * @param   int     $user_id    ID of the user
+     * @return  boolean 
+     */
+    function check_ban($user_id) {
+        // Prepared statement
+        $sql = "SELECT ban FROM user WHERE ID = ?";
+        $stmt = $GLOBALS['conn']->prepare($sql);
+        $stmt->bind_param("i",$user_id);
+
+        // Get result
+        $stmt->execute();
+        $result = mysqli_fetch_assoc($stmt->get_result());
+        if($result) {
+            return true;
+        }
+        return false;
     }
 ?>
 

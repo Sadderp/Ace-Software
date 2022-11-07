@@ -39,17 +39,22 @@
 
     // page_id and user_id must be numeric
     if(!is_numeric($page_id) or !is_numeric($user_id)) {
-        output_error("'page_id' and 'user_id' are not numeric")
+        output_error($num_error);
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        output_error("Token is invalid or expired, please refresh your login.");
+        output_error($token_error);
+    }
+
+    // User must not be banned
+    if(check_ban($user_id)) {
+        output_error($ban_error);
     }
 
     // User must be admin or manager
     if(!check_admin($user_id) and !check_manager($wiki_id,$user_id)) {
-        output_error("You must be an admin or manager to delete a page.");
+        output_error($permission_error);
     }
 
     //==============================

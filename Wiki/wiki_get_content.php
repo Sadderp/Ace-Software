@@ -25,7 +25,7 @@
 
     // page_id must be numeric
     if(!is_numeric($page_id)) {
-        output_error("'page_id' is not numeric");
+        output_error($num_error);
     }
 
     // Page must not be deleted
@@ -37,6 +37,11 @@
     //    Get current version
     //==============================
     $page_v = get_recent_version($page_id);
+    if($page_v == 0) {
+        output_ok("Page has no content");
+        die();
+    }
+
     $data = get_version_content($page_id,$page_v);
     output_ok($data);
 ?>
