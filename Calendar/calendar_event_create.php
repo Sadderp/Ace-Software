@@ -15,7 +15,7 @@ $title = get_if_set('title');
 $description = get_if_set('description');
 
 if(!is_numeric($date) || !is_numeric($end_date)) {
-    output_error("eyo");
+    output_error("Date or end date must be numerical");
 }
 if(strlen($date) >= 9 || strlen($end_date) >= 9) {
     output_error("Date or end date is formatted wrong");
