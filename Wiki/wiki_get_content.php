@@ -25,7 +25,7 @@
 
     // page_id must be numeric
     if(!is_numeric($page_id)) {
-        output_error("'page_id' must be a number");
+        output_error($num_error);
     }
 
     // Page must not be deleted

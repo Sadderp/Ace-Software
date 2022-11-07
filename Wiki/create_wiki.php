@@ -33,7 +33,7 @@
 
     // user_id input must be numeric
     if(!is_numeric($user_id)) {
-        output_error("'user_id' is not numeric");
+        output_error($num_error);
     }
     
     // Visibility must be either private or public
@@ -43,7 +43,7 @@
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        output_error("Token is invalid or expired");
+        output_error($token_error);
     }
 
     // User must be admin

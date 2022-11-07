@@ -32,12 +32,17 @@
 
     // wiki_id and user_id must be numeric
     if(!is_numeric($wiki_id) or !is_numeric($user_id)) {
-        output_error("'wiki_id' and 'user_id' must be numbers");
+        output_error($num_error);
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        output_error("Token is invalid or expired");
+        output_error($token_error);
+    }
+
+    // User must not be banned
+    if(check_ban($user_id)) {
+        output_error($ban_error);
     }
 
     // Page must be a wiki
