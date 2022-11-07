@@ -6,9 +6,8 @@
 require_once("db.php");
 require_once("utility.php");
 require_once("verify_token.php");
-$version = "0.0.2";
-$ok = "OK";
-$error = "Error";
+
+
 
 //==================================================
 //      Get variables
@@ -29,21 +28,20 @@ $result = $stmt->get_result();
 
 // Check if account exists
 if($result->num_rows == 0) {
-    output_error("This account does not exist in the database");
+    output_error("This account does not exist in th
+    e database");
 }
 
 $user = mysqli_fetch_assoc($result);
 
 // Check if password input matches stored password
 if(!password_verify($password, $user['password'])) {
-    $login = ["Version"=>$version,"Status"=>$ok,"Data"=>"Incorrect password"];
-    die(json_encode($login));
+    die(output_ok("Incorrect password"));
 }
 
 // Check if user is banned
 if($user['ban'] == 1) {
-    $login = ["Version"=>$version,"Status"=>$ok,"Data"=>"This account is banned"];
-    die(json_encode($login));
+    die(output_ok("This account is banned"));
 }
 
 // Different login message depending on if you're admin
@@ -57,5 +55,5 @@ if($user['admin'] == 1) {
 $token = generate_token();
 replace_token($user['ID'],$token);
 
-output_ok(["msg"=>$msg,"token"=>$token]);
+output_ok(["message"=>$msg,"token"=>$token]);
 ?>

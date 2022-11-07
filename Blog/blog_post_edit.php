@@ -1,111 +1,88 @@
 <?php
 require_once('../db.php');
-require_once('../token.php');
-$version = "1.0.1";
-$ok = "OK";
-$error = "Error";
+require_once('../verify_token.php');
+require_once('../utility.php');
+
 
 
 //==================================================
 // Edit the text you've got in a blog post
 //==================================================
-if (!empty($_GET['contents']) && !empty($_GET['contentID']) && !empty($_GET['user']) && !empty($_GET['token']) ){
-    $content = $_GET['contents'];
-    $contentID = $_GET['contentID'];
-    $user = $_GET['user'];
-    $token = $_GET['token'];
+$content_id = get_if_set('content_id');
+$content = get_if_set('content');
+$user_id = get_if_set('user_id');
+$token = get_if_set('token');
+$img_id = get_if_set('img_id');
+$img_url = get_if_set('img_url');
 
-    $sql = "SELECT * FROM user WHERE BINARY username = ? AND token=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss",$user,$token); 
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            if($row['token'] == $_GET['token']){
-                if($row['username'] == $_GET['user']){
-                    if ($stmt->affected_rows == 1) {
-                        $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
-                        $stmt->bind_param("si",$content,$contentID); 
-                        $stmt->execute();
-                        $stmt->close();
-                        $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Content was edited successfully'];
-                        echo json_encode($json_array);
-                    }
-                    else{
-                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This content is not in the right blog!'];
-                        echo json_encode($json_array);
-                    } 
-                }else{
-                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
-                    echo json_encode($json_array);
-                }
-        }else{
-            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-            echo json_encode($json_array);
-        }
+if(!$content_id && !$user_id && !$token){
+    output_error("The URL is empty!");
+}
+
+if(!verify_token($user_id,$token)) {
+    output_error("Access denied");
+}
+
+$stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID WHERE service.type = 'blog' AND content.userID=? AND content.ID=?");
+$stmt->bind_param("ii", $user_id, $content_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if($content && !$img_id && !$img_url){
+    if($result->num_rows == 1) {
+        $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
+        $stmt->bind_param("si", $content, $content_id);
+        $stmt->execute();
+
+        output_ok("Content was edited successfully");
     }
-}else{
-    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-    echo json_encode($json_array);
+    else{
+        output_error("This content is not in the right blog or you signed in as the wrong person");
+    }
 }
 
-}
 
 
 //==================================================
 // Edit an image in a blog post
 //==================================================
-else if (!empty($_GET['img_url']) && !empty($_GET['imgID']) && !empty($_GET['user']) && !empty($_GET['token'])){
-    $img_url = $_GET['img_url'];
-    $imgID = $_GET['imgID'];
-    $user = $_GET['user'];
-    $token = $_GET['token'];
+else if($img_id && $img_url && !$content){
+    if($result->num_rows == 1) {
+        $stmt = $conn->prepare("UPDATE img SET img_url = ? WHERE ID = ?");
+        $stmt->bind_param("ss",$img_url,$img_id); 
+        $stmt->execute();
 
-    $sql = "SELECT * FROM user WHERE BINARY username = ? AND token=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss",$user,$token); 
+        output_ok("Image was edited successfully");
+    }else{
+        output_error("You cannot edit this content since it is not your blog!");
+    }
+}
+
+
+
+else if($content && $img_id && $img_url){
+    $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID 
+                                                  INNER JOIN img ON content.ID = img.contentID WHERE service.type = 'blog' AND content.userID=? AND content.ID=? AND img.ID=?");
+    $stmt->bind_param("iii", $user_id, $content_id, $img_id);
     $stmt->execute();
     $result = $stmt->get_result();
+    if($result->num_rows == 1) {
+        $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
+        $stmt->bind_param("si", $content, $content_id);
+        $stmt->execute();
 
-    if($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            if($row['token'] == $_GET['token']){
-                if($row['username'] == $_GET['user']){
-                    if($stmt->affected_rows == 1){
-                        $sql = "UPDATE img SET img_url = ? WHERE ID = ? ";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param("ss",$img_url,$imgID); 
-                        $stmt->execute();
-                        $stmt->close();
-                        $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Old image edited successfully'];
-                        echo json_encode($json_array);
-                        die();
-                    }
-                    else{
-                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This image is not in the right blog!'];
-                        echo json_encode($json_array);
-                    }
-                }else{
-                    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
-                    echo json_encode($json_array);
-                }
-        }else{
-            echo "hej";
-            $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-            echo json_encode($json_array);
-        }
+        $stmt = $conn->prepare("UPDATE img SET img_url = ? WHERE ID = ?");
+        $stmt->bind_param("ss",$img_url,$img_id); 
+        $stmt->execute();
+        output_ok("Content was edited successfully");
+    }else{
+        output_error("Oops! something went wrong with either the content or the image");
     }
-}else{
-    echo "hejsan";
-    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-    echo json_encode($json_array);
 }
 
-}
+
+
 else{
-    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data"=>"The URL is empty!"];
-    echo json_encode($json_array);
+    output_error("You have logged in, but you have not requested anything!");
 }
 ?>
