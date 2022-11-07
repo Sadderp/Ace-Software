@@ -40,7 +40,7 @@
 
     // 'rollback_version' must be a number
     if(!is_numeric($page_id) or !is_numeric($rollback_version) or !is_numeric($user_id)) {
-        output_error("'page_id', 'rollback_version' and 'user_id' are not numeric");
+        output_error("'page_id', 'rollback_version' and 'user_id' must be numbers");
     }
 
     // Token must be valid
@@ -48,9 +48,9 @@
         output_error("Token is invalid or expired");
     }
 
-    // User must be admin
-    if(!check_admin($user_id)) {
-        output_error("You must be an admin to delete a wiki.");
+    // User must be admin or manager
+    if(!check_admin($user_id) and !check_manager($wiki_id,$user_id)) {
+        output_error("You must be an admin or manager to rollback a page.");
     }
 
     // Rollback version must be less than current version

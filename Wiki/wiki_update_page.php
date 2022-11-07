@@ -45,7 +45,7 @@
     //==============================
 
     // All input variables must be set
-    if(!$user_id or !$page_id or !$token) {
+    if(!$user_id or !$page_id or !$token or !$content_array) {
         output_error("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
     }
 

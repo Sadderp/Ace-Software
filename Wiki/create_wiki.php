@@ -73,5 +73,5 @@
         output_error("Failed to set end user");
     }
 
-    output_ok($wiki_name);
+    output_ok("Successfully created wiki: " . $wiki_name);
 ?>

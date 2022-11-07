@@ -32,7 +32,7 @@
 
     // wiki_id and user_id must be numeric
     if(!is_numeric($wiki_id) or !is_numeric($user_id)) {
-        output_error("'wiki_id' and 'user_id' are not numeric");
+        output_error("'wiki_id' and 'user_id' must be numbers");
     }
 
     // Token must be valid
@@ -56,5 +56,5 @@
         output_error("Failed to add to database");
     }
 
-    output_ok($page_title);
+    output_ok("Successfully added page: " . $page_title);
 ?>

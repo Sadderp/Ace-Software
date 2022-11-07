@@ -45,7 +45,7 @@
 
     // page_id and user_id must be numeric
     if(!is_numeric($page_id) or !is_numeric($user_id)) {
-        output_error("'page_id' and 'user_id' are not numeric")
+        output_error("'page_id' and 'user_id' must be numbers");
     }
 
     // Token must be valid

@@ -34,7 +34,7 @@
 
     // wiki_id must be numeric
     if(!is_numeric($wiki_id)) {
-        output_error("'wiki_id' is not numeric");
+        output_error("'wiki_id' must be a number");
     }
 
     // Service must be a wiki
