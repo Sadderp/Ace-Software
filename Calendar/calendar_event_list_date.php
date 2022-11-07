@@ -6,7 +6,7 @@
 
     $date = get_if_set('date');
     $end_date = get_if_set('end_date');
-    if(strlen($date) >= 11 || strlen($end_date) >= 11) {
+    if(strlen($date) >= 15 || strlen($end_date) >= 15) {
         output_error("Date or end date is formatted wrong");
     }
 
