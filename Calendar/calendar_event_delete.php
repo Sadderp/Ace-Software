@@ -24,12 +24,15 @@
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
     }
+    if(check_admin($user_id)){
+        die(output_ok("Admins do not have access to the calendar"));
+    }
     if(!is_numeric($event_id)) {
         output_error("event_id must be numerical");
     }
 
 
-    
+
     //==================================================
     //      Deletes invites and/or events
     //==================================================
