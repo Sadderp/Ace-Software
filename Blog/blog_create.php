@@ -3,27 +3,33 @@ require_once('../db.php');
 require_once('../verify_token.php');
 require_once('../utility.php');
 
+//==============================
+//    Get variables
+//==============================
+
 $title = get_if_set('title');
 $user_id = get_if_set('user_id');
 $token = get_if_set('token');
 
+//==============================
+//    Requirements
+//==============================
 
-if(!$title && !$user_id && !$token){
-    output_error("The URL is empty!");
+if(!$title or !$user_id or !$token){
+    output_error("Missing input(s) - expected: 'title', 'user_id' and 'token'");
 }
 
 if(!verify_token($user_id,$token)) {
-    output_error("access denied");
+    output_error($token_error);
 }
 
+//==============================
+//      Checks if you all ready have a blog
+//==============================
 
-
-//==================================================
-// Checks if you all ready have a blog
-//==================================================
-$stmt = $conn->prepare("SELECT user.ID, user.username, user.token, end_user.userID, end_user.serviceID, service.ID, service.type FROM user INNER JOIN end_user ON user.ID = end_user.userID 
-                                                                                                                                           INNER JOIN service ON end_user.serviceID = service.ID WHERE BINARY user.ID = ? AND token = ? AND type = 'blog'");
-$stmt->bind_param("is",$user_id,$token); 
+$sql = "SELECT ID from end_user WHERE userID = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i",$user_id); 
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -32,18 +38,25 @@ if ($result->num_rows > 0) {
 }
 
 //==================================================
-// Makes a blog if you do not have one already
+//      Makes a blog if you do not have one already
 //==================================================
+
 $stmt = $conn->prepare("INSERT INTO service(title,type) VALUES (?,'blog')");
 $stmt->bind_param("s",$title); 
 $stmt->execute();
 
-$lastID = $conn->insert_id; 
+if($stmt->affected_rows == 0) {
+    output_error("Failed to create blog");
+}
+
+$last_id = $conn->insert_id; 
 
 $stmt = $conn->prepare("INSERT INTO end_user(userID,serviceID) VALUES (?,?)");
-$stmt->bind_param("ii",$user_id,$lastID); 
+$stmt->bind_param("ii",$user_id,$last_id); 
 $stmt->execute();
 
-output_ok("Blog was created successfully");
+// Output
+$output = ["text"=>"Blog was created successfully","id"=>$last_id];
+output_ok($output);
 ?>
 
