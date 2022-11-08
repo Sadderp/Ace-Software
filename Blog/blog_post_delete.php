@@ -1,60 +1,75 @@
 <?php
 require_once('../db.php');
-require_once('../token.php');
-$version = "1.0.1";
-$ok = "OK";
-$error = "Error";
+require_once('../verify_token.php');
+require_once('../utility.php');
 
-if(!empty($_GET['ID']) && !empty($_GET['serviceID']) && !empty($_GET['user']) && !empty($_GET['token']) )  {
-    $ID = $_GET['ID'];
-    $user = $_GET['user'];
-    $token = $_GET['token'];
-    $serviceID = $_GET['serviceID'];
 
-    $sql = "SELECT username, token FROM user WHERE BINARY username = ? AND token=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss",$user,$token); 
+$content_id = get_if_set('content_id');
+$user_id = get_if_set('user_id');
+$token = get_if_set('token');
+$img_id = get_if_set('img_id');
+
+if(!$user_id && !$token){
+    output_error("The URL is empty!");
+}
+
+if(!verify_token($user_id,$token)) {
+    output_error("access denied");
+}
+
+if($content_id && !$img_id){
+    $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID WHERE service.type = 'blog' AND content.userID=? AND content.ID=?");
+    $stmt->bind_param("ii", $user_id, $content_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $stmt->close();
+    if($result->num_rows > 0) {
+        $stmt = $conn->prepare("DELETE FROM content WHERE ID = ?");
+        $stmt->bind_param("i",$content_id);
+        $stmt->execute();
 
-        if($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                if($row['token'] == $_GET['token']){
-                    if($row['username'] == $_GET['user']){
-        
-                            $sql = "DELETE FROM content WHERE ID = ? AND serviceID = ? ";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("ii",$ID, $serviceID); 
-                            $stmt->execute();
-
-                            if($stmt->affected_rows == 1){
-                                $json_array = ["Version: "=>$version,"Status: "=>$ok,"Data: "=>'Content was deleted successfully!'];
-                                echo json_encode($json_array);
-                                die();
-                            }
-                            else{
-                                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'This content is not in the right blog!'];
-                                echo json_encode($json_array);
-                            } 
-                    }else{
-                        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'You cannot delete this content since it is not your blog!'];
-                        echo json_encode($json_array);
-                    }
-            }else{
-                echo "hej";
-                $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-                echo json_encode($json_array);
-            }
-        }
+        $stmt = $conn->prepare("DELETE FROM img WHERE contentID = ?");
+        $stmt->bind_param("i",$content_id);
+        $stmt->execute();
+        output_ok("Content was deleted successfully");
     }else{
-        echo "hejsan";
-        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-        echo json_encode($json_array);
+        output_error("Oops! something went wrong with the connection of either the content or the image");
     }
 }
+
+
+else if($img_id && $content_id){
+    $stmt = $conn->prepare("SELECT * FROM img INNER JOIN content ON content.ID = img.contentID
+                                              INNER JOIN service ON content.serviceID = service.ID WHERE service.type = 'blog' AND img.ID=? AND img.contentID=?");
+    $stmt->bind_param("ii", $img_id, $content_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if($result->num_rows > 0) {
+        $stmt = $conn->prepare("DELETE FROM img WHERE ID = ?");
+        $stmt->bind_param("i",$img_id);
+        $stmt->execute();
+
+        if($stmt->affected_rows == 1){
+        output_ok("Image was deleted successfully!");
+        }
+        else{
+        output_error("This content is not in the right blog!");
+        }
+    }
+    else{
+        output_error("You are not connected to a blog!");
+    }
+}
+
+
+else if($img_id && !$content_id){
+    output_error("You must specify which image you want to delete!");
+}
+
+
+
 else{
-    $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'The URL is empty!'];
-    echo json_encode($json_array);
+    output_error("Ooops, something went wrong!");
 }
 ?>
+
