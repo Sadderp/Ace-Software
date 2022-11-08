@@ -25,6 +25,12 @@
         output_error("Token is invalid or expired");
     }
 
+    if(!is_numeric($date) || !is_numeric($end_date)) {
+        output_error("Date or end date must be numerical");
+    }
+    if(strlen($date) >= 15 || strlen($end_date) >= 15) {
+        output_error("Date or end date is formatted wrong");
+    }
     
     //===============================
     //    Updates the event
