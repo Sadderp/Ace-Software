@@ -11,12 +11,19 @@
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
     
+    //==================================================
+    //      Requirements
+    //==================================================
     if(!$user_id && !$token){
         output_ok("You need fill in user_id and token");
     }
     
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
+    }
+
+    if(check_admin($user_id)){
+        die(output_ok("Admins do not have access to the calendar"));
     }
 
     //===============================

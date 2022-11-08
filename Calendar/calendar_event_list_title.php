@@ -10,12 +10,20 @@
 
     $json_result = [];
 
+    //==================================================
+    //      Requirements
+    //==================================================
+
     if(!$user_id || !$token){
         output_error("You need to fill in user_id, token");
     }
     
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
+    }
+
+    if(check_admin($user_id)){
+        die(output_ok("Admins do not have access to the calendar"));
     }
 
     //===============================

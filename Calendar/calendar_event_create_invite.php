@@ -37,6 +37,10 @@ if($stmt->affected_rows == 0) {
     output_error("The invited user do not exist");
 }
 
+if(check_admin($user_id) || check_admin($invuser_id)){
+    die(output_ok("Admins do not have access to the calendar"));
+}
+
 
 
 //==================================================
