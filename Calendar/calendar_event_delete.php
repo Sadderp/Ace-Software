@@ -48,7 +48,7 @@
         if ($stmt3->affected_rows == 1){
             output_ok("Invite removed");
         }else{
-            output_ok("You can't delete someone else's event");
+            output_ok("You can't delete an event that doesn't exist");
         } 
         $stmt3->close();
     }

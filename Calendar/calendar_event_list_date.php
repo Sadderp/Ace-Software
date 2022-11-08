@@ -14,6 +14,10 @@
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
 
+    if(!is_numeric($date) || !is_numeric($end_date)) {
+        output_error("Date or end date must be numerical");
+    }
+    
     if(!$user_id || !$token || !$date || !$end_date){
         output_error("You need to fill in user_id, token, date and end_date");
     }
