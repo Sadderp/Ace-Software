@@ -25,7 +25,6 @@
         output_error("Token is invalid or expired");
     }
 
-
     
     //===============================
     //    Updates the event

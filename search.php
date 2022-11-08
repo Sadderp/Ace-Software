@@ -35,13 +35,14 @@ if($type) {
   $stmt->execute();
   $result = $stmt->get_result();
 
+  
   if($stmt->affected_rows == 0) {
     output_ok('Found no pages');
     die();
   }
 
   while($row = $result->fetch_assoc()) {
-    $search[] = "'Type'=>$row[type], 'Title'=>$row[title]";
+    $search[] = ['ID'=>$row['ID'], 'Type'=>$row['type'], 'Title'=>$row['title']];
   }
   output_ok($search);
 }
@@ -63,7 +64,7 @@ else if($page_title) {
   }
 
   while($row = $result->fetch_assoc()) {
-    $search[] = "'Type'=>$row[serviceID], 'Title'=>$row[title]";
+    $search[] = ['ID'=>$row['ID'], 'serviceID'=>$row['serviceID'], 'Title'=>$row['title']];
   }
   output_ok($search);
 }
