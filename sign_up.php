@@ -8,6 +8,7 @@
 require_once("./db.php");
 require_once("./verify_token.php");
 require_once("./utility.php");
+error_reporting(E_ERROR | E_PARSE);
 
 
 
@@ -28,8 +29,8 @@ $token = get_if_set('token');
 //==================================================
 // Looks what you have filled in
 //==================================================
-if(!$display_name OR !$username OR !$password OR !$cpassword) {
-    output_error('You need to fill all the colums. Fill in display_name, username, password, cpassword, admin');
+if(!$display_name || !$username || !$password || !$cpassword) {
+    output_error('You need to fill all the colums. Fill in display_name, username, password, cpassword');
 }
 
 if($admin == 'true' || $admin == 1) { // 1/true = 1
@@ -98,10 +99,11 @@ $stmt = $conn->prepare("INSERT INTO user(admin, displayname, username, password)
 $stmt->bind_param("isss", $admin, $display_name, $username, password_hash($password, PASSWORD_DEFAULT));
 $stmt->execute();
 
-if ($stmt->affected_rows == 1) {
-    header("Location: login.php");
-} else {
+if ($stmt->affected_rows == 0) {
     // i do not know how they will come to here???
     output_error('EMMMMMMMMMM WHAT DID YOU DO!!!!!!');
 }
+
+$data = ['ID'=>$conn->insert_id, 'Name'=>$username];
+output_ok($data);
 ?>
