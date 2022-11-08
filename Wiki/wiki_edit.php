@@ -8,7 +8,7 @@
 
     require_once("../db.php");
     require_once("../utility.php");
-    require_once("../token.php");
+    require_once("../verify_token.php");
 
     //==============================
     //    Prepared statements
