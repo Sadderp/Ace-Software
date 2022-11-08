@@ -1,4 +1,11 @@
 <?php
+
+    /**
+     * create_wiki.php
+     * 
+     * Create a new Wiki service
+     */
+
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
@@ -7,11 +14,8 @@
     //    Prepared statements
     //==============================
 
-    $stmt_create = $conn->prepare("INSERT INTO service (title, type, visibility) VALUES (?, 'wiki', ?)");
-    $stmt_create->bind_param("ss", $wiki_name, $visibility); 
-
-    $stmt_end_user = $conn->prepare("INSERT INTO end_user (userID, serviceID) VALUES (?, ?)");
-    $stmt_end_user->bind_param("ii", $user_id, $wiki_id);
+    $stmt = $conn->prepare("INSERT INTO service (title, type, visibility) VALUES (?, 'wiki', ?)");
+    $stmt->bind_param("ss", $wiki_name, $visibility); 
 
     //==============================
     //    Get variables
@@ -55,23 +59,15 @@
     //    Creates wiki in service table
     //==============================
 
-    $stmt_create->execute();
+    $stmt->execute();
 
-    if($stmt_create->affected_rows == 0) {
+    if($stmt->affected_rows == 0) {
         output_error("Failed to add to database");
     }
-
     // Get wiki ID
-    $wiki_id = $stmt_create->insert_id;
+    $wiki_id = $stmt->insert_id;
 
-    //==============================
-    //     Set end user
-    //==============================
-    $stmt_end_user->execute();
-
-    if($stmt_end_user->affected_rows == 0) {
-        output_error("Failed to set end user");
-    }
-
-    output_ok("Successfully created wiki: " . $wiki_name);
+    // Output
+    $output = ["text"=>"Successfully created wiki","id"=>$wiki_id,"name"=>$wiki_name];
+    output_ok($output);
 ?>

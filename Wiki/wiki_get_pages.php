@@ -1,12 +1,13 @@
 <?php
-    require_once("../db.php");
-    require_once("../utility.php");
 
     /**
      * wiki_get_pages.php
      * 
      * Return all pages assigned to the given wiki
      */
+
+    require_once("../db.php");
+    require_once("../utility.php");
 
     //==============================
     //    Prepared statements
@@ -39,7 +40,7 @@
 
     // Service must be a wiki
     if(!verify_service_type($wiki_id,'wiki')) {
-        output_error("Page is not a wiki");
+        output_error("Invalid service");
     }
 
     //==============================
@@ -55,5 +56,7 @@
         array_push($data,$p);
     }
 
-    output_ok($data);
+    // Output
+    $output = ["pages"=>$data,"id"=>$wiki_id];
+    output_ok($output);
 ?>

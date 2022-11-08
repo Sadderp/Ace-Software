@@ -1,13 +1,14 @@
 <?php
-    require_once("../db.php");
-    require_once("../utility.php");
-    require_once("wiki_utility.php");
 
     /**
      * wiki_get_content.php
      * 
      * Get info on the most recent version of a page, and all the content assigned to it.
      */
+
+    require_once("../db.php");
+    require_once("../utility.php");
+    require_once("wiki_utility.php");
 
     //==============================
     //    Get variables
@@ -43,5 +44,8 @@
     }
 
     $data = get_version_content($page_id,$page_v);
-    output_ok($data);
+
+    // Output
+    $output = ["id"=>$page_id,"page_data"=>$data];
+    output_ok($output);
 ?>

@@ -1,8 +1,4 @@
 <?php
-    require_once("../db.php");
-    require_once("../utility.php");
-    require_once("../verify_token.php");
-    require_once("wiki_utility.php");
 
     /**
      * wiki_get_history.php
@@ -11,6 +7,11 @@
      * Only accessible to admin or wiki manager.
      * Can be done even if page is marked as 'deleted'
      */
+
+    require_once("../db.php");
+    require_once("../utility.php");
+    require_once("../verify_token.php");
+    require_once("wiki_utility.php");
 
     //==============================
     //    Prepared statements
@@ -68,5 +69,7 @@
         array_push($data,get_version_content($page_id,$v));
     }
 
-    output_ok($data);
+    // Output
+    $output = ["id"=>$page_id,"page_data"=>$data];
+    output_ok($output);
 ?>
