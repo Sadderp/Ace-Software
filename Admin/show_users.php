@@ -7,17 +7,14 @@
     //    Prepared statements
     //==============================
 
-    $sql = "UPDATE user SET ban = 1 WHERE ID = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i",$ban_id);
+    $stmt = $conn->prepare("SELECT * FROM user");
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     //==============================
     //    Get variables
     //==============================
 
-    $ban_id = get_if_set('ban_id');
-    $ban_reason = get_if_set('ban_reason'); // UNUSED
-    $ban_duration = get_if_set('ban_duration'); // UNUSED
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
 
@@ -26,12 +23,12 @@
     //==============================
 
     // All input variables must be set
-    if(!$ban_id or !$user_id or !$token) {
-        output_error("Missing input(s) - expected: 'ban_id', 'user_id' and 'token'");
+    if(!$user_id or !$token) {
+        output_error("Missing input(s) - expected: 'user_id' and 'token'");
     }
 
     // ban_id and user_id must be numeric
-    if(!is_numeric($ban_id) or !is_numeric($user_id)) {
+    if(!is_numeric($user_id)) {
         output_error($num_error);
     }
 
@@ -42,25 +39,36 @@
 
     // User must be admin
     if(!check_admin($user_id)) {
-        output_error("You must be an admin to delete a wiki.");
-    }
-
-    // Admin can not ban themselves
-    if($ban_id == $user_id) {
-        output_error("You cannot ban yourself");
+        output_error($permission_error);
     }
 
     //==============================
-    //    Ban user
+    //    Get users
     //==============================
 
+    $output = [];
     $stmt->execute();
+    $result = $stmt->get_result();
 
-    if($stmt->affected_rows == 0) {
-        output_error("Failed to ban user. Either the user doesn't exist or there was an issue connecting to the database. We're not really sure");
+    if($result->num_rows == 0) {
+        output_error("Could not get users");
+    }
+
+    while($row = $result->fetch_assoc()) {
+        $output[] = ['id'=>$row['ID'], 'display_name'=>$row['displayname'], 'username'=>$row['username'], 'banned'=>$row['ban'], 'admin'=>$row['admin']];
     }
 
     // Output
-    $output = ["text"=>"User was successfully banned","id"=>$ban_id];
     output_ok($output);
 ?>
+
+
+
+
+
+
+
+
+
+
+

@@ -20,50 +20,37 @@ $token = get_if_set('token');
 //==================================================
 // Looks what you have filled in
 //==================================================
-if(!$user_id || !$token) {
+if(!$user_id or !$token or !$del) {
     output_error('You need to fill all the colums. Fill in user_id & token');
 }
 
+if(!is_numeric($del) or !is_numeric($user_id)) {
+    output_error($num_error);
+}
+
 if(!verify_token($user_id,$token)) {
-    output_error('The token or user_id is wrong');
+    output_error($token_error);
 }
 
 if(!check_admin($user_id)) {
-    output_error('This account is not admin');
+    output_error($permission_error);
 }
-
-
-
-//==================================================
-// If you have not selected a user, show all users
-//==================================================
-if(!$del) {
-    $stmt = $conn->prepare("SELECT * FROM user");
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while($row = $result->fetch_assoc()) {
-        $data[] = ['ID'=>$row['ID'], 'Display name'=>$row['displayname'], 'Username'=>$row['username']];
-    }
-}
-
-
 
 //==================================================
 // Delete the user if it exists in database
 //==================================================
-else {
-    $stmt = $conn->prepare("DELETE FROM user WHERE ID=?");
-    $stmt->bind_param("i", $del);
-    $stmt->execute();
-    $result = $stmt->get_result();
 
-    if($stmt->affected_rows == 0) {
-        output_error('This user do not exist');
-    }
-    $data[] = ['You successfully deleted user '.$del];
+$stmt = $conn->prepare("DELETE FROM user WHERE ID=?");
+$stmt->bind_param("i", $del);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if($stmt->affected_rows == 0) {
+    output_error('This user do not exist');
 }
 
-output_ok($data)
+// Output
+$output = ['text'=>"User was successfully deleted","id"=>$del];
+output_ok($output)
 
 ?>
