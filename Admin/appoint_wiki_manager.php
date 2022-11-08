@@ -31,12 +31,12 @@
 
     // wiki_id, manager_id and user_id must be numeric
     if(!is_numeric($wiki_id) or !is_numeric($manager_id) or !is_numeric($user_id)) {
-        output_error("'wiki_id', 'manager_id' and 'user_id' are not numeric");
+        output_error($num_error);
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        output_error("Token is invalid or expired, please refresh your login.");
+        output_error($token_error);
     }
 
     // Service must be a wiki
@@ -69,5 +69,7 @@
         output_error("Failed to appoint manager");
     }
 
-    output_ok("User was successfully appointed.");
+    // Output
+    $output = ["text"=>"User was successfully appointed","id"=>$manager_id];
+    output_ok($output);
 ?>
