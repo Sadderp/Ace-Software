@@ -17,20 +17,28 @@
     $title  = get_if_set('title');
     $description = get_if_set('description');
 
-    if(!$user_id || !$token || !$event_id){
-        output_error("You need to fill in user_id, token and event_id");
-    }
 
+
+    //==================================================
+    //      Requirements
+    //==================================================
+    if(!$user_id || !$token || !$event_id){
+        output_error("You need to fill in user_id, token, event_id");
+    }
+    if(!$date && !$end_date && !$title && !$description){
+        output_error("Please write what you want to edit (date, end_date, title, description)");
+    }
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
     }
-
-    if(!is_numeric($date) || !is_numeric($end_date)) {
+    if(!is_numeric($event_id) || !is_numeric($date) || !is_numeric($end_date)) {
         output_error("Date or end date must be numerical");
     }
     if(strlen($date) >= 15 || strlen($end_date) >= 15) {
         output_error("Date or end date is formatted wrong");
     }
+    
+
     
     //===============================
     //    Updates the event
@@ -39,42 +47,41 @@
     $stmt->bind_param("ii", $user_id, $event_id);
     $stmt->execute();
     $result = $stmt->get_result();
-
     if($stmt->affected_rows == 0){
         output_error("You do not have an event with this ID");
     }
 
-    if(!$date && !$end_date && !$title && !$description){
-        output_error("Please write what you want to edit (Title, Date, End date, Description)");
-    }
-
     if($date){
-        $stmt3 = $conn->prepare("UPDATE calendar_event SET date=? WHERE ID=?");
-        $stmt3->bind_param("si", $date, $event_id);
-        $stmt3->execute();
+        $stmt = $conn->prepare("UPDATE calendar_event SET date=? WHERE ID=?");
+        $stmt->bind_param("si", $date, $event_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        $json_result[] = "Date updated";
+        $json_result[] = ['Status'=>'Updated', 'Type'=>'Date'];
     }
     if($end_date){
-        $stmt4 = $conn->prepare("UPDATE calendar_event SET end_date=? WHERE ID=?");
-        $stmt4->bind_param("si", $end_date, $event_id);
-        $stmt4->execute();
+        $stmt = $conn->prepare("UPDATE calendar_event SET end_date=? WHERE ID=?");
+        $stmt->bind_param("si", $end_date, $event_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        $json_result[] = "End date updated";
+        $json_result[] = ['Status'=>'Updated', 'Type'=>'End Date'];
     }
     if($title){
-        $stmt5 = $conn->prepare("UPDATE calendar_event SET title=? WHERE ID=?");
-        $stmt5->bind_param("si", $title, $event_id);
-        $stmt5->execute();
+        $stmt = $conn->prepare("UPDATE calendar_event SET title=? WHERE ID=?");
+        $stmt->bind_param("si", $title, $event_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        $json_result[] = "Title updated";
+        $json_result[] = ['Status'=>'Updated', 'Type'=>'Title'];
     }
     if($description){
-        $stmt6 = $conn->prepare("UPDATE calendar_event SET description=? WHERE ID=?");
-        $stmt6->bind_param("si", $description, $event_id);
-        $stmt6->execute();
+        $stmt = $conn->prepare("UPDATE calendar_event SET description=? WHERE ID=?");
+        $stmt->bind_param("si", $description, $event_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        $json_result[] = "Description updated";
+        $json_result[] = ['Status'=>'Updated', 'Type'=>'Description'];
     }
     output_ok($json_result);
 ?>

@@ -48,8 +48,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if($stmt->affected_rows == 0){
-    output_ok("You can't invite someone to an event you haven't created");
-    die();
+    die(output_ok("You can't invite someone to an event you haven't created"));
 }
 
 
@@ -72,7 +71,8 @@ if($stmt->affected_rows == 0){
     $result = $stmt->get_result();
 
     if ($stmt->affected_rows == 1) {
-        die(output_ok("Invite created"));
+        $data[] = ['Status'=>$conn->'Created', 'User ID'=>$invuser_id, 'Event ID'=>$event_ID];
+        die(output_ok($data));
     } else {
         output_error("Can't find any data");
     }
@@ -87,5 +87,6 @@ $stmt = $conn->prepare("DELETE FROM calendar_invite WHERE userID=? and eventID=?
 $stmt->bind_param("ii", $invuser_id, $event_ID);
 $stmt->execute();
 
-die(output_ok("Invite removed"));
+$data[] = ['Status'=>'Removed', 'User ID'=>$invuser_id, 'Event ID'=>$event_ID];
+die(output_ok($data));
 ?>
