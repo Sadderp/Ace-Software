@@ -1,4 +1,11 @@
 <?php
+
+    /**
+     * wiki_delete.php
+     * 
+     * Permanently delete a wiki service
+     */
+
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
@@ -117,5 +124,6 @@
 
     }
 
-    output_ok("Successfully deleted Wiki (ID " . $wiki_id . ")");      
+    $output = ["text"=>"Successfully deleted wiki","id"=>$wiki_id];
+    output_ok($output);      
 ?>

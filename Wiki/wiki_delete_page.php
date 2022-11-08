@@ -1,4 +1,13 @@
 <?php
+
+    /**
+     * wiki_delete_page.php
+     * 
+     * Mark a wiki page as deleted
+     * A 'deleted' page is still stored but cannot be accessed or edited normally.
+     * Admins and manager can still view the history of the page and restore it to normal.
+     */
+
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
@@ -74,4 +83,8 @@
     if($stmt_delete_page->affected_rows == 0 and $stmt_add_version->affected_rows == 0) {
         output_error("Failed to delete page");
     }
+
+    // Output
+    $output = ["text"=>"Successfully deleted page","id"=>$page_id];
+    output_ok($output);
 ?>

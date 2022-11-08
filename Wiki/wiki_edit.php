@@ -1,4 +1,11 @@
 <?php
+
+    /**
+     * wiki_edit.php
+     * 
+     * Edit the title of a wiki service
+     */
+
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../token.php");
@@ -64,5 +71,7 @@
         output_error("Failed to edit wiki");
     }
 
-    output_ok("Successfully edited wiki title");
+    // Output
+    $output = ["text"=>"Successfully edited wiki title","id"=>$wiki_id];
+    output_ok($output);
 ?>

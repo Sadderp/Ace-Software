@@ -129,7 +129,14 @@
 
         // Get service type
         $stmt->execute();
-        $service_type = mysqli_fetch_assoc($stmt->get_result())['type'];
+        $result = $stmt->get_result();
+
+        // Return false if no servuce is found
+        if($result->num_rows == 0) {
+            return false;
+        }
+
+        $service_type = mysqli_fetch_assoc($result)['type'];
 
         // Compare service type to desired type. Return true if match
         if($service_type == $type) {
@@ -241,7 +248,7 @@
 
         // Get result
         $stmt->execute();
-        $result = mysqli_fetch_assoc($stmt->get_result());
+        $result = mysqli_fetch_assoc($stmt->get_result())["ban"];
         if($result) {
             return true;
         }

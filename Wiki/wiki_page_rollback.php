@@ -1,4 +1,11 @@
 <?php
+
+    /**
+     * wiki_page_rollback.php
+     *
+     * Go back to an older version of the wiki page and delete all the versions that came after it. 
+     */
+    
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
@@ -79,6 +86,8 @@
         output_error("Failed to delete");
     }
 
-    output_ok("Successfully rolled back " . ($current_version - $rollback_version) . " versions");
+    // Output
+    $output = ["text"=>"Successfully rolled back","previous_version"=>$current_version,"rollback_version"=>$rollback_version,"id"=>$page_id];
+    output_ok($output);
 ?>
 

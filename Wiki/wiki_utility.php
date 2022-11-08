@@ -1,6 +1,12 @@
 <?php
 
     /**
+     * wiki_utility.php
+     * 
+     * Some miscellaneous help functions that are exclusive to the wiki system
+     */
+
+    /**
      * check_page_deletion
      * 
      * If page is deleted, return true. Else return false.
@@ -17,8 +23,16 @@
 
         
         $stmt->execute();
-        $result = mysqli_fetch_assoc($stmt->get_result())['deleted'];
-        if($result == 1) {
+        $result = $stmt->get_result();
+
+        // return false if no page is found
+        if($result->num_rows == 0) {
+            return false;
+        } 
+
+        // return true if page is deleted, else return false
+        $deleted = mysqli_fetch_assoc($result)['deleted'];
+        if($deleted == 1) {
             return true;
         }
         return false;

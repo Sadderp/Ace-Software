@@ -1,4 +1,11 @@
 <?php
+
+    /**
+     * wiki_create_page.php
+     * 
+     * Create a new wiki page
+     */
+
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
@@ -61,5 +68,10 @@
         output_error("Failed to add to database");
     }
 
-    output_ok("Successfully added page: " . $page_title);
+    // Get page ID
+    $page_id = $stmt->insert_id;
+
+    // Output
+    $output = ["text"=>"Successfully added page","id"=>$page_id];
+    output_ok($output);
 ?>

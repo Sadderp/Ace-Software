@@ -1,11 +1,16 @@
 <?php
+
+    /**
+     * wiki_update_page.php
+     * 
+     * Add a new version to the wiki page, along with updated content for it.
+     * Old versions and their content is still internally stored and can be accessed in wiki_get_history.php
+     */
+
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
     require_once("wiki_utility.php");
-
-    // TEST LINK:
-    // http://localhost:8080/webbutveckling/TE4/Ace-Software/wiki/wiki_update_page.php?user_id=1&page_id=1&content=["<h1>RobTop</h1>","<p>RobTop is the lead developer of Geometry Dash</p>"]
 
     //==============================
     //    Prepared statements
@@ -75,7 +80,7 @@
         if(!is_array($content_array)) {
             output_error("'content' is not a valid JSON array");
         }
-    } catch(Exception e) {
+    } catch(Exception $e) {
         output_error("'content' is not a valid JSON array");
     }
 
@@ -94,5 +99,7 @@
         output_error("Failed to add to database");
     }
 
-    output_ok("Successfully updated wiki page (v" . $new_version . ")");
+    // Output
+    $output = ["text"=>"Successfully updated wiki page","id"=>$page_id,"version"=>$new_version];
+    output_ok($output);
 ?>

@@ -1,4 +1,11 @@
 <?php
+
+    /**
+     * wiki_restore_page.php
+     * 
+     * Take a page marked as deleted (unlisted) and set it back to normal visibility
+     */
+
     require_once("../db.php");
     require_once("../utility.php");
     require_once("../verify_token.php");
@@ -85,5 +92,6 @@
         output_error("Failed to restore page");
     }
 
-    output_ok("Successfully restored page");
+    $output = ["text"=>"Successfully restored page","id"=>$page_id];
+    output_ok($output);
 ?>
