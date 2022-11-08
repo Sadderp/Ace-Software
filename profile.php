@@ -25,7 +25,7 @@ $token = get_if_set('token');
 // Looks what you have filled in
 //==================================================
 if((!$display_name OR !$old_password) AND (!$old_password OR !$password OR !$cpassword) AND (!$del)) {
-    output_error('You need to fill all the colums. Fill in display_name and old_password or old_password, password and cpassword or delete');
+    output_error('You need to fill in display_name and old_password or old_password, password and cpassword or delete');
 }
 
 if(!verify_token($user_id,$token)) {
