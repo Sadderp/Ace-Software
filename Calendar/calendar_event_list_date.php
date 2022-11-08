@@ -3,17 +3,21 @@
     require_once("../verify_token.php");
     require_once("../utility.php");
     
-
     $date = get_if_set('date');
     $end_date = get_if_set('end_date');
     if(strlen($date) >= 15 || strlen($end_date) >= 15) {
         output_error("Date or end date is formatted wrong");
     }
 
+    $json_result = [];
+
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
 
-
+    if(!is_numeric($date) || !is_numeric($end_date)) {
+        output_error("Date or end date must be numerical");
+    }
+    
     if(!$user_id || !$token || !$date || !$end_date){
         output_error("You need to fill in user_id, token, date and end_date");
     }
@@ -21,8 +25,6 @@
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
     }
-
-
 
     //===============================
     //    Prepared statements
@@ -40,8 +42,6 @@
         output_error("No user");
     }
 
-
-
     //===============================
     //    Lists your own events
     //===============================
@@ -55,11 +55,9 @@
     }
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $json_result[] = "ID: ".$row["ID"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"];
+            array_push($json_result,$row);
         }
     }
-
-
 
     //===============================
     //    Lists invites to events
@@ -72,11 +70,9 @@
 
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $json_result[] = "Invited to:"." ID: ".$row["eventID"]." by: "." user_id: ".$row["user_id"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"];
+            array_push($json_result,$row);
         }
     }
-
-
 
     //===============================
     //    Output
