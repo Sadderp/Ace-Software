@@ -31,6 +31,10 @@
     if(strlen($date) >= 15 || strlen($end_date) >= 15) {
         output_error("Date or end date is formatted wrong");
     }
+
+    if(check_admin($user_id)){
+        die(output_ok("Admins do not have access to the calendar"));
+    }
     
     //===============================
     //    Updates the event

@@ -14,6 +14,10 @@
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
 
+    //==================================================
+    //      Requirements
+    //==================================================
+
     if(!is_numeric($date) || !is_numeric($end_date)) {
         output_error("Date or end date must be numerical");
     }
@@ -24,6 +28,10 @@
 
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
+    }
+
+    if(check_admin($user_id)){
+        die(output_ok("Admins do not have access to the calendar"));
     }
 
     //===============================
