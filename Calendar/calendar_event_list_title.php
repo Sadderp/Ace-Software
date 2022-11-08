@@ -3,12 +3,12 @@
     require_once("../verify_token.php");
     require_once("../utility.php");
     
-
     $title = get_if_set('title');
 
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
 
+    $json_result = [];
 
     if(!$user_id || !$token){
         output_error("You need to fill in user_id, token");
@@ -17,8 +17,6 @@
     if(!verify_token($user_id, $token)){
         output_error("Token is invalid or expired");
     }
-
-
 
     //===============================
     //    Prepared statements
@@ -36,8 +34,6 @@
         output_error("User does not exist");
     }
     
-    
-    
     //===============================
     //    Lists your own events
     //===============================    
@@ -48,15 +44,15 @@
     $result = $stmt->get_result();
     
     if($result->num_rows == 0){
+        echo ("den hittar inget");
         $json_result[] = "Could not find any events";
     }
     if ($result->num_rows > 0) {
+        echo ("den hittar nåt");
         while($row = $result->fetch_assoc()) {
-            $json_result[] = "ID: ".$row["ID"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"];
+            array_push($json_result,$row);
         }
     }
-
-
 
     //===============================
     //    Lists invites to events
@@ -69,11 +65,9 @@
     
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $json_result[] = "Invited to:"." ID: ".$row["eventID"]." by: "." user_id: ".$row["user_id"]. " Date: ".$row["date"]. " End_date: ".$row["end_date"]. " Title: ".$row["title"]. " Description: ".$row["description"];
+            array_push($json_result,$row);
         }
     }
-
-
 
     //===============================
     //    Output

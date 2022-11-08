@@ -12,7 +12,7 @@
     $token = get_if_set('token');
     
     if(!$user_id && !$token){
-        output_ok("You need fill in user_id and token")
+        output_ok("You need fill in user_id and token");
     }
     
     if(!verify_token($user_id, $token)){
@@ -36,7 +36,7 @@
     //===============================
     $stmt2->execute();
     if($stmt2->affected_rows == 0){
-        echo("Couldn't delete invite");
+        output_error("Couldn't delete invite");
     }
     $stmt2->close();    
     $stmt->execute();
