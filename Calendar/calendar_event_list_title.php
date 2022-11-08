@@ -44,11 +44,9 @@
     $result = $stmt->get_result();
     
     if($result->num_rows == 0){
-        echo ("den hittar inget");
         $json_result[] = "Could not find any events";
     }
     if ($result->num_rows > 0) {
-        echo ("den hittar nåt");
         while($row = $result->fetch_assoc()) {
             array_push($json_result,$row);
         }
