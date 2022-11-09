@@ -21,35 +21,34 @@ $stmt->bind_param("i", $blog_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $data[] = ['Blog name' => $row['title']];
-        $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID WHERE content.serviceID = ?");
-        $stmt->bind_param("i", $blog_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
+if ($result->num_rows == 0) {
+    output_error('Blog_id must be numeric!');
+}
 
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $stmt = $conn->prepare("SELECT * FROM img INNER JOIN content ON content.ID = img.contentID WHERE content.serviceID = ?");
-                $stmt->bind_param("i", $blog_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        if($row['img_url'] == ""){
-                            $data[] = ['content' => $row['contents']];
-                        }else{
-                            $data[] = ['content' => $row['contents'], 'img_url' => $row['img_url']];   // assosiative array with blog title, content and img url.
-                        }
+while ($row = $result->fetch_assoc()) {
+    $data[] = ['Blog name' => $row['title']];
+    $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID WHERE content.serviceID = ?");
+    $stmt->bind_param("i", $blog_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $stmt = $conn->prepare("SELECT * FROM img INNER JOIN content ON content.ID = img.contentID WHERE content.serviceID = ?");
+            $stmt->bind_param("i", $blog_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    if($row['img_url'] == ""){
+                        $data[] = ['content' => $row['contents']];
+                    }else{
+                        $data[] = ['content' => $row['contents'], 'img_url' => $row['img_url']];  
                     }
                 }
             }
         }
-        output_ok($data);
-    } 
-}
-else {
-    output_error('Blog_id must be numeric!');
-}
+    }
+    output_ok($data);
+} 
 ?>

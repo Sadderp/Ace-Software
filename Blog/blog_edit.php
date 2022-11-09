@@ -13,6 +13,10 @@ if(!$blog_id && !$title && !$user_id && !$token){
     output_error("The URL is empty!");
 }
 
+if(!is_numeric($blog_id)){
+    output_error("The ID must be numeric!");
+}
+
 if(!verify_token($user_id,$token)) {
     output_error("Access denied");
 }

@@ -13,6 +13,10 @@ if(!$user_id && !$token){
     output_error("The URL is empty!");
 }
 
+if(!is_numeric($img_id) || !is_numeric($content_id)){
+    output_error("The ID must be numeric!");
+}
+
 if(!verify_token($user_id,$token)) {
     output_error("access denied");
 }
