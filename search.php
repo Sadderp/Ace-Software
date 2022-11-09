@@ -20,7 +20,7 @@ $page_title = get_if_set('page_title');
 // Looks what you have filled in
 //==================================================
 if(!$type AND !$title AND !$page_title) {
-  output_error('You need to fill all the colums. Blog/wiki: type and title, wiki page: page_title');
+  output_error('You need to fill in all the colums. Blog/wiki: type and title, wiki page: page_title');
 }
 
 

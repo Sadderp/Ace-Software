@@ -5,14 +5,12 @@ require_once('../utility.php');
 
 $blog_id = get_if_set('blog_id');
 
-
-
 //==================================================
 // Shows all the post in a blog
 //==================================================
 
 if(!$blog_id){
-    output_error("The URL is empty!");
+    output_error("Missing input(s) - required: 'blog_id'");
 }
 
 
@@ -22,33 +20,43 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows == 0) {
-    output_error('Blog_id must be numeric!');
+    output_error('Blog could not be found!');
+}
+
+$data = [];
+
+$stmt = $conn->prepare("SELECT * FROM content WHERE serviceID = ?");
+$stmt->bind_param("i", $blog_id);
+
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows == 0) {
+    output_ok("Blog has no content");
+    die();
 }
 
 while ($row = $result->fetch_assoc()) {
-    $data[] = ['Blog name' => $row['title']];
-    $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID WHERE content.serviceID = ?");
+    $stmt = $conn->prepare("SELECT * FROM img INNER JOIN content ON content.ID = img.contentID WHERE content.serviceID = ?");
     $stmt->bind_param("i", $blog_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
+    $c = ['content'=>$row['contents'],'images'=>[]];
+
     if ($result->num_rows > 0) {
+        $images = [];
         while ($row = $result->fetch_assoc()) {
-            $stmt = $conn->prepare("SELECT * FROM img INNER JOIN content ON content.ID = img.contentID WHERE content.serviceID = ?");
-            $stmt->bind_param("i", $blog_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    if($row['img_url'] == ""){
-                        $data[] = ['content' => $row['contents']];
-                    }else{
-                        $data[] = ['content' => $row['contents'], 'img_url' => $row['img_url']];  
-                    }
-                }
-            }
+            $images[] = ['image_url'=>$row['img_url']];
         }
-    }
-    output_ok($data);
-} 
+        $c['images'] = $images;
+    } 
+
+    $data[] = $c;
+}
+
+// Output
+$output = ["id"=>$blog_id,"blog_data"=>$data];
+output_ok($output);
+
 ?>

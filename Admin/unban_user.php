@@ -30,17 +30,17 @@
 
     // ban_id and user_id must be numeric
     if(!is_numeric($ban_id) or !is_numeric($user_id)) {
-        output_error("'ban_id' and 'user_id' are not numeric");
+        output_error($num_error);
     }
 
     // Token must be valid
     if(!verify_token($user_id,$token)) {
-        output_error("Token is invalid or expired, please refresh your login.");
+        output_error($token_error);
     }
 
     // User must be admin
     if(!check_admin($user_id)) {
-        output_error("You must be an admin to delete a wiki.");
+        output_error($permission_error);
     }
 
     //==============================
@@ -53,5 +53,7 @@
         output_error("Failed to unban user. Either the user doesn't exist or there was an issue connecting to the database. We're not really sure");
     }
 
-    output_ok("User was unbanned");
+    // Output
+    $output = ["text"=>"User was unbanned","id"=>$ban_id];
+    output_ok($output);
 ?>

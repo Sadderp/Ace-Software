@@ -3,37 +3,43 @@ require_once('../db.php');
 require_once('../verify_token.php');
 require_once('../utility.php');
 
-$content = get_if_set('content');
-$content_id = get_if_set('content_id');
-$blog_id = get_if_set('blog_id');
-$img_url = get_if_set('img_url');
+//==============================
+//    Get variables
+//==============================
 
+// Required
+$blog_id = get_if_set('blog_id');
 $user_id = get_if_set('user_id');
 $token = get_if_set('token');
 
+// Optional
+$content = get_if_set('content');
+$content_id = get_if_set('content_id');
+$img_url = get_if_set('img_url');
+
+//==============================
+//    Requirements
+//==============================
+
+if(!$blog_id or !$user_id or !$token){
+    output_error("Missing input(s) - required: 'blog_id', 'user_id' and 'token'");
+}
+
 if(!verify_token($user_id,$token)) {
-    output_error("access denied");
+    output_error($token_error);
+}
+
+if(!check_end_user($user_id,$blog_id)) {
+    output_error($permission_error);
 }
 
 if(!is_numeric($blog_id) || !is_numeric($content_id)){
     output_error("The ID must be numeric!");
 }
 //==================================================
-// content table
+//      Add content
 //==================================================
-if(!$blog_id && !$user_id){
-    output_error("The URL is empty!");
-}
 if($content){
-    $stmt = $conn->prepare("SELECT * FROM end_user INNER JOIN service ON end_user.serviceID = service.ID WHERE service.type = 'blog' AND end_user.userID = ? AND end_user.serviceID = ?");
-    $stmt->bind_param("ii",$user_id,$blog_id); 
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if($result->num_rows == 0) {
-        output_error("You are not connected to a blog!");
-    }
-
     $stmt = $conn->prepare("INSERT INTO content (contents, serviceID, userID) VALUES (?, ?, ?)");
     $stmt->bind_param("sii",$content, $blog_id, $user_id);
     $stmt->execute(); 
@@ -42,7 +48,7 @@ if($content){
 }
 
 //==================================================
-// img table
+//      Add image
 //==================================================
 if($img_url && !$content_id){
     output_error("You cannot create this image since it is not connected to any content!");
@@ -62,5 +68,8 @@ if($img_url && $content_id){
     $stmt->bind_param("is", $content_id, $img_url);
     $stmt->execute();
 }
-output_ok("New content added!");
+
+// Output
+$output = ["text"=>"Content added successfully","id"=>$content_id];
+output_ok($output);
 ?>

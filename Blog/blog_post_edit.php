@@ -2,21 +2,31 @@
 require_once('../db.php');
 require_once('../verify_token.php');
 require_once('../utility.php');
+require_once('blog_utility.php');
 
+//==============================
+//    Get variables
+//==============================
 
-
-//==================================================
-// Edit the text you've got in a blog post
-//==================================================
+// Required
 $content_id = get_if_set('content_id');
-$content = get_if_set('content');
 $user_id = get_if_set('user_id');
 $token = get_if_set('token');
+
+// Optional
+$content = get_if_set('content');
 $img_id = get_if_set('img_id');
 $img_url = get_if_set('img_url');
 
-if(!$content_id && !$user_id && !$token){
-    output_error("The URL is empty!");
+// Blog ID
+$blog_id = get_blog_from_content($content_id);
+
+//==============================
+//    Requirements
+//==============================
+
+if(!$content_id or !$user_id or !$token){
+    output_error("Missing input(s) - required: 'content_id', 'user_id' and 'token'");
 }
 
 if(!is_numeric($img_id) || !is_numeric($content_id)){
@@ -24,69 +34,45 @@ if(!is_numeric($img_id) || !is_numeric($content_id)){
 }
 
 if(!verify_token($user_id,$token)) {
-    output_error("Access denied");
+    output_error($token_error);
 }
 
-$stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID WHERE service.type = 'blog' AND content.userID=? AND content.ID=?");
-$stmt->bind_param("ii", $user_id, $content_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if($content && !$img_id && !$img_url){
-    if($result->num_rows == 1) {
-        $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
-        $stmt->bind_param("si", $content, $content_id);
-        $stmt->execute();
-
-        output_ok("Content was edited successfully");
-    }
-    else{
-        output_error("This content is not in the right blog or you signed in as the wrong person");
-    }
+if(!$blog_id) {
+    output_error("Invalid content");
 }
 
-
-
-//==================================================
-// Edit an image in a blog post
-//==================================================
-else if($img_id && $img_url && !$content){
-    if($result->num_rows == 1) {
-        $stmt = $conn->prepare("UPDATE img SET img_url = ? WHERE ID = ?");
-        $stmt->bind_param("ss",$img_url,$img_id); 
-        $stmt->execute();
-
-        output_ok("Image was edited successfully");
-    }else{
-        output_error("You cannot edit this content since it is not your blog!");
-    }
+if(!check_end_user($user_id,$blog_id)) {
+    output_error($permission_error);
 }
 
+if(!$content and !$img_id and !$img_url){
+    output_error("You have logged in, but you have not requested any edits!");
+}
 
+//==============================
+//    Edit post content
+//==============================
 
-else if($content && $img_id && $img_url){
-    $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID 
-                                                  INNER JOIN img ON content.ID = img.contentID WHERE service.type = 'blog' AND content.userID=? AND content.ID=? AND img.ID=?");
-    $stmt->bind_param("iii", $user_id, $content_id, $img_id);
+if($content) {
+    $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
+    $stmt->bind_param("si", $content, $content_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    if($result->num_rows == 1) {
-        $stmt = $conn->prepare("UPDATE content SET contents = ? WHERE ID = ? AND pageID = 0");
-        $stmt->bind_param("si", $content, $content_id);
-        $stmt->execute();
-
-        $stmt = $conn->prepare("UPDATE img SET img_url = ? WHERE ID = ?");
-        $stmt->bind_param("ss",$img_url,$img_id); 
-        $stmt->execute();
-        output_ok("Content was edited successfully");
-    }else{
-        output_error("Oops! something went wrong with either the content or the image");
-    }
+    $output = ["text"=>"Content was edited successfully","content_id"=>$content_id];
 }
 
+//==================================================
+//      Edit an image in a blog post
+//==================================================
+if($img_id && $img_url){
 
+    $stmt = $conn->prepare("UPDATE img SET img_url = ? WHERE ID = ?");
+    $stmt->bind_param("ss",$img_url,$img_id); 
+    $stmt->execute();
 
-else{
-    output_error("You have logged in, but you have not requested anything!");
+    // Output
+    $output = ["text"=>"Content was edited successfully","content_id"=>$content_id,"image_id"=>$img_id];
 }
+
+output_ok($output);
+
 ?>
