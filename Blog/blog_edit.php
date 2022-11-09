@@ -20,6 +20,10 @@ if(!$blog_id or !$title or !$user_id or !$token){
     output_error("Missing input(s) - expected: 'blog_id', 'title', 'user_id' and 'token'");
 }
 
+if(!is_numeric($blog_id)){
+    output_error("The ID must be numeric!");
+}
+
 if(!verify_token($user_id,$token)) {
     output_error($token_error);
 }

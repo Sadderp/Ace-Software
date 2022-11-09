@@ -33,12 +33,13 @@ if(!check_end_user($user_id,$blog_id)) {
     output_error($permission_error);
 }
 
+if(!is_numeric($blog_id) || !is_numeric($content_id)){
+    output_error("The ID must be numeric!");
+}
 //==================================================
 //      Add content
 //==================================================
-
 if($content){
-
     $stmt = $conn->prepare("INSERT INTO content (contents, serviceID, userID) VALUES (?, ?, ?)");
     $stmt->bind_param("sii",$content, $blog_id, $user_id);
     $stmt->execute(); 

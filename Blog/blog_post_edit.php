@@ -29,6 +29,10 @@ if(!$content_id or !$user_id or !$token){
     output_error("Missing input(s) - required: 'content_id', 'user_id' and 'token'");
 }
 
+if(!is_numeric($img_id) || !is_numeric($content_id)){
+    output_error("The ID must be numeric!");
+}
+
 if(!verify_token($user_id,$token)) {
     output_error($token_error);
 }
