@@ -33,7 +33,7 @@ if(check_admin($user_id)){
 if(!is_numeric($date) || !is_numeric($end_date)) {
     output_error("Date or end date must be numerical");
 }
-if(strlen($date) >= 15 || strlen($end_date) >= 15) {
+if(strlen($date) >= 20 || strlen($end_date) >= 20) {
     output_error("Date or end date is formatted wrong");
 }
 if($date > $end_date){ // if end date is less then start date
