@@ -63,6 +63,25 @@
     }
 
     //===============================
+    //    Lists your invites
+    //=============================== 
+    
+    $stmt = $conn->prepare("SELECT * FROM calendar_event INNER JOIN calendar_invite WHERE calendar_event.userID=? 
+    AND calendar_event.ID=calendar_invite.eventID");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if($result->num_rows == 0){
+        $json_result[] = "Could not find any invites that you have made";
+    }
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            array_push($json_result,$row);
+        }
+    }
+
+    //===============================
     //    Lists invites to events
     //===============================
 
