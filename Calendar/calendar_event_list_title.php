@@ -29,6 +29,7 @@
     //===============================
     //    Prepared statements
     //===============================
+
     $stmt = $conn->prepare("SELECT * FROM user WHERE ID=? AND token=?");
     $stmt->bind_param("ss", $user_id, $token);
     $stmt->execute();
@@ -44,7 +45,8 @@
     
     //===============================
     //    Lists your own events
-    //===============================    
+    //===============================   
+
     $stmt = $conn->prepare("SELECT * FROM calendar_event WHERE userID=? AND title LIKE ?");
     $title = "%".$title."%";
     $stmt->bind_param("is", $user_id, $title);
@@ -63,8 +65,9 @@
     //===============================
     //    Lists invites to events
     //===============================
+
     $stmt = $conn->prepare("SELECT * FROM calendar_event INNER JOIN calendar_invite ON calendar_event.userID!=calendar_invite.userID
-    WHERE calendar_invite.userID=? AND calendar_event.ID=calendar_invite.eventID");
+    WHERE calendar_invite.userID=? AND calendar_event.ID=calendar_invite.eventID AND calendar_invite.accepted=1");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -78,5 +81,6 @@
     //===============================
     //    Output
     //===============================
+    
     output_ok($json_result);
 ?>

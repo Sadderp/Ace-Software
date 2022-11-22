@@ -14,6 +14,7 @@
     //==================================================
     //      Requirements
     //==================================================
+
     if(!$user_id && !$token){
         output_ok("You need fill in user_id and token");
     }
@@ -29,6 +30,7 @@
     //===============================
     //    Prepared statements
     //===============================
+
     $stmt = $conn->prepare("DELETE FROM calendar_event WHERE ID=? AND userID=?");
     $stmt->bind_param("ii", $event_id, $user_id);
 
@@ -41,23 +43,26 @@
     //===============================
     // Deletes invites and/or events
     //===============================
-    $stmt2->execute();
-    if($stmt2->affected_rows == 0){
-        output_error("Couldn't delete invite");
-    }
-    $stmt2->close();    
+
     $stmt->execute();
+    $stmt2->execute();
     
     if ($stmt->affected_rows == 1){
         output_ok("event removed");
-    }else if ($stmt->affected_rows == 0){
+    }
+    else if ($stmt->affected_rows == 0){
         $stmt3->execute();
         if ($stmt3->affected_rows == 1){
             output_ok("Invite removed");
         }else{
-            output_ok("You can't delete an event that doesn't exist");
+            output_ok("You cannot delete an event that does not exist");
         } 
         $stmt3->close();
     }
+    
+    if($stmt2->affected_rows == 0){
+        output_error("Could not delete invite");
+    }
+    $stmt2->close();
     $stmt->close();
 ?>
