@@ -48,7 +48,7 @@
     $stmt2->execute();
     
     if ($stmt->affected_rows == 1){
-        output_ok("event removed");
+        output_ok("Event removed");
     }
     else if ($stmt->affected_rows == 0){
         $stmt3->execute();
@@ -59,8 +59,7 @@
         } 
         $stmt3->close();
     }
-    
-    if($stmt2->affected_rows == 0){
+    else if($stmt2->affected_rows == 0){
         output_error("Could not delete invite");
     }
     $stmt2->close();
