@@ -40,6 +40,7 @@
     //===============================
     //    Lists your own events
     //===============================
+
     $stmt = $conn->prepare("SELECT * FROM calendar_event WHERE userID=? AND (end_date >= ? AND date <= ?)");
     $stmt->bind_param("iss", $user_id, $date, $end_date);
     $stmt->execute();
@@ -56,8 +57,9 @@
     //===============================
     //    Lists invites to events
     //===============================
+    
     $stmt = $conn->prepare("SELECT * FROM calendar_event INNER JOIN calendar_invite ON calendar_event.userID!=calendar_invite.userID
-    WHERE calendar_invite.userID=? AND calendar_event.ID=calendar_invite.eventID AND (end_date >= ? AND date <= ?)");
+    WHERE calendar_invite.userID=? AND calendar_event.ID=calendar_invite.eventID AND (end_date >= ? AND date <= ?) AND calendar_invite.accepted=1");
     $stmt->bind_param("iss",$user_id, $date, $end_date);
     $stmt->execute();
     $result = $stmt->get_result();

@@ -46,6 +46,7 @@ if(check_admin($user_id) || check_admin($invuser_id)){
 //==================================================
 //      Checks if the user owns the event
 //==================================================
+
 $stmt = $conn->prepare("SELECT * FROM calendar_event WHERE userID=? AND ID=?");
 $stmt->bind_param("ii", $user_id, $event_ID);
 $stmt->execute();
@@ -60,6 +61,7 @@ if($stmt->affected_rows == 0){
 //==================================================
 //      Checks if the user is already invited
 //==================================================
+
 $stmt = $conn->prepare("SELECT * FROM calendar_invite WHERE userID=? AND eventID=?");
 $stmt->bind_param("ii", $invuser_id, $event_ID);
 $stmt->execute();
@@ -69,6 +71,7 @@ if($stmt->affected_rows == 0){
     //==================================================
     //      Creates invite
     //==================================================
+
     $stmt = $conn->prepare("INSERT INTO calendar_invite(userID, eventID) VALUES (?,?)");
     $stmt->bind_param("ii", $invuser_id, $event_ID);
     $stmt->execute();
@@ -87,6 +90,7 @@ if($stmt->affected_rows == 0){
 //==================================================
 //      Removes invite
 //==================================================
+
 $stmt = $conn->prepare("DELETE FROM calendar_invite WHERE userID=? and eventID=?");
 $stmt->bind_param("ii", $invuser_id, $event_ID);
 $stmt->execute();
