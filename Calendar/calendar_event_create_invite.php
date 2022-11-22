@@ -19,6 +19,7 @@ $event_ID = get_if_set('event_id');
 //==================================================
 //      Requirements
 //==================================================
+
 if(!$user_id || !$token || !$invuser_id || !$event_ID) {
     output_error("You need to fill in user_id, token, invuser_id and event_id");
 }
@@ -34,7 +35,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if($stmt->affected_rows == 0) {
-    output_error("The invited user do not exist");
+    output_error("The invited user does not exist");
 }
 
 if(check_admin($user_id) || check_admin($invuser_id)){
@@ -67,19 +68,18 @@ $stmt->bind_param("ii", $invuser_id, $event_ID);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if($stmt->affected_rows == 0){
-    //==================================================
-    //      Creates invite
-    //==================================================
+//==================================================
+//      Creates invite
+//==================================================
 
+if($stmt->affected_rows == 0){
     $stmt = $conn->prepare("INSERT INTO calendar_invite(userID, eventID) VALUES (?,?)");
     $stmt->bind_param("ii", $invuser_id, $event_ID);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($stmt->affected_rows == 1) {
-        $data[] = ['Status'=>$conn->'Created', 'User ID'=>$invuser_id, 'Event ID'=>$event_ID];
-        die(output_ok($data));
+        die(output_ok("Invite created"));
     } else {
         output_error("Can't find any data");
     }
@@ -95,6 +95,6 @@ $stmt = $conn->prepare("DELETE FROM calendar_invite WHERE userID=? and eventID=?
 $stmt->bind_param("ii", $invuser_id, $event_ID);
 $stmt->execute();
 
-$data[] = ['Status'=>'Removed', 'User ID'=>$invuser_id, 'Event ID'=>$event_ID];
+$data[] = ['Status'=>'Removed invite', 'User ID'=>$invuser_id, 'Event ID'=>$event_ID];
 die(output_ok($data));
 ?>
