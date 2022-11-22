@@ -17,15 +17,6 @@ $page_title = get_if_set('page_title');
 
 
 //==================================================
-// Looks what you have filled in
-//==================================================
-if(!$type AND !$title AND !$page_title) {
-  output_error('You need to fill in all the colums. Blog/wiki: type and title, wiki page: page_title');
-}
-
-
-
-//==================================================
 // Wiki or Blog
 //==================================================
 if($type) {
@@ -37,8 +28,7 @@ if($type) {
 
   
   if($stmt->affected_rows == 0) {
-    output_ok('Found no pages');
-    die();
+    die(output_ok(''));
   }
 
   while($row = $result->fetch_assoc()) {
@@ -52,15 +42,23 @@ if($type) {
 //==================================================
 // Wiki Page
 //==================================================
-else if($page_title) {
-  $stmt = $conn->prepare("SELECT * FROM service INNER JOIN wiki_page ON service.ID=wiki_page.serviceID WHERE wiki_page.title LIKE ?");
-  $page_title = "%".$page_title."%";
-  $stmt->bind_param("s", $page_title);
-  $stmt->execute();
-  $result = $stmt->get_result();
-
+else {
+  //==================================================
+  // If you search for specific wiki page
+  //==================================================
+  if($page_title) {
+    $stmt = $conn->prepare("SELECT * FROM service INNER JOIN wiki_page ON service.ID=wiki_page.serviceID WHERE wiki_page.title LIKE ?");
+    $page_title = "%".$page_title."%";
+    $stmt->bind_param("s", $page_title);
+    $stmt->execute();
+    $result = $stmt->get_result();
+  } else {
+    $stmt = $conn->prepare("SELECT * FROM service INNER JOIN wiki_page ON service.ID=wiki_page.serviceID");
+    $stmt->execute();
+    $result = $stmt->get_result();
+  }
   if($stmt->affected_rows == 0) {
-    output_ok('Found no pages');
+    die(output_ok(''));
   }
 
   while($row = $result->fetch_assoc()) {
