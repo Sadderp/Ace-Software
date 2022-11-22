@@ -72,7 +72,7 @@
 
     // Page must be deleted
     if(!check_page_deletion($page_id)) {
-        output_error($page_deleted_error);
+        output_error("Could not restore page since it is not deleted");
     }
 
     //==============================

@@ -30,7 +30,7 @@ $token = get_if_set('token');
 // Looks what you have filled in
 //==================================================
 if(!$display_name || !$username || !$password || !$cpassword) {
-    output_error('You need to fill all the colums. Fill in display_name, username, password, cpassword');
+    output_error('You need to fill in display_name, username, password, cpassword');
 }
 
 if($admin == 'true' || $admin == 1) { // 1/true = 1

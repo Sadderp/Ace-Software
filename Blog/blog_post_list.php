@@ -1,31 +1,62 @@
 <?php
 require_once('../db.php');
 require_once('../verify_token.php');
+require_once('../utility.php');
 
-
+$blog_id = get_if_set('blog_id');
 
 //==================================================
 // Shows all the post in a blog
 //==================================================
-if (!empty($_GET['blog'])){   
-    $blog = $_GET['blog'];    // retrieves data from url and shows which blog you selected.
-    
-    $stmt = $conn->prepare("SELECT * FROM content INNER JOIN service ON content.serviceID = service.ID INNER JOIN img ON content.imgID = img.ID WHERE content.serviceID = ?");
-    $stmt->bind_param("i", $blog);
+
+if(!$blog_id){
+    output_error("Missing input(s) - required: 'blog_id'");
+}
+
+
+$stmt = $conn->prepare("SELECT * FROM service WHERE type = 'blog' AND ID = ?");
+$stmt->bind_param("i", $blog_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows == 0) {
+    output_error('Blog could not be found!');
+}
+
+$data = [];
+
+$stmt = $conn->prepare("SELECT * FROM content WHERE serviceID = ?");
+$stmt->bind_param("i", $blog_id);
+
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows == 0) {
+    output_ok("Blog has no content");
+    die();
+}
+
+while ($row = $result->fetch_assoc()) {
+    $stmt = $conn->prepare("SELECT * FROM img INNER JOIN content ON content.ID = img.contentID WHERE content.serviceID = ?");
+    $stmt->bind_param("i", $blog_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
+    $c = ['content'=>$row['contents'],'images'=>[]];
+
     if ($result->num_rows > 0) {
+        $images = [];
         while ($row = $result->fetch_assoc()) {
-            $data = "blog name:{$row['title']} content:{$row['contents']} img url:{$row['img_url']}";   // assosiative array with blog title, content and img url.
-            $json_result = ["Version: "=>$version, "Status: "=>"OK", "Data: "=>$data];
-            echo json_encode($json_result);     // Prints associative array above in json.
+            $images[] = ['image_url'=>$row['img_url']];
         }
-    }
-    else {
-        $json_array = ["Version: "=>$version,"Status: "=>$error,"Data: "=>'Access denied!'];
-        echo json_encode($json_array);
-    }
+        $c['images'] = $images;
+    } 
+
+    $data[] = $c;
 }
+
+// Output
+$output = ["id"=>$blog_id,"blog_data"=>$data];
+output_ok($output);
 
 ?>

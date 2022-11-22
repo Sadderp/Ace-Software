@@ -8,7 +8,7 @@
 
     require_once("../db.php");
     require_once("../utility.php");
-    require_once("../token.php");
+    require_once("../verify_token.php");
 
     //==============================
     //    Prepared statements
@@ -16,7 +16,7 @@
 
     $sql = "UPDATE service SET title = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $new_wiki_title, $wiki_id);
+    $stmt->bind_param("si", $new_title, $wiki_id);
     
     //==============================
     //      Get Variables
