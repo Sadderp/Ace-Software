@@ -61,7 +61,7 @@
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $json_result[] = ['Status'=>'Updated', 'Type'=>'Date'];
+        output_ok("Date edited");
     }
     if($end_date){
         $stmt = $conn->prepare("UPDATE calendar_event SET end_date=? WHERE ID=?");
@@ -69,7 +69,7 @@
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $json_result[] = ['Status'=>'Updated', 'Type'=>'End Date'];
+        output_ok("End date edited");
     }
     if($title){
         $stmt = $conn->prepare("UPDATE calendar_event SET title=? WHERE ID=?");
@@ -77,7 +77,7 @@
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $json_result[] = ['Status'=>'Updated', 'Type'=>'Title'];
+        output_ok("Title edited");
     }
     if($description){
         $stmt = $conn->prepare("UPDATE calendar_event SET description=? WHERE ID=?");
@@ -85,7 +85,6 @@
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $json_result[] = ['Status'=>'Updated', 'Type'=>'Description'];
+        output_ok("Description edited");
     }
-    output_ok($json_result);
 ?>
