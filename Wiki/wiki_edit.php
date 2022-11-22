@@ -16,7 +16,7 @@
 
     $sql = "UPDATE service SET title = ? WHERE ID = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $new_wiki_title, $wiki_id);
+    $stmt->bind_param("si", $new_title, $wiki_id);
     
     //==============================
     //      Get Variables
