@@ -46,7 +46,7 @@ if($type) {
 // All Wiki Pages
 //==================================================
 else if($wiki_id) {
-  $stmt = $conn->prepare("SELECT * FROM service INNER JOIN wiki_page ON service.ID=wiki_page.serviceID WHERE service.ID=?");
+  $stmt = $conn->prepare("SELECT * FROM service INNER JOIN wiki_page ON service.ID=wiki_page.serviceID INNER JOIN content ON service.ID=content.serviceID WHERE content.pageID = wiki_page.ID AND service.ID=?");
   $stmt->bind_param("i", $wiki_id);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -56,7 +56,7 @@ else if($wiki_id) {
   }
 
   while($row = $result->fetch_assoc()) {
-    $search[] = ['ID'=>$row['ID'], 'serviceID'=>$row['serviceID'], 'Title'=>$row['title']];
+    $search[] = ['ID'=>$row['ID'], 'serviceID'=>$row['serviceID'], 'Title'=>$row['title'], 'Content'=>$row['contents']];
   }
   output_ok($search);
 }
@@ -67,7 +67,7 @@ else if($wiki_id) {
 // Wiki Page
 //==================================================
 else if($page_title) {
-  $stmt = $conn->prepare("SELECT * FROM service INNER JOIN wiki_page ON service.ID=wiki_page.serviceID WHERE wiki_page.title LIKE ?");
+  $stmt = $conn->prepare("SELECT * FROM service INNER JOIN wiki_page ON service.ID=wiki_page.serviceID INNER JOIN content ON service.ID=content.serviceID WHERE content.pageID = wiki_page.ID AND wiki_page.title LIKE ?");
   $page_title = "%".$page_title."%";
   $stmt->bind_param("s", $page_title);
   $stmt->execute();
@@ -78,7 +78,7 @@ else if($page_title) {
   }
 
   while($row = $result->fetch_assoc()) {
-    $search[] = ['ID'=>$row['ID'], 'serviceID'=>$row['serviceID'], 'Title'=>$row['title']];
+    $search[] = ['ID'=>$row['ID'], 'serviceID'=>$row['serviceID'], 'Title'=>$row['title'], 'Content'=>$row['contents']];
   }
   output_ok($search);
 }
