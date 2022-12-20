@@ -33,7 +33,7 @@
     $user_id = get_if_set('user_id');
     $token = get_if_set('token');
     $page_id = get_if_set('page_id');
-    $content_array = get_if_set('content');
+    $content_data = get_if_set('content');
 
     // Get recent version
     $current_version = get_recent_version($page_id);
@@ -50,7 +50,7 @@
     //==============================
 
     // All input variables must be set
-    if(!$user_id or !$page_id or !$token or !$content_array) {
+    if(!$user_id or !$page_id or !$token or !$content_data) {
         output_error("Missing input(s) - expected: 'user_id', 'token', 'page_id' and 'content'");
     }
 
@@ -76,12 +76,9 @@
 
     // 'content' must be a valid JSON array
     try {
-        $content_array = json_decode($content_array);
-        if(!is_array($content_array)) {
-            output_error("'content' is not a valid JSON array");
-        }
+        $content_data = json_decode($content_data);
     } catch(Exception $e) {
-        output_error("'content' is not a valid JSON array");
+        output_error("'content' is not valid JSON");
     }
 
     //==============================
@@ -90,8 +87,22 @@
 
     $stmt_add_version->execute();
 
-    foreach($content_array as $c) {
-        $content = $c;
+    if($content_data == null) {
+        output_error("'content' is not valid JSON");
+    }
+
+    // If "content_data" is a JSON array, add every item in the array to the Content table individually.
+    if(is_array($content_data)) {
+        foreach($content_data as $c) {
+            $content = json_encode($c);
+            $stmt_add_content->execute();
+        }
+    } 
+    
+    // If not a JSON array, add all content data to a single content row.
+    // (JSON encoded to support assoc. arrays, etc.)
+    else {
+        $content = json_encode($content_data);
         $stmt_add_content->execute();
     }
 

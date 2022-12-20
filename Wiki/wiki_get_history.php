@@ -53,11 +53,7 @@
         output_error($ban_error);
     }
 
-    // User must be admin or manager
-    if(!check_admin($user_id) and !check_manager($wiki_id,$user_id)) {
-        output_error($permission_error);
-    }
-
+ 
     //==============================
     //    Get page history
     //==============================
