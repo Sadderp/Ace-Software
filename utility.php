@@ -90,7 +90,7 @@
             return 0;
         }
 
-        return $userID;
+        return $user_id;
     }
 
     /**

@@ -11,17 +11,17 @@ require_once("../utility.php");
 $user_id = get_if_set('user_id');
 $token = get_if_set('token');
 
-$invuser_id = get_if_set('invuser_id');
+$username = get_if_set('username');
 $event_ID = get_if_set('event_id');
-
+$invuser_id = id_from_username($username);
 
 
 //==================================================
 //      Requirements
 //==================================================
 
-if(!$user_id || !$token || !$invuser_id || !$event_ID) {
-    output_error("You need to fill in user_id, token, invuser_id and event_id");
+if(!$user_id || !$token || !$username || !$event_ID) {
+    output_error("You need to fill in user_id, token, username and event_id");
 }
 if(!verify_token($user_id,$token)) {
     output_error("Token is invalid or expired");
@@ -29,6 +29,8 @@ if(!verify_token($user_id,$token)) {
 if($user_id == $invuser_id){
     die(output_ok("You can't invite yourself to an event"));
 }
+
+// Checks if the user exists
 $stmt = $conn->prepare("SELECT * FROM user WHERE ID=?");
 $stmt->bind_param("i", $invuser_id);
 $stmt->execute();
@@ -95,6 +97,6 @@ $stmt = $conn->prepare("DELETE FROM calendar_invite WHERE userID=? and eventID=?
 $stmt->bind_param("ii", $invuser_id, $event_ID);
 $stmt->execute();
 
-$data[] = ['Status'=>'Removed invite', 'User ID'=>$invuser_id, 'Event ID'=>$event_ID];
+$data = ['Status'=>'Removed invite', 'User ID'=>$invuser_id, 'Event ID'=>$event_ID];
 die(output_ok($data));
 ?>
